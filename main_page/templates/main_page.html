@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+
+<head>
+
+  <title>Home - EDP</title>
+  <link rel="shortcut icon" href="/static/favicon.ico">
+
+</head>
+
+<div id="header">
+
+  <div style="height: 50px; margin-top: 10px;" class="row">
+      <div class="col">
+        <a href="{% url 'edp_portal:main_page' %}"><img src="/static/Eurac_Research_logo.png" id="logo"></a>
+      </div>
+      <div class="col-6">
+        <div style="width: 100%" class="center">
+          <h2 id="title">Environmental Data Platform</h2>
+        </div>      
+      </div>
+      <div class="col">
+        <a id="admin_button" type="button" class="btn btn-outline-primary" href="http://localhost:8000/admin" target="_blank" style="float: right;"><i class="fa fa-cogs" aria-hidden="true"></i> Settings</a>
+      </div>
+    </div>
+    <hr>
+
+<div id="main_section">
+
+  <div class="container">
+
+  
+<!-- <div style="height: 100px; margin-top: 10px;" class="row">
+  <div class="col">
+    <img src="static/Eurac_Research_logo.png" id="logo">
+  </div>
+  <div class="col-6">
+    <div style="width: 100%" class="center">
+      <h2 id="title">Environmental Data Platform</h2>
+    </div>      
+  </div>
+  <div class="col">
+    
+  </div>
+</div> -->
+  
+
+  <div style="height: 250px; margin-top: 10px; padding: 2px;" class="row">
+    <div class="col">
+      <div class="center  main-button-row">
+          <a id="discovery_button" type="button" class="btn btn-outline-primary main-button main_page_buttons" href="{% url 'edp_portal:discovery' %}"><i class="fa fa-search" aria-hidden="true"></i> Data discovery</a>      
+      </div>
+      
+    </div>
+    <div class="col">
+        <div class="center  main-button-row">
+        <a id="docs_button" type="button" class="btn btn-outline-primary main-button main_page_buttons" href="{% url 'edp_portal:docs_page' %}"><i class="fa fa-book" aria-hidden="true"></i> Data access docs</a>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <div style="text-align: center;">
+    <h4>Processing and analysis web tools​</h4>
+  </div>
+
+    <div style="height: 150px; margin-top: 10px; padding: 2px;" class="row">
+      <div class="col">
+        <div class="center second-button-row">
+          <a id="jupiter_button" type="button" class="btn btn-outline-primary second-button main_page_buttons" href="{% url 'edp_portal:jupyter_page' %}" target="_blank">Jupyter hub</a>
+        </div>        
+      </div>
+      <div class="col">
+        <div class="center second-button-row">
+        <a id="openeo_button" type="button" class="btn btn-outline-primary second-button main_page_buttons" href="https://openeo.eurac.edu/" target="_blank">openEO editor</a>
+        </div>
+      </div>
+      <div class="col">
+        <div class="center second-button-row">
+        <a id="pgadmin_button" type="button" class="btn btn-outline-primary second-button main_page_buttons" href="http://10.8.244.139/phpPgAdmin/"  target="_blank">PHP PgAdmin</a>
+        </div>
+      </div>
+      <div class="col">
+        <div class="center second-button-row">
+        <a id="maps_button" type="button" class="btn btn-outline-primary second-button main_page_buttons" href="https://maps.eurac.edu/" target="_blank">Maps</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  </div>
+
+<div id="footer">
+  <hr>
+  <div style="height: 100px; margin-top: 10px; padding: 2px;" class="row">
+    <div class="col">
+        <h6>Info at</h6>
+            <a href="mailto:CenterforSensingSolutions@eurac.edu​"><i class="fa fa-envelope" aria-hidden="true"></i> CenterforSensingSolutions@eurac.edu</a><br>
+            <a href="http://www.eurac.edu/en/research/technologies/CenterforSensingSolutions/Pages/default.aspx" target="_blank"><i class="fa fa-external-link" aria-hidden="true"></i> CSS website</a><br>
+            <a href="https://cssportfolio.eurac.edu/" target="_blank"><i class="fa fa-external-link" aria-hidden="true"></i> CSS portfolio</a>
+    </div>
+    <div class="col"></div>
+  </div>
+
+</div>
+
+
+{% endblock %}

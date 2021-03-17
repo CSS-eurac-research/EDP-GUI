@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+
+<head>
+
+  <title>Docs - EDP</title>
+  <link rel="shortcut icon" href="/static/favicon.ico">
+
+</head>
+
+<div style="height: 50px; margin-top: 10px;" class="row">
+  <div class="col">
+    <a href="{% url 'edp_portal:main_page' %}"><img src="/static/Eurac_Research_logo.png" id="logo"></a>
+  </div>
+  <div class="col-6">
+    <div style="width: 100%" class="center">
+      <h2 id="title">Environmental Data Platform</h2>
+    </div>      
+  </div>
+  <div class="col">
+    
+  </div>
+</div>
+<hr>
+
+<div class="container">
+  <h3>Documentations list</h3>
+
+  {% if latest_docs_sources_list %}
+    <table style="width:100%">
+      <tr id="header_table">
+        <th>#</th>
+        <th id="name_column_table" class="width_column_table-2">Name</th>
+        <th id="desc_column_table" class="width_column_table-1">Description</th>
+        <th>Link</th>
+        <th id="date_column_table" class="width_column_table-2">Date published</th>
+        <th>Type</th>
+      </tr>
+      {% for source in latest_docs_sources_list %}
+
+        <tr id="rows_table">
+          <td>{{ source.id }}</td>
+          <td>{{ source.source_name }}</td>
+          <td>{{ source.soucer_description }}</td>
+          <td><a href="{{ source.source_link }}">Link</a></td>
+          <td>{{ source.pub_date }}</td>
+          <td>{{ source.source_type }}</td>
+        </tr>
+          <!-- <li><a href="/polls/{{ question.id }}/">{{ question.question_text }}</a></li> -->
+      {% endfor %}
+    {% else %}
+        <p>No docs sources are available.</p>
+  {% endif %}
+
+</table>
+
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+
+<head>
+
+  <title>Result details - EDP</title>
+  <link rel="shortcut icon" href="/static/favicon.ico">
+  <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+</head>
+
+<div style="height: 50px; margin-top: 10px; width: 100%;" class="row">
+  <div class="col">
+    <a href="{% url 'edp_portal:main_page' %}"><img src="/static/Eurac_Research_logo.png" id="logo"></a>
+  </div>
+  <div class="col-6">
+    <div style="width: 100%" class="center">
+      <h2 id="title">Environmental Data Platform</h2>
+    </div>      
+  </div>
+  <div class="col">
+    
+  </div>
+</div>
+<hr>
+<div style="width: 100%">
+  <div  class="center">
+    <h4 style="color: #DE4624;"><b>{{ result_json.title }}</b> detail</h4>
+    <a id="geonetwork_link" href="http://edp-portal.eurac.edu/geonetwork/srv/eng/catalog.search#/metadata/{{uuid}}" target="_blank"><img src="/static/geonetwork_small.png" style="width: 15px; margin-top: -4px;"> Geonetwork</a>
+  </div>
+  <br>
+<div style="width: 60%; margin: 0 auto;">
+  {% if result_json.abstract %}
+  <div>
+    <label class="label_detail"><i class="fa fa-book" aria-hidden="true"></i> Abstract</label>
+    <p>{{ result_json.abstract }}</p>
+  </div>
+  {% else %}
+    <div></div>
+  {% endif %}
+
+  {% if result_json.keyword %}
+  <div>
+    <label class="label_detail"><i class="fa fa-key" aria-hidden="true"></i> Keywords</label>
+    <p>{{ result_json.keyword }}</p>
+  </div>
+  {% else %}
+    <div></div>
+  {% endif %}
+
+  {% if result_json.tempExtentBegin %}
+  <div>
+    <label class="label_detail"><i class="fa fa-clock-o" aria-hidden="true"></i> Timeseries</label>
+    <p>{{ result_json.tempExtentBegin }} <img src="/static/right-arrow.png" style="width: 20px;"> {{ result_json.tempExtentEnd }}</p>
+  </div>
+  {% else %}
+    <div></div>
+  {% endif %}
+
+  {% if result_json.responsibleParty %}
+  <div>
+    <label class="label_detail"><i class="fa fa-user-circle-o" aria-hidden="true"></i> Contact for resource</label>
+    <p>{{ result_json.responsibleParty }}</p>
+  </div>
+  {% else %}
+    <div></div>
+  {% endif %}
+
+  {% if result_json.lineage %}
+  <div>
+    <label class="label_detail"><i class="fa fa-file" aria-hidden="true"></i> Lineage</label>
+    <p>{{ result_json.lineage }}</p>
+  </div>
+  {% else %}
+    <div></div>
+  {% endif %}
+
+</div>
+
+<hr style="width: 90%;">
+
+<div style="width: 60%; margin: 0 auto;">
+  <h5 style="color: #DE4624;"><i class="fa fa-code" aria-hidden="true"></i> Snippet code</h5>
+
+  <script>
+    function myFunction(id) {
+
+      var copyText = $("#snipped_code_"+id)[0].innerText;
+      //console.log(copyText);
+
+      var $temp = $("<input>");
+      $("body").append($temp);
+      $temp.val(copyText).select();
+      document.execCommand("copy");
+      $temp.remove();
+      
+      var tooltip = document.getElementById("copyTooltip");
+      tooltip.innerHTML = '<i class="fa fa-check-circle" aria-hidden="true"></i> Copied';
+      $("#copyTooltip").css("color", "green");
+    }
+    
+    function outFunc() {
+      var tooltip = document.getElementById("copyTooltip");
+      tooltip.innerHTML = "Copy to clipboard";
+      $("#copyTooltip").css("color", "black");
+    }
+    </script>
+
+  {% if snippet_code_list %}
+      {% for code in snippet_code_list %}
+
+        <label class="snippet_label">{{ code.snippet_code_name }}</label>
+        <div class="snippet_code_div">
+          <code class="snipped_code" id="snipped_code_{{ code.pk }}" style="color: black;" value="{{ code.snippet_code }}">
+            {{ code.snippet_code }}
+          </code>
+        </div>
+
+        <div id="copyDiv">
+          <button id="copyButton" onclick="myFunction('{{ code.pk }}')" onmouseout="outFunc()">            
+            <i class="fa fa-clipboard" aria-hidden="true"></i> Copy code
+          </button>
+          <span id="copyTooltip">Copy to clipboard</span>
+        </div>
+          <hr>
+
+      {% endfor %}
+    {% else %}
+        <p>No snippet code are available.</p>
+  {% endif %}
+</div>
+
+</div>
+
+{% endblock %}

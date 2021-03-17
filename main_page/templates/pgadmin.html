@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+
+<head>
+
+  <title>Discovery - EDP</title>
+  <link rel="shortcut icon" href="/static/favicon.ico">
+
+</head>
+
+<div style="height: 50px; margin-top: 10px;" class="row">
+  <div class="col">
+    <a href="{% url 'edp_portal:main_page' %}"><img src="/static/Eurac_Research_logo.png" id="logo"></a>
+  </div>
+  <div class="col-6">
+    <div style="width: 100%" class="center">
+      <h2 id="title">Environmental Data Platform</h2>
+    </div>      
+  </div>
+  <div class="col">
+    
+  </div>
+</div>
+<hr>
+
+<div class="container">
+  <div style="text-align: center;">
+      <img src="../static/phppgadmin.png">
+      <p>Coming soon</p>
+
+  </div>
+</div>
+
+{% endblock %}

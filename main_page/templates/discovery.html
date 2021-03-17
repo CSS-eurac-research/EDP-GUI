@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+
+<head>
+
+  <title>Discovery - EDP</title>
+  <link rel="shortcut icon" href="/static/favicon.ico">
+  <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
+
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="../static/abstract_expand.js"></script> 
+</head>
+
+<div style="height: 50px; margin-top: 10px; width: 100%;" class="row">
+  <div class="col">
+    <a href="{% url 'edp_portal:main_page' %}"><img src="/static/Eurac_Research_logo.png" id="logo"></a>
+  </div>
+  <div class="col-6">
+    <div style="width: 100%" class="center">
+      <h2 id="title">Environmental Data Platform</h2>
+    </div>      
+  </div>
+  <div class="col">
+    
+  </div>
+</div>
+<hr>
+
+<div id="discovery_main_section" class="" style="min-height: 90%;">
+
+  <div id="discovery_main_row" class="min-height: 90%;">
+    <div class="" style="float: left; width: 50%; height: 90%;">
+      <div class="" style="height: 6%; padding: 5px;">
+
+<div class="row">
+    <script>
+      $(function () {
+          $("#searchbar").autocomplete({
+              source: "{% url 'edp_portal:discovery' %}",
+              minLength: 2
+          });
+      });
+  </script>
+    <form id="formsearch">
+      <label for="search"><i class="fa fa-search" aria-hidden="true"></i> Search</label>
+      <input type="text" name="search" id="searchbar">
+    </form>
+</div>
+</div>
+      <div style="padding: 5px;">
+        <hr>
+      </div>
+      <div class="" style="min-height: 88%;">
+        <h5 id="number_results" style="margin: 5px;"><i class="fa fa-list" aria-hidden="true"></i> Results</h5>
+        <div id="metadata_results" style="min-height: 85%;">
+          
+        </div>
+<!--         {% for metadata in metadata_results %}
+          <a type="button" class="btn btn-outline-primary" style="margin: 5px;">{{ metadata.title }}</a><br>
+        {% endfor %} -->
+
+      </div>
+    </div>
+    <div class="" style="float: left; width: 50%;">
+      <div id="map" ></div>      
+      <script src="../static/map.js"></script>    
+    </div>
+  </div>
+</div>
+
+{% endblock %}
