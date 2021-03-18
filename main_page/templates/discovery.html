@@ -12,9 +12,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
-
-  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+  <script src="//code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   <script src="../static/abstract_expand.js"></script> 
 </head>
 
@@ -44,13 +44,19 @@
       $(function () {
           $("#searchbar").autocomplete({
               source: "{% url 'edp_portal:discovery' %}",
-              minLength: 2
+              minLength: 2,
+              max: 10,
+              scroll: true              
           });
       });
+      
   </script>
-    <form id="formsearch">
-      <label for="search"><i class="fa fa-search" aria-hidden="true"></i> Search</label>
+
+<script src="../static/search.js"></script>   
+    <form id="formsearch" onsubmit="return dosearch();">
+      <label for="search"></label>
       <input type="text" name="search" id="searchbar">
+      <button id="searchbutton" type="submit" class="btn btn-outline-primary"><i class="fa fa-search"></i> Search</button>
     </form>
 </div>
 </div>

@@ -1,38 +1,7 @@
-const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-const map = L.map('map').setView([48, 10], 5);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: attribution }).addTo(map);
 
-var drawnItems = new L.FeatureGroup();
-map.addLayer(drawnItems);
-var drawControl = new L.Control.Draw({
-    draw: {
-        polygon: false,
-        marker: false,
-        circle: false,
-        polyline: false
-    },
-    edit: {
-        featureGroup: drawnItems,
-        edit: false
-    }
-});
-map.addControl(drawControl);
-map.addLayer(drawnItems);
-
-map.on('draw:created', function (e) {
-    drawnItems.clearLayers();
-    var type = e.layerType, layer = e.layer;
-    var coords = layer.getLatLngs();
-
-    map.fitBounds(coords);
-    //console.log(coords[0][1]);
-    drawnItems.addLayer(layer);
-    //console.log(coords);    
-    var polygon = layer.toGeoJSON();
-    //console.log(polygon['geometry']['coordinates'][0]);
-    //$('#boundingbox').val(coords[0][0] + ", " + coords[0][1] + ", " + coords[0][2] + ", " + coords[0][3]);
-
-    var data = { 'boundingbox': polygon['geometry']['coordinates'][0] }
+function dosearch() {
+    var searchbar = document.getElementById("searchbar");    
+    console.log(searchbar.value);
 
     var csrftoken = Cookies.get('csrftoken');
 
@@ -50,17 +19,12 @@ map.on('draw:created', function (e) {
         }
     });
 
-    //console.log(data);
-
     $.ajax({
-        url: 'http://localhost:8000/discovery/',
+        url: 'http://localhost:8000/discovery/?search='+searchbar.value,
         type: 'POST',        
-        data: JSON.stringify(data),
+        data: searchbar.value,
         contentType: "application/json",
         success: function(response){
-            //console.log(response);
-            //$('#bb_response').text(response['metadata_results']);
-            //console.log(response['metadata_results']);
             var metadata_results = response['metadata_results'];//JSON.parse(response['metadata_results']);
             console.log(metadata_results);
             if(metadata_results != "no metadata") {
@@ -109,53 +73,7 @@ map.on('draw:created', function (e) {
                     } 
                     result_box = result_box + '</div> </div> </div>';
     
-                    $('#row-'+row.toString()).prepend(result_box);
-                    
-                /* if (typeof(metadata_results[i]["image"]) !== "undefined") {
-                        $('#row-'+row.toString()).prepend(
-                            `<div class="col">
-                            <div class="card" style="width: 18rem;">
-                                <img src="${metadata_results[i]["image"].split("|")[1]}" class="card-img-top">
-                                <div class="card-body">
-                                    <a class="card-title" style="color: #DE4624; font-size: 20px;" href="/discovery/${metadata_results[i]["geonet:info"]["uuid"]}" target="_blank">${metadata_results[i]["title"]}</a>
-                                    <p class="card-text">${metadata_results[i]["abstract"]}</p>
-                                    <p class="card-text" style="font-weight: bold">${metadata_results[i]["category"]}</p>
-                                    <p class="card-text" style="font-size: 12px; font-style:italic;>${metadata_results[i]["keyword"].join(",")}</p>
-                                </div>
-                            </div>
-                            </div>`
-                        );
-                    } else {
-                        if (typeof(metadata_results[i]["keyword"]) !== "undefined") {
-                            $('#row-'+row.toString()).prepend(
-                                `<div class="col">
-                                <div class="card" style="width: 18rem;">
-                                    <img src="" class="card-img-top">
-                                    <div class="card-body">
-                                    <a class="card-title" style="color: #DE4624; font-size: 20px;" href="/discovery/${metadata_results[i]["geonet:info"]["uuid"]}" target="_blank">${metadata_results[i]["title"]}</a>
-                                        <p class="card-text">${metadata_results[i]["abstract"]}</p>
-                                        <p class="card-text" style="font-weight: bold">${metadata_results[i]["category"]}</p>
-                                        <p class="card-text" style="font-size: 12px; font-style:italic;>${metadata_results[i]["keyword"].join(",")}</p>
-                                        </div>
-                                </div>
-                                </div>`
-                            );
-                        } else {
-                            $('#row-'+row.toString()).prepend(
-                                `<div class="col">
-                                <div class="card" style="width: 18rem;">
-                                    <img src="" class="card-img-top">
-                                    <div class="card-body">
-                                    <a class="card-title" style="color: #DE4624; font-size: 20px;" href="/discovery/${metadata_results[i]["geonet:info"]["uuid"]}" target="_blank">${metadata_results[i]["title"]}</a>
-                                        <p class="card-text">${metadata_results[i]["abstract"]}</p>
-                                        <p class="card-text" style="font-weight: bold">${metadata_results[i]["category"]}</p>
-                                        <p class="card-text" style="font-size: 12px; font-style:italic;>No keywork</p>
-                                        </div>
-                                </div>
-                                </div>`
-                            );
-                        }
-                    }*/
+                    $('#row-'+row.toString()).prepend(result_box);              
 
                     col = col + 1;
                     //console.log("col " + col.toString());
@@ -173,6 +91,13 @@ map.on('draw:created', function (e) {
 
 
                 //console.log("final number of rows: " + row.toString());
+
+                map.eachLayer(function (layer) {
+                    map.removeLayer(layer);
+                });
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: attribution }).addTo(map);
+
 
                 for (i=0; i<metadata_results.length; i++) {
                     //console.log(typeof(metadata_results[i]["geoBox"]));
@@ -203,12 +128,7 @@ map.on('draw:created', function (e) {
             } else {
                 $('#number_results').html('<i class="fa fa-list" aria-hidden="true"></i> Results: <b>no item was found with this bounding box</b>');
             }
-
         },
-        });
-
-    //$('#boundingbox').val(polygon['geometry']['coordinates'][0]);
-
-    //$('#boundingbox_form').submit();
-
-});
+    });
+    return false;
+}

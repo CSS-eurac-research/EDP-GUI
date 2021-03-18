@@ -202,9 +202,12 @@ td {
 
 #searchbar {
   width: 600px;
-  border-radius: 15px;
+  border-radius: 25px;
   border: 0.5px solid #DE4624;
   margin-left: 20px;
+  height: 38px;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
 }
 
 #searchbar:focus {
@@ -314,4 +317,30 @@ td {
   background-color: #007bff;
   background-image: none;
   border: 1px solid #007bff;
+}
+
+.ui-autocomplete {
+  height: 350px; 
+  overflow-y: scroll; 
+  overflow-x: hidden;
+}
+
+#searchbutton {
+  color: #DE4624;
+  border: 1px solid #DE4624;
+  background-color: white;
+  border-radius: 25px;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  margin-top: -4px;
+}
+
+#searchbutton:hover {
+  color: white;
+  border: 1px solid #DE4624;
+  background-color: #DE4624;
+  border-radius: 25px;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  margin-top: -4px;
 }

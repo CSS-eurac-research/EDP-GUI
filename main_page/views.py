@@ -28,9 +28,12 @@ def main_page(request):
 
 def discovery(request):
     context = {}
-    #print(request.body)
-    if 'term' in request.GET:        
-        return JsonResponse(get_topic_list(request), safe=False, status=200)
+
+    if 'term' in request.GET:    
+        metadata_title_list = get_list_metadata_title(request)
+        topic_list = get_topic_list(request)
+        #print((topic_list+metadata_title_list))
+        return JsonResponse((topic_list+metadata_title_list), safe=False, status=200)
     
     context = {}
     if 'boundingbox' in str(request.body):
@@ -43,6 +46,14 @@ def discovery(request):
         }
         return JsonResponse({'metadata_results': metadata_results}, safe=False, status=200)
         #return render(request, 'discovery.html', context)
+
+    if 'search' in request.GET:
+        metadata_results = get_results_by_keyword(request, request.GET.get('search'))
+
+        context = {
+            'metadata_results': metadata_results,
+        }
+        return JsonResponse({'metadata_results': metadata_results}, safe=False, status=200)
     
     return render(request, 'discovery.html', context)
     
@@ -142,7 +153,7 @@ def get_results_bounding_box(request, polygon):
             url_first_part = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&bucket=s101&facet.q=&fast=index&from="+str((100*k)+1)+"&"
             url_end_part = "&resultType=details&sortBy=title&sortOrder=reverse&to="+str((k+1)*100)
             final_url = url_first_part + url_geometry_part + url_end_part
-            print(final_url)
+            #print(final_url)
             results = requests.get(final_url)
             current_results = ast.literal_eval(JsonResponse(results.json()).content.decode("utf-8"))            
             if 'metadata' in current_results:
@@ -155,7 +166,7 @@ def get_results_bounding_box(request, polygon):
             url_first_part = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&bucket=s101&facet.q=&fast=index&from="+str((100*k)+1)+"&"
             url_end_part = "&resultType=details&sortBy=title&sortOrder=reverse&to="+str((k+1)*100)
             final_url = url_first_part + url_geometry_part + url_end_part
-            print(final_url)
+            #print(final_url)
             results = requests.get(final_url)
             current_results = ast.literal_eval(JsonResponse(results.json()).content.decode("utf-8"))
             if 'metadata' in current_results:
@@ -168,6 +179,108 @@ def get_results_bounding_box(request, polygon):
     for h in range(len(tmp_results['metadata'])):
         metadata_results['metadata'] = metadata_results['metadata'] + tmp_results['metadata'][h]
     
+    #print("metadata "+str(len(metadata_results['metadata'])))
+    #print(metadata_results['metadata'])
+
+    if 'metadata' not in metadata_results:
+        print('metadata not present')
+        return "no metadata"
+
+    return metadata_results['metadata']
+
+def get_list_metadata_title(request):
+    tmp_results = {'metadata' : []}
+    results = requests.get("http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&summaryOnly=1")
+    summary_results = ast.literal_eval(JsonResponse(results.json(), safe=False).content.decode("utf-8"))
+    #print(summary_results)
+    total_number_metadata = summary_results[0]['@count']
+    metadata_title_item_list = []
+    #print(total_number_metadata)
+    number_loop = int(int(total_number_metadata) / 100)
+    if (int(total_number_metadata)%100 > 0):
+        for k in range(number_loop+1):
+            url_first_part = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&bucket=s101&facet.q=&fast=index&from="+str((100*k)+1)
+            url_end_part = "&resultType=details&sortBy=title&sortOrder=reverse&to="+str((k+1)*100)
+            final_url = url_first_part + url_end_part
+            #print(final_url)
+            results = requests.get(final_url)
+            current_results = ast.literal_eval(JsonResponse(results.json()).content.decode("utf-8"))            
+            if 'metadata' in current_results:
+                #print("current "+str(len(current_results['metadata'])))
+                #print(current_results['metadata'])
+                tmp_results['metadata'].append(current_results['metadata'])
+
+    else:
+        for k in range(number_loop):
+            url_first_part = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&bucket=s101&facet.q=&fast=index&from="+str((100*k)+1)
+            url_end_part = "&resultType=details&sortBy=title&sortOrder=reverse&to="+str((k+1)*100)
+            final_url = url_first_part + url_end_part
+            #print(final_url)
+            results = requests.get(final_url)
+            current_results = ast.literal_eval(JsonResponse(results.json()).content.decode("utf-8"))
+            if 'metadata' in current_results:
+                #print("current "+str(len(current_results['metadata'])))
+                #print(current_results['metadata'])
+                tmp_results['metadata'].append(current_results['metadata'])
+
+    #print(len(tmp_results))
+    #print(len(tmp_results['metadata']))
+    keyword_search = str(request.GET.get('term'))
+    #print(keyword_search)
+    for i in range(len(tmp_results['metadata'])):
+        for item in tmp_results['metadata'][i]:
+            if re.search(keyword_search, item['title']):
+                metadata_title_item_list.append(item['title'])
+    return metadata_title_item_list
+
+
+def get_results_by_keyword(request, keyword):
+    tmp_results = {'metadata' : []}
+    metadata_results = {'metadata' : []}
+    c = 0
+    results = requests.get("http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&summaryOnly=1")
+    summary_results = ast.literal_eval(JsonResponse(results.json(), safe=False).content.decode("utf-8"))
+    #print(summary_results)
+    total_number_metadata = summary_results[0]['@count']
+    #print(total_number_metadata)
+    number_loop = int(int(total_number_metadata) / 100)
+    #print("#loop "+str(number_loop))
+
+    if (int(total_number_metadata)%100 > 0):
+        for k in range(number_loop+1):
+            url_first_part = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&any=" + keyword + "&bucket=s101&facet.q=&fast=index&from="+str((100*k)+1)
+            url_end_part = "&resultType=details&sortBy=title&sortOrder=reverse&to="+str((k+1)*100)
+            final_url = url_first_part + url_end_part
+            print(final_url)
+            results = requests.get(final_url)
+            current_results = ast.literal_eval(JsonResponse(results.json()).content.decode("utf-8"))            
+            if 'metadata' in current_results:
+                #print("current "+str(len(current_results['metadata'])))
+                #print(current_results['metadata'])
+                tmp_results['metadata'].append(current_results['metadata'])
+
+    else:
+        for k in range(number_loop):
+            url_first_part = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&any=" + keyword + "&bucket=s101&facet.q=&fast=index&from="+str((100*k)+1)
+            url_end_part = "&resultType=details&sortBy=title&sortOrder=reverse&to="+str((k+1)*100)
+            final_url = url_first_part + url_end_part
+            print(final_url)
+            results = requests.get(final_url)
+            current_results = ast.literal_eval(JsonResponse(results.json()).content.decode("utf-8"))
+            if 'metadata' in current_results:
+                #print("current "+str(len(current_results['metadata'])))
+                #print(current_results['metadata'])
+                tmp_results['metadata'].append(current_results['metadata'])
+
+    #print("metadata "+str(len(tmp_results['metadata'])))
+    print(len(tmp_results['metadata']))
+    print(tmp_results['metadata'])
+    #if(len(tmp_results['metadata'])>1):
+    for h in range(len(tmp_results['metadata'])):
+        print(tmp_results['metadata'][h])
+        metadata_results['metadata'] = metadata_results['metadata'] + tmp_results['metadata'][h]
+    #else:
+    #    metadata_results['metadata'] + tmp_results['metadata'][0]
     #print("metadata "+str(len(metadata_results['metadata'])))
     #print(metadata_results['metadata'])
 
