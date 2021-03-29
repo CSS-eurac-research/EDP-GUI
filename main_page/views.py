@@ -28,15 +28,26 @@ def main_page(request):
 
 def discovery(request):
     context = {}
+    #print("request body:" + request.body.decode("utf-8"))
+    #print(request)
+    search_request = ''
 
-    if 'term' in request.GET:    
+    if(request.body):
+        #search_request = json.loads(request.body)
+        search_request = json.loads(request.body.decode("utf-8"))
+        #print(len(search_request['boundingbox']))
+        #if(search_request['boundingbox']):
+        #    print(search_request['boundingbox'])
+    if 'term' in request.GET:  
+        print("term")  
         metadata_title_list = get_list_metadata_title(request)
         topic_list = get_topic_list(request)
         #print((topic_list+metadata_title_list))
         return JsonResponse((topic_list+metadata_title_list), safe=False, status=200)
     
-    context = {}
-    if 'boundingbox' in str(request.body):
+    #if 'boundingbox' in str(request.body):
+    if request.GET.get('box') == "true":
+        print("search ONLY BY boundingbox "+request.GET.get('box'))
         polygon = json.loads(request.body)
         #print(polygon['boundingbox'])      
         metadata_results = get_results_bounding_box(request, polygon['boundingbox'])
@@ -47,14 +58,32 @@ def discovery(request):
         return JsonResponse({'metadata_results': metadata_results}, safe=False, status=200)
         #return render(request, 'discovery.html', context)
 
-    if 'search' in request.GET:
-        metadata_results = get_results_by_keyword(request, request.GET.get('search'))
+    if request.GET.get('keybox') == 'false':
+            
+        print("search ONLY BY keyword "+request.GET['search'])  
+        
+        metadata_results = get_results_by_keyword(request, request.GET['search'])
 
         context = {
             'metadata_results': metadata_results,
         }
         return JsonResponse({'metadata_results': metadata_results}, safe=False, status=200)
-    
+
+    if request.GET.get('keybox') == 'true':
+        print("BOTH SEARCH")
+        #print(request.body.decode("utf-8"))    
+        search_request = json.loads(request.body)
+        polygon = search_request['boundingbox']
+        keyword = search_request['keyword']
+
+        metadata_results = get_results_bounding_box(request, polygon, keyword)
+
+        context = {
+            'metadata_results': metadata_results,
+        }
+        return JsonResponse({'metadata_results': metadata_results}, safe=False, status=200)       
+
+    print("exit without any if")   
     return render(request, 'discovery.html', context)
     
 # def get_metadata_boundinbox(request):
@@ -123,11 +152,13 @@ def get_total_number_metadata(request, url_geometry_part):
     summary_results = ast.literal_eval(JsonResponse(results.json(), safe=False).content.decode("utf-8"))
     return (summary_results[0]['@count'])
 
-def get_results_bounding_box(request, polygon):   
+def get_results_bounding_box(request, polygon, keyword=""):   
     tmp_results = {'metadata' : []}
     metadata_results = {'metadata' : []}
     c = 0
     polygon_str = ""
+
+    print(polygon)
 
     for i in range(len(polygon)):
         for c in range(2):
@@ -150,10 +181,10 @@ def get_results_bounding_box(request, polygon):
 
     if (int(total_number_metadata)%100 > 0):
         for k in range(number_loop+1):
-            url_first_part = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&bucket=s101&facet.q=&fast=index&from="+str((100*k)+1)+"&"
+            url_first_part = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&any=" + keyword + "&bucket=s101&facet.q=&fast=index&from="+str((100*k)+1)+"&"
             url_end_part = "&resultType=details&sortBy=title&sortOrder=reverse&to="+str((k+1)*100)
             final_url = url_first_part + url_geometry_part + url_end_part
-            #print(final_url)
+            print(final_url)
             results = requests.get(final_url)
             current_results = ast.literal_eval(JsonResponse(results.json()).content.decode("utf-8"))            
             if 'metadata' in current_results:
@@ -163,10 +194,10 @@ def get_results_bounding_box(request, polygon):
 
     else:
         for k in range(number_loop):
-            url_first_part = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&bucket=s101&facet.q=&fast=index&from="+str((100*k)+1)+"&"
+            url_first_part = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&any=" + keyword + "&bucket=s101&facet.q=&fast=index&from="+str((100*k)+1)+"&"
             url_end_part = "&resultType=details&sortBy=title&sortOrder=reverse&to="+str((k+1)*100)
             final_url = url_first_part + url_geometry_part + url_end_part
-            #print(final_url)
+            print(final_url)
             results = requests.get(final_url)
             current_results = ast.literal_eval(JsonResponse(results.json()).content.decode("utf-8"))
             if 'metadata' in current_results:
@@ -202,7 +233,7 @@ def get_list_metadata_title(request):
             url_first_part = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&bucket=s101&facet.q=&fast=index&from="+str((100*k)+1)
             url_end_part = "&resultType=details&sortBy=title&sortOrder=reverse&to="+str((k+1)*100)
             final_url = url_first_part + url_end_part
-            #print(final_url)
+            print(final_url)
             results = requests.get(final_url)
             current_results = ast.literal_eval(JsonResponse(results.json()).content.decode("utf-8"))            
             if 'metadata' in current_results:
@@ -215,7 +246,7 @@ def get_list_metadata_title(request):
             url_first_part = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&bucket=s101&facet.q=&fast=index&from="+str((100*k)+1)
             url_end_part = "&resultType=details&sortBy=title&sortOrder=reverse&to="+str((k+1)*100)
             final_url = url_first_part + url_end_part
-            #print(final_url)
+            print(final_url)
             results = requests.get(final_url)
             current_results = ast.literal_eval(JsonResponse(results.json()).content.decode("utf-8"))
             if 'metadata' in current_results:
@@ -273,11 +304,11 @@ def get_results_by_keyword(request, keyword):
                 tmp_results['metadata'].append(current_results['metadata'])
 
     #print("metadata "+str(len(tmp_results['metadata'])))
-    print(len(tmp_results['metadata']))
-    print(tmp_results['metadata'])
+    #print(len(tmp_results['metadata']))
+    #print(tmp_results['metadata'])
     #if(len(tmp_results['metadata'])>1):
     for h in range(len(tmp_results['metadata'])):
-        print(tmp_results['metadata'][h])
+        #print(tmp_results['metadata'][h])
         metadata_results['metadata'] = metadata_results['metadata'] + tmp_results['metadata'][h]
     #else:
     #    metadata_results['metadata'] + tmp_results['metadata'][0]

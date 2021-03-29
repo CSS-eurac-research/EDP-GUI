@@ -19,10 +19,39 @@ function dosearch() {
         }
     });
 
+    //var search_request = {'keyword':'', 'boundingbox': ''};
+    var search_request = {};
+    //search_request['keyword'] = searchbar.value;
+    
+    var href = window.location.href;
+    var url = href//+'?search='+searchbar.value;
+
+    map.eachLayer(function(layer) {
+        if(layer.hasOwnProperty("layerID")){
+            if(layer.layerID=="boundingbox"){
+                var polygon = layer.toGeoJSON();
+                var boundingbox = polygon['geometry']['coordinates'][0];
+                search_request = {'boundingbox': boundingbox };
+            } 
+        }         
+    });
+
+    if(search_request.hasOwnProperty('boundingbox')){
+        console.log("keybox ok");
+        url = url + '?keybox=true';
+        search_request.keyword = searchbar.value;
+    } else {
+        console.log("keybox no");
+        url = url + '?search='+searchbar.value + '&keybox=false';
+    }
+
+    console.log(search_request);
+    console.log(url);
+
     $.ajax({
-        url: 'http://localhost:8000/discovery/?search='+searchbar.value,
+        url: url,
         type: 'POST',        
-        data: searchbar.value,
+        data: JSON.stringify(search_request),
         contentType: "application/json",
         success: function(response){
             var metadata_results = response['metadata_results'];//JSON.parse(response['metadata_results']);

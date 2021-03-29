@@ -23,10 +23,17 @@ map.on('draw:created', function (e) {
     drawnItems.clearLayers();
     var type = e.layerType, layer = e.layer;
     var coords = layer.getLatLngs();
-
+    console.log(coords);
     map.fitBounds(coords);
     //console.log(coords[0][1]);
-    drawnItems.addLayer(layer);
+    var overlayMaps = {
+        layerName: "boundingbox",    
+    };
+    layer.layerID = "boundingbox";
+    console.log(layer.layerID);
+    map.addLayer(layer);
+    //drawnItems.addLayer(layer);
+    console.log(map);
     //console.log(coords);    
     var polygon = layer.toGeoJSON();
     //console.log(polygon['geometry']['coordinates'][0]);
@@ -53,7 +60,7 @@ map.on('draw:created', function (e) {
     //console.log(data);
 
     $.ajax({
-        url: 'http://localhost:8000/discovery/',
+        url: 'http://localhost:8000/discovery/?box=true',
         type: 'POST',        
         data: JSON.stringify(data),
         contentType: "application/json",
@@ -62,6 +69,17 @@ map.on('draw:created', function (e) {
             //$('#bb_response').text(response['metadata_results']);
             //console.log(response['metadata_results']);
             var metadata_results = response['metadata_results'];//JSON.parse(response['metadata_results']);
+
+            $(function () { 
+                var searchbar = document.getElementById("searchbar"); 
+                $("#searchbar").autocomplete({
+                    source: metadata_results,
+                    minLength: 2,
+                    max: 10,
+                    scroll: true              
+                });
+            });
+
             console.log(metadata_results);
             if(metadata_results != "no metadata") {
                 $('#number_results').html('<i class="fa fa-list" aria-hidden="true"></i> Results: <b>' + metadata_results.length.toString() + '</b> items found');
