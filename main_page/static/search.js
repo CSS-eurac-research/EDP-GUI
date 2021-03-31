@@ -1,7 +1,7 @@
 
 function dosearch() {
     var searchbar = document.getElementById("searchbar");    
-    console.log(searchbar.value);
+    //console.log(searchbar.value);
 
     var csrftoken = Cookies.get('csrftoken');
 
@@ -24,7 +24,7 @@ function dosearch() {
     //search_request['keyword'] = searchbar.value;
     
     var href = window.location.href;
-    var url = href//+'?search='+searchbar.value;
+    var url = href;//+'?search='+searchbar.value;
 
     map.eachLayer(function(layer) {
         if(layer.hasOwnProperty("layerID")){
@@ -37,16 +37,16 @@ function dosearch() {
     });
 
     if(search_request.hasOwnProperty('boundingbox')){
-        console.log("keybox ok");
+        //console.log("keybox ok");
         url = url + '?keybox=true';
         search_request.keyword = searchbar.value;
     } else {
-        console.log("keybox no");
+        //console.log("keybox no");
         url = url + '?search='+searchbar.value + '&keybox=false';
     }
 
-    console.log(search_request);
-    console.log(url);
+    //console.log(search_request);
+    //console.log(url);
 
     $.ajax({
         url: url,
@@ -56,10 +56,10 @@ function dosearch() {
         success: function(response){
             var metadata_results = response['metadata_results'];//JSON.parse(response['metadata_results']);
             console.log(metadata_results);
-            if(metadata_results != "no metadata") {
+            if(metadata_results != "no results") {
                 $('#number_results').html('<i class="fa fa-list" aria-hidden="true"></i> Results: <b>' + metadata_results.length.toString() + '</b> items found');
                 $('#metadata_results').empty();
-                //console.log(metadata_results.length);
+                console.log(metadata_results[0].length);
                 //console.log("predicted number of rows: " + Math.ceil(metadata_results.length/3).toString());
                 var col = 0;
                 var row = 0;
@@ -77,32 +77,37 @@ function dosearch() {
 
                     result_box = result_box + '<div class="col"> <div class="card" style="width: 18rem;">';
 
-                    //console.log(metadata_results[i]["title"]);
+                    console.log(metadata_results[i]["title"]);
                     //console.log(metadata_results[i].hasOwnProperty("image"));
+                    if(metadata_results[i].hasOwnProperty("geonet:info")) {
                     
-                    if(metadata_results[i].hasOwnProperty("image")) {
-                        result_box = result_box + '<img src="'+metadata_results[i]["image"].split("|")[1]+'" class="card-img-top">';
-                    } 
+                        if(metadata_results[i]["geonet:info"].hasOwnProperty("uuid")) {
+                            if(metadata_results[i].hasOwnProperty("image")) {
+                                result_box = result_box + '<img src="'+metadata_results[i]["image"].split("|")[1]+'" class="card-img-top">';
+                            } 
 
-                    result_box = result_box + '<div class="card-body">';
-                    result_box = result_box + '<a class="card-title" style="color: #DE4624; font-size: 20px;" href="/discovery/'+metadata_results[i]["geonet:info"]["uuid"]+'" target="_blank">'+metadata_results[i]["title"]+'</a>';
+                            result_box = result_box + '<div class="card-body">';
+                    
+                            result_box = result_box + '<a class="card-title" style="color: #DE4624; font-size: 20px;" href="/discovery/'+metadata_results[i]["geonet:info"]["uuid"]+'" target="_blank">'+metadata_results[i]["title"]+'</a>';
+                        
+                            if(metadata_results[i].hasOwnProperty("abstract")) {
+                                result_box = result_box + '<div class="card-text abstract-results">'+metadata_results[i]["abstract"]+'</div>';
+                            } 
 
-                    if(metadata_results[i].hasOwnProperty("abstract")) {
-                        result_box = result_box + '<div class="card-text abstract-results">'+metadata_results[i]["abstract"]+'</div>';
-                    } 
+                            if(metadata_results[i].hasOwnProperty("category")) {
+                                result_box = result_box + '<p class="card-text" style="font-weight: bold">'+metadata_results[i]["category"]+'</p>';
+                            } 
 
-                    if(metadata_results[i].hasOwnProperty("category")) {
-                        result_box = result_box + '<p class="card-text" style="font-weight: bold">'+metadata_results[i]["category"]+'</p>';
-                    } 
-
-                    if(metadata_results[i].hasOwnProperty("keyword")) {
-                        key = key + 1;
-                        //console.log(metadata_results[i]["keyword"].join(","));
-                        result_box = result_box + '<p class="card-text" style="font-size: 12px; font-style:italic;">'+metadata_results[i]["keyword"].join(",")+'</p>';
-                    } 
-                    result_box = result_box + '</div> </div> </div>';
-    
-                    $('#row-'+row.toString()).prepend(result_box);              
+                            if(metadata_results[i].hasOwnProperty("keyword")) {
+                                key = key + 1;
+                                //console.log(metadata_results[i]["keyword"].join(","));
+                                result_box = result_box + '<p class="card-text" style="font-size: 12px; font-style:italic;">'+metadata_results[i]["keyword"].join(",")+'</p>';
+                            } 
+                            result_box = result_box + '</div> </div> </div>';
+            
+                            $('#row-'+row.toString()).prepend(result_box);  
+                        } 
+                    }            
 
                     col = col + 1;
                     //console.log("col " + col.toString());
@@ -115,6 +120,7 @@ function dosearch() {
                         //console.log(i == metadata_results.length);
                         $('#row-'+row.toString()).prepend(`</div>`);
                     }
+
                 
                 }
 
@@ -122,11 +128,14 @@ function dosearch() {
                 //console.log("final number of rows: " + row.toString());
 
                 map.eachLayer(function (layer) {
-                    map.removeLayer(layer);
+                    if(layer.hasOwnProperty("layerID")){
+                        if(!layer.layerID=="boundingbox"){
+                            map.removeLayer(layer);
+                        }
+                    }                    
                 });
 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: attribution }).addTo(map);
-
 
                 for (i=0; i<metadata_results.length; i++) {
                     //console.log(typeof(metadata_results[i]["geoBox"]));
@@ -153,7 +162,7 @@ function dosearch() {
                         console.log("defined");
                     }
                 }
-                console.log("set keywords found " + key.toString());
+                //console.log("set keywords found " + key.toString());
             } else {
                 $('#number_results').html('<i class="fa fa-list" aria-hidden="true"></i> Results: <b>no item was found with this bounding box</b>');
             }

@@ -23,23 +23,24 @@ map.on('draw:created', function (e) {
     drawnItems.clearLayers();
     var type = e.layerType, layer = e.layer;
     var coords = layer.getLatLngs();
-    console.log(coords);
+    //console.log(coords);
     map.fitBounds(coords);
     //console.log(coords[0][1]);
     var overlayMaps = {
         layerName: "boundingbox",    
     };
     layer.layerID = "boundingbox";
-    console.log(layer.layerID);
+    //console.log(layer.layerID);
     map.addLayer(layer);
-    //drawnItems.addLayer(layer);
-    console.log(map);
+    drawnItems.addLayer(layer);
+    //console.log(map);
     //console.log(coords);    
     var polygon = layer.toGeoJSON();
     //console.log(polygon['geometry']['coordinates'][0]);
     //$('#boundingbox').val(coords[0][0] + ", " + coords[0][1] + ", " + coords[0][2] + ", " + coords[0][3]);
 
-    var data = { 'boundingbox': polygon['geometry']['coordinates'][0] }
+    var boundingbox = polygon['geometry']['coordinates'][0];
+    var search_request = {'boundingbox': boundingbox };
 
     var csrftoken = Cookies.get('csrftoken');
 
@@ -57,12 +58,27 @@ map.on('draw:created', function (e) {
         }
     });
 
+    var href = window.location.href;
+    var url = href;//+'?search='+searchbar.value;
+
+    if(searchbar.value!=''){
+        //console.log("keybox ok");
+        url = url + '?search='+searchbar.value + '&keybox=true';
+        search_request.keyword = searchbar.value;
+    } else {
+        //console.log("keybox no");
+        url = url + '?box=true';
+    }
+
+    //console.log(search_request);
+    //console.log(url);
+
     //console.log(data);
 
     $.ajax({
-        url: 'http://localhost:8000/discovery/?box=true',
+        url: url,
         type: 'POST',        
-        data: JSON.stringify(data),
+        data: JSON.stringify(search_request),
         contentType: "application/json",
         success: function(response){
             //console.log(response);
@@ -81,10 +97,10 @@ map.on('draw:created', function (e) {
             });
 
             console.log(metadata_results);
-            if(metadata_results != "no metadata") {
+            if(metadata_results != "no results") {
                 $('#number_results').html('<i class="fa fa-list" aria-hidden="true"></i> Results: <b>' + metadata_results.length.toString() + '</b> items found');
                 $('#metadata_results').empty();
-                //console.log(metadata_results.length);
+                console.log(metadata_results.length);
                 //console.log("predicted number of rows: " + Math.ceil(metadata_results.length/3).toString());
                 var col = 0;
                 var row = 0;
@@ -110,7 +126,9 @@ map.on('draw:created', function (e) {
                     } 
 
                     result_box = result_box + '<div class="card-body">';
-                    result_box = result_box + '<a class="card-title" style="color: #DE4624; font-size: 20px;" href="/discovery/'+metadata_results[i]["geonet:info"]["uuid"]+'" target="_blank">'+metadata_results[i]["title"]+'</a>';
+                    if(metadata_results[i]["geonet:info"].hasOwnProperty("uuid")) {
+                        result_box = result_box + '<a class="card-title" style="color: #DE4624; font-size: 20px;" href="/discovery/'+metadata_results[i]["geonet:info"]["uuid"]+'" target="_blank">'+metadata_results[i]["title"]+'</a>';
+                    }
 
                     if(metadata_results[i].hasOwnProperty("abstract")) {
                         result_box = result_box + '<div class="card-text abstract-results">'+metadata_results[i]["abstract"]+'</div>';
@@ -128,52 +146,6 @@ map.on('draw:created', function (e) {
                     result_box = result_box + '</div> </div> </div>';
     
                     $('#row-'+row.toString()).prepend(result_box);
-                    
-                /* if (typeof(metadata_results[i]["image"]) !== "undefined") {
-                        $('#row-'+row.toString()).prepend(
-                            `<div class="col">
-                            <div class="card" style="width: 18rem;">
-                                <img src="${metadata_results[i]["image"].split("|")[1]}" class="card-img-top">
-                                <div class="card-body">
-                                    <a class="card-title" style="color: #DE4624; font-size: 20px;" href="/discovery/${metadata_results[i]["geonet:info"]["uuid"]}" target="_blank">${metadata_results[i]["title"]}</a>
-                                    <p class="card-text">${metadata_results[i]["abstract"]}</p>
-                                    <p class="card-text" style="font-weight: bold">${metadata_results[i]["category"]}</p>
-                                    <p class="card-text" style="font-size: 12px; font-style:italic;>${metadata_results[i]["keyword"].join(",")}</p>
-                                </div>
-                            </div>
-                            </div>`
-                        );
-                    } else {
-                        if (typeof(metadata_results[i]["keyword"]) !== "undefined") {
-                            $('#row-'+row.toString()).prepend(
-                                `<div class="col">
-                                <div class="card" style="width: 18rem;">
-                                    <img src="" class="card-img-top">
-                                    <div class="card-body">
-                                    <a class="card-title" style="color: #DE4624; font-size: 20px;" href="/discovery/${metadata_results[i]["geonet:info"]["uuid"]}" target="_blank">${metadata_results[i]["title"]}</a>
-                                        <p class="card-text">${metadata_results[i]["abstract"]}</p>
-                                        <p class="card-text" style="font-weight: bold">${metadata_results[i]["category"]}</p>
-                                        <p class="card-text" style="font-size: 12px; font-style:italic;>${metadata_results[i]["keyword"].join(",")}</p>
-                                        </div>
-                                </div>
-                                </div>`
-                            );
-                        } else {
-                            $('#row-'+row.toString()).prepend(
-                                `<div class="col">
-                                <div class="card" style="width: 18rem;">
-                                    <img src="" class="card-img-top">
-                                    <div class="card-body">
-                                    <a class="card-title" style="color: #DE4624; font-size: 20px;" href="/discovery/${metadata_results[i]["geonet:info"]["uuid"]}" target="_blank">${metadata_results[i]["title"]}</a>
-                                        <p class="card-text">${metadata_results[i]["abstract"]}</p>
-                                        <p class="card-text" style="font-weight: bold">${metadata_results[i]["category"]}</p>
-                                        <p class="card-text" style="font-size: 12px; font-style:italic;>No keywork</p>
-                                        </div>
-                                </div>
-                                </div>`
-                            );
-                        }
-                    }*/
 
                     col = col + 1;
                     //console.log("col " + col.toString());
@@ -217,7 +189,7 @@ map.on('draw:created', function (e) {
                         console.log("defined");
                     }
                 }
-                console.log("set keywords found " + key.toString());
+                //console.log("set keywords found " + key.toString());
             } else {
                 $('#number_results').html('<i class="fa fa-list" aria-hidden="true"></i> Results: <b>no item was found with this bounding box</b>');
             }

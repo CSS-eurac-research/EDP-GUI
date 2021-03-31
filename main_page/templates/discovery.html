@@ -40,7 +40,7 @@
       <div class="" style="height: 6%; padding: 5px;">
 
 <div class="row">
-    <!-- <script>
+    <script>
       $(function () {
           $("#searchbar").autocomplete({
               source: "{% url 'edp_portal:discovery' %}",
@@ -50,14 +50,18 @@
           });
       });
       
-  </script> -->
+  </script>
 
 <script src="../static/search.js"></script>   
+<div style="display: -webkit-inline-box;">
     <form id="formsearch" onsubmit="return dosearch();">
       <label for="search"></label>
       <input type="text" name="search" id="searchbar">
       <button id="searchbutton" type="submit" class="btn btn-outline-primary"><i class="fa fa-search"></i> Search</button>
     </form>
+    <script src="../static/reset_search.js"></script>
+    <button id="resetbutton" type="submit" class="btn btn-outline-primary" style="margin-left: 40px;" onclick="reset_search()"><i class="fa fa-eraser"></i> Reset search</button>
+  </div>
 </div>
 </div>
       <div style="padding: 5px;">

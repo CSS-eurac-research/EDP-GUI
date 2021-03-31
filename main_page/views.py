@@ -42,8 +42,12 @@ def discovery(request):
         print("term")  
         metadata_title_list = get_list_metadata_title(request)
         topic_list = get_topic_list(request)
-        #print((topic_list+metadata_title_list))
-        return JsonResponse((topic_list+metadata_title_list), safe=False, status=200)
+        print(topic_list+metadata_title_list)
+        title_list = topic_list+metadata_title_list
+        if (len(title_list) == 0):
+            title_list = ['no title found']
+        
+        return JsonResponse((title_list), safe=False, status=200)
     
     #if 'boundingbox' in str(request.body):
     if request.GET.get('box') == "true":
@@ -71,7 +75,7 @@ def discovery(request):
 
     if request.GET.get('keybox') == 'true':
         print("BOTH SEARCH")
-        #print(request.body.decode("utf-8"))    
+        print(request.body.decode("utf-8"))    
         search_request = json.loads(request.body)
         polygon = search_request['boundingbox']
         keyword = search_request['keyword']
@@ -150,7 +154,11 @@ def get_total_number_metadata(request, url_geometry_part):
     url = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&summaryOnly=1&"+url_geometry_part
     results = requests.get(url)
     summary_results = ast.literal_eval(JsonResponse(results.json(), safe=False).content.decode("utf-8"))
-    return (summary_results[0]['@count'])
+    #print(summary_results)
+    if '@count' in str(summary_results):
+        return (summary_results[0]['@count'])
+    else:
+        return(0)
 
 def get_results_bounding_box(request, polygon, keyword=""):   
     tmp_results = {'metadata' : []}
@@ -207,15 +215,26 @@ def get_results_bounding_box(request, polygon, keyword=""):
 
     #print("metadata "+str(len(tmp_results['metadata'])))
 
-    for h in range(len(tmp_results['metadata'])):
-        metadata_results['metadata'] = metadata_results['metadata'] + tmp_results['metadata'][h]
+    #print(tmp_results)
+    #print(metadata_results)
+    print(len(tmp_results['metadata']))
+
+    if (len(tmp_results['metadata']) > 1):
+        for h in range(len(tmp_results['metadata'])):
+            #print(tmp_results['metadata'][h])
+            print(h)
+            metadata_results['metadata'] = metadata_results['metadata'] + tmp_results['metadata'][h]
+    elif (len(tmp_results['metadata'])==1):
+        metadata_results['metadata'] = tmp_results['metadata'][0]
+    else:
+        metadata_results['metadata'] = ['no results']
     
     #print("metadata "+str(len(metadata_results['metadata'])))
     #print(metadata_results['metadata'])
 
     if 'metadata' not in metadata_results:
         print('metadata not present')
-        return "no metadata"
+        return "no results"
 
     return metadata_results['metadata']
 
@@ -258,6 +277,9 @@ def get_list_metadata_title(request):
     #print(len(tmp_results['metadata']))
     keyword_search = str(request.GET.get('term'))
     #print(keyword_search)
+    #print(tmp_results)
+    print(len(tmp_results['metadata']))
+
     for i in range(len(tmp_results['metadata'])):
         for item in tmp_results['metadata'][i]:
             if re.search(keyword_search, item['title']):
@@ -307,9 +329,18 @@ def get_results_by_keyword(request, keyword):
     #print(len(tmp_results['metadata']))
     #print(tmp_results['metadata'])
     #if(len(tmp_results['metadata'])>1):
-    for h in range(len(tmp_results['metadata'])):
-        #print(tmp_results['metadata'][h])
-        metadata_results['metadata'] = metadata_results['metadata'] + tmp_results['metadata'][h]
+
+    #print(tmp_results)
+    print(len(tmp_results['metadata']))
+    if (len(tmp_results['metadata']) > 1):
+        for h in range(len(tmp_results['metadata'])):
+            #print(tmp_results['metadata'][h])
+            metadata_results['metadata'] = metadata_results['metadata'] + tmp_results['metadata'][h]
+    elif (len(tmp_results['metadata'])==1):
+        metadata_results['metadata'] = tmp_results['metadata'][0]
+    else:
+        metadata_results['metadata'] = ['no results']
+
     #else:
     #    metadata_results['metadata'] + tmp_results['metadata'][0]
     #print("metadata "+str(len(metadata_results['metadata'])))
@@ -317,6 +348,6 @@ def get_results_by_keyword(request, keyword):
 
     if 'metadata' not in metadata_results:
         print('metadata not present')
-        return "no metadata"
+        return "no results"
 
     return metadata_results['metadata']
