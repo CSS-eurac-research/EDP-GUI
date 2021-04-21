@@ -15,7 +15,6 @@ SNIPPET_CODE_TYPE = (
             ('Java','Java'),
             )
 
-# Create your models here.
 class DocSource(models.Model):
     source_name = models.CharField(max_length=100)
     source_link = models.CharField(max_length=200)
@@ -34,3 +33,15 @@ class SnippetCode(models.Model):
 
     def __str__(self):
         return self.snippet_code_name
+
+class GeonetworkMetadata(models.Model):
+    uuid = models.CharField(max_length=50)
+    title = models.CharField(max_length=200)
+    abstract = models.TextField(max_length=10000)
+    category = models.CharField(max_length=100)
+    keyword = models.CharField(max_length=500)
+    image = models.CharField(max_length=500)
+    geom = models.
+    
+    def __str__(self):
+        return self.title
