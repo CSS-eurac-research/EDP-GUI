@@ -82,9 +82,9 @@ function dosearch() {
                     if(metadata_results[i].hasOwnProperty("geonet:info")) {
                     
                         if(metadata_results[i]["geonet:info"].hasOwnProperty("uuid")) {
-                            if(metadata_results[i].hasOwnProperty("image")) {
+                            /* if(metadata_results[i].hasOwnProperty("image")) {
                                 result_box = result_box + '<img src="'+metadata_results[i]["image"].split("|")[1]+'" class="card-img-top">';
-                            } 
+                            }  */
 
                             result_box = result_box + '<div class="card-body">';
                     

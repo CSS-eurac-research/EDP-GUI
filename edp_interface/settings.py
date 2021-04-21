@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',
     'main_page',
 ]
 
@@ -76,9 +77,26 @@ WSGI_APPLICATION = 'edp_interface.wsgi.application'
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': BASE_DIR / 'db.sqlite3',
+#    }
+
+        'default': {
+
+        #'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+
+        'NAME': 'edp_portal_gui',
+
+        'USER': 'edp_gui_user',
+
+        'PASSWORD': '73bd357832012a62357095bf6d9324f8',
+
+        'HOST': '10.8.244.39',
+
+        'PORT': '5432',
+
     }
 }
 

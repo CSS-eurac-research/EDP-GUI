@@ -58,8 +58,6 @@ map.on('draw:created', function (e) {
         }
     });
 
-    console.log(csrftoken);
-
     var href = window.location.href;
     var url = href;//+'?search='+searchbar.value;
 
@@ -81,12 +79,11 @@ map.on('draw:created', function (e) {
         url: url,
         type: 'POST',        
         data: JSON.stringify(search_request),
-        headers: {'X-CSRFToken': csrftoken},
         contentType: "application/json",
         success: function(response){
             //console.log(response);
             //$('#bb_response').text(response['metadata_results']);
-            console.log(response['metadata_results']);
+            //console.log(response['metadata_results']);
             var metadata_results = response['metadata_results'];//JSON.parse(response['metadata_results']);
 
             $(function () { 
@@ -115,6 +112,7 @@ map.on('draw:created', function (e) {
                     if (col == 0){
                         //onsole.log("col equal 0");
                         $('#metadata_results').prepend(`<div id="row-${row}" class="row">`);
+                        $('#metadata_results').prepend(`<div id="deck-${row}" class="card-deck">`);
                     } 
                     //$('#metadata_results').prepend(`<div id="row-${row}" class="row">`);
                     var result_box = "";
@@ -125,9 +123,9 @@ map.on('draw:created', function (e) {
                     //console.log(metadata_results[i]["title"]);
                     //console.log(metadata_results[i].hasOwnProperty("image"));
                     
-                    /* if(metadata_results[i].hasOwnProperty("image")) {
+                    if(metadata_results[i].hasOwnProperty("image")) {
                         result_box = result_box + '<img src="'+metadata_results[i]["image"].split("|")[1]+'" class="card-img-top">';
-                    }  */
+                    } 
                     result_box = result_box + '</div>';
                     result_box = result_box + '<div class="col">';
                     result_box = result_box + '<div class="card-body">';
@@ -157,13 +155,13 @@ map.on('draw:created', function (e) {
                     col = col + 1;
                     //console.log("col " + col.toString());
                     if (col == 3) {
-                        $('#row-'+row.toString()).prepend(`</div>`);
+                        $('#row-'+row.toString()).prepend(`</div></div>`);
                         //$('#metadata_results').prepend(`<div  id="row-${i+1}" class="row">`);
                         col = 0;
                         row = row + 1;
                     } else if (i == metadata_results.length-1) {
                         //console.log(i == metadata_results.length);
-                        $('#row-'+row.toString()).prepend(`</div>`);
+                        $('#row-'+row.toString()).prepend(`</div></div>`);
                     } 
                 
                 }

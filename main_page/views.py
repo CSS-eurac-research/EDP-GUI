@@ -126,7 +126,7 @@ def result_detail(request, uuid):
     #print(result_json)
     result_json["metadata"]["keyword"] = ", ".join(result_json["metadata"]["keyword"])
     result_json["metadata"]["responsibleParty"] = result_json["metadata"]["responsibleParty"][0].replace("|", " ")
-    #print(result_json["metadata"])  
+    print(result_json["metadata"])  
      
 
     snippet_code_list = SnippetCode.objects.all()   
@@ -190,7 +190,7 @@ def get_results_bounding_box(request, polygon, keyword=""):
     if (int(total_number_metadata)%100 > 0):
         for k in range(number_loop+1):
             url_first_part = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&any=" + keyword + "&bucket=s101&facet.q=&fast=index&from="+str((100*k)+1)+"&"
-            url_end_part = "&resultType=details&sortBy=title&sortOrder=reverse&to="+str((k+1)*100)
+            url_end_part = "&relation=within_bbox&resultType=details&sortBy=title&sortOrder=reverse&to="+str((k+1)*100)
             final_url = url_first_part + url_geometry_part + url_end_part
             print(final_url)
             results = requests.get(final_url)
@@ -203,7 +203,7 @@ def get_results_bounding_box(request, polygon, keyword=""):
     else:
         for k in range(number_loop):
             url_first_part = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&any=" + keyword + "&bucket=s101&facet.q=&fast=index&from="+str((100*k)+1)+"&"
-            url_end_part = "&resultType=details&sortBy=title&sortOrder=reverse&to="+str((k+1)*100)
+            url_end_part = "&relation=within_bbox&resultType=details&sortBy=title&sortOrder=reverse&to="+str((k+1)*100)
             final_url = url_first_part + url_geometry_part + url_end_part
             print(final_url)
             results = requests.get(final_url)
