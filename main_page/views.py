@@ -6,7 +6,8 @@ from django.http import JsonResponse
 import requests
 import json 
 import ast, re
-from .models import DocSource, SnippetCode
+import psycopg2
+from .models import DocSource, SnippetCode, GeonetworkMetadata
 
 
 class DocsPageView(generic.ListView):
@@ -22,86 +23,118 @@ class DocsPageView(generic.ListView):
 def main_page(request):
     return render(request, 'main_page.html', {})
 
-# class DiscoveryPageView(generic.ListView):
-#     template_name = 'discovery.html'
-#     context_object_name = 'topic_list'
-
 def discovery(request):
-    context = {}
-    #print("request body:" + request.body.decode("utf-8"))
-    #print(request)
-    search_request = ''
+    title_list = "no title found"
+    try:
+        #print(request.GET)
+        conn = psycopg2.connect(
+                database="edp_portal_gui", user='edp_gui_user', password='73bd357832012a62357095bf6d9324f8', host='10.8.244.39', port='5432'
+            )
+        cursor = conn.cursor()
+        title_list = ""
 
-    if(request.body):
-        #search_request = json.loads(request.body)
-        search_request = json.loads(request.body.decode("utf-8"))
-        #print(len(search_request['boundingbox']))
-        #if(search_request['boundingbox']):
-        #    print(search_request['boundingbox'])
-    if 'term' in request.GET:  
-        print("term")  
-        metadata_title_list = get_list_metadata_title(request)
-        topic_list = get_topic_list(request)
-        print(topic_list+metadata_title_list)
-        title_list = topic_list+metadata_title_list
-        if (len(title_list) == 0):
-            title_list = ['no title found']
+        #if 'term' in request.GET:  
+        #print(request.GET.get("term"))
+        #searchKeyword = request.GET.get("term")
+        #category_query = "SELECT DISTINCT(category) FROM main_page_geonetworkmetadata mpg WHERE category ILIKE '%" + "%".join(searchKeyword.split(" ")) + "%'"
+        category_query = "SELECT DISTINCT(category) FROM main_page_geonetworkmetadata mpg"
+        cursor.execute(category_query)
+        results = cursor.fetchall()
+        for i in results:
+            if i[0]:
+                #title_list.append(i[0].replace("\"","")) 
+                title_list = title_list + "," +i[0]
+        #keyword_query = "SELECT DISTINCT(keyword) FROM main_page_geonetworkmetadata mpg WHERE keyword ILIKE '%" + "%".join(searchKeyword.split(" ")) + "%'"
+        keyword_query = "SELECT DISTINCT(keyword) FROM main_page_geonetworkmetadata mpg"
+        cursor.execute(keyword_query)
+        results = cursor.fetchall()
+        for i in results:
+            if i[0]:
+                #title_list.append(i[0].replace("\"","")) 
+                keyword_list = i[0].split(",")
+                for keyword in keyword_list:
+                    if keyword not in title_list: 
+                        title_list = title_list + "," + keyword
+        #print(title_list)
+        #title_query = "SELECT title FROM main_page_geonetworkmetadata mpg WHERE title ILIKE '%" + "%".join(searchKeyword.split(" ")) + "%'"
+        title_query = "SELECT title FROM main_page_geonetworkmetadata mpg"
+        cursor.execute(title_query)
+        results = cursor.fetchall()
+        for i in results:
+            if i[0]:
+                #title_list.append(i[0].replace("\"","")) 
+                title_list = title_list + "," +i[0]
+        #print(len(title_list))
+        #if (len(title_list) == 0):
+        if (title_list == ""):
+            title_list = "no title found"    
+        #    return JsonResponse(title_list, safe=False, status=200)
         
-        return JsonResponse((title_list), safe=False, status=200)
-    
-    #if 'boundingbox' in str(request.body):
-    if request.GET.get('box') == "true":
-        print("search ONLY BY boundingbox "+request.GET.get('box'))
-        polygon = json.loads(request.body)
-        #print(polygon['boundingbox'])      
-        metadata_results = get_results_bounding_box(request, polygon['boundingbox'])
-
-        context = {
-            'metadata_results': metadata_results,
-        }
-        return JsonResponse({'metadata_results': metadata_results}, safe=False, status=200)
-        #return render(request, 'discovery.html', context)
-
-    if request.GET.get('keybox') == 'false':
+        if request.GET.get('box') and request.GET.get('search'):
+            searchKeyword = request.GET.get('search')
+            boundingbox = request.GET.get('box')
+            boundingbox = boundingbox.split(",")
+            #print(boundingbox)
+            polygon = ""
+            for i in range(len(boundingbox)):
+                if i == 0:
+                    polygon = polygon + boundingbox[i]
+                else:
+                    if i % 2 == 0:
+                        polygon = polygon + "," + boundingbox[i]
+                    elif i%2 != 0:
+                        polygon = polygon + " " + boundingbox[i]
             
-        print("search ONLY BY keyword "+request.GET['search'])  
-        
-        metadata_results = get_results_by_keyword(request, request.GET['search'])
-
-        context = {
-            'metadata_results': metadata_results,
-        }
-        return JsonResponse({'metadata_results': metadata_results}, safe=False, status=200)
-
-    if request.GET.get('keybox') == 'true':
-        print("BOTH SEARCH")
-        print(request.body.decode("utf-8"))    
-        search_request = json.loads(request.body)
-        polygon = search_request['boundingbox']
-        keyword = search_request['keyword']
-
-        metadata_results = get_results_bounding_box(request, polygon, keyword)
-
-        context = {
-            'metadata_results': metadata_results,
-        }
-        return JsonResponse({'metadata_results': metadata_results}, safe=False, status=200)       
-
-    print("exit without any if")   
-    return render(request, 'discovery.html', context)
-    
-# def get_metadata_boundinbox(request):
-#     context = {}
-#     if 'boundingbox' in str(request.body):
-#         polygon = json.loads(request.body)
-#         #print(polygon['boundingbox'])      
-#         metadata_results = get_results_bounding_box(request, polygon['boundingbox'])
-
-#         context = {
-#             'metadata_results': metadata_results,
-#         }
-#         #return JsonResponse(coords, safe=False)
-#     return render(request, 'metadata_results.html', context)
+            polygon = "POLYGON((" + polygon + "))"  
+            #print(polygon)
+            #print("KEYWORD " + searchKeyword + " BBOX " + boundingbox)            
+            final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom FROM main_page_geonetworkmetadata mpg WHERE ST_CONTAINS(ST_GEOMFROMTEXT('" + polygon + "', 4326), mpg.geom) AND (title, abstract, category, keyword)::text ILIKE '%" + "%".join(searchKeyword.split(" ")) + "%'"
+            #print(final_query)
+            cursor.execute(final_query)
+            results = cursor.fetchall()
+            return JsonResponse({'metadata_results': results, 'title_list': title_list}, safe=False, status=200)
+        if request.GET.get('box'):            
+            boundingbox = request.GET.get('box')
+            boundingbox = boundingbox.split(",")
+            #print(boundingbox)
+            polygon = ""
+            for i in range(len(boundingbox)):
+                if i == 0:
+                    polygon = polygon + boundingbox[i]
+                else:
+                    if i % 2 == 0:
+                        polygon = polygon + "," + boundingbox[i]
+                    elif i%2 != 0:
+                        polygon = polygon + " " + boundingbox[i]
+            #print(polygon)
+            polygon = "POLYGON((" + polygon + "))"            
+            final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom FROM main_page_geonetworkmetadata mpg WHERE ST_CONTAINS(ST_GEOMFROMTEXT('" + polygon + "', 4326), mpg.geom)"
+            #print(final_query)
+            cursor.execute(final_query)
+            #print(conn.commit())
+            results = cursor.fetchall()
+            return JsonResponse({'metadata_results': results, 'title_list': title_list}, safe=False, status=200)
+        if request.GET.get('search'):
+            searchKeyword = request.GET.get('search')
+            #print("KEYWORD " + searchKeyword)
+            final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom FROM main_page_geonetworkmetadata mpg WHERE (title, abstract, category, keyword)::text ILIKE '%" + "%".join(searchKeyword.split(" ")) + "%'"
+            cursor.execute(final_query)
+            results = cursor.fetchall()
+            #print(results)
+            return JsonResponse({'metadata_results': results, 'title_list': title_list}, safe=False, status=200)
+    except GeonetworkMetadata.DoesNotExist:
+        raise Http404("GeonetworkMetadata does not exist")
+    #finally:
+    #    metadata_list = GeonetworkMetadata.objects.all()    
+    #    return render(request, 'discovery.html', {'metadata_list': metadata_list, 'title_list': title_list})
+    #print("finally")
+    cursor.close()
+    conn.close()
+    metadata_list = GeonetworkMetadata.objects.all()    
+    #print(title_list)    
+    #print(metadata_list)
+    return render(request, 'discovery.html', {'metadata_list': metadata_list, 'title_list': title_list})
+    #return render(request, 'discovery.html', {}) 
     
 def jupyter_page(request):
     return render(request, 'jupyter.html', {})
@@ -116,28 +149,138 @@ def maps_page(request):
     return render(request, 'maps.html', {})
 
 def result_detail(request, uuid):
-    url = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&_draft=y+or+n+or+e&_isTemplate=y+or+n&fast=index&uuid="+uuid
-    #url = "http://edp-portal.eurac.edu/geonetwork/srv/api/0.1/records/"+uuid
-    #print(url)
-    results = requests.get(url, headers = {"Accept":"application/json;charset=utf-8", "content-type": "application/json;charset=utf-8"})
-    #print(results)
-    result_json_str = JsonResponse(results.json()).content.decode("utf-8") 
-    result_json = ast.literal_eval(result_json_str)
-    #print(result_json)
-    result_json["metadata"]["keyword"] = ", ".join(result_json["metadata"]["keyword"])
-    result_json["metadata"]["responsibleParty"] = result_json["metadata"]["responsibleParty"][0].replace("|", " ")
-    print(result_json["metadata"])  
-     
+    # url = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&_draft=y+or+n+or+e&_isTemplate=y+or+n&fast=index&uuid="+uuid
+    # #url = "http://edp-portal.eurac.edu/geonetwork/srv/api/0.1/records/"+uuid
+    # print(url)
+    # results = requests.get(url, headers = {"Accept":"application/json;charset=utf-8", "content-type": "application/json;charset=utf-8"})
+    # print(results.json())
+    # result_json_str = JsonResponse(results.json()).content.decode("utf-8") 
+    # result_json = ast.literal_eval(result_json_str)
+    metadata_details = get_metadata_details(request, uuid)
+    #print(metadata_details)
+    if ("error"  not in metadata_details):
+    #     result_json["metadata"]["keyword"] = ", ".join(result_json["metadata"]["keyword"])
+    #     result_json["metadata"]["responsibleParty"] = result_json["metadata"]["responsibleParty"][0].replace("|", " ")
+        
+                
+        #snippet_code_list = SnippetCode.objects.filter(snippet_category__icontains=result_json["metadata"]["category"])
+        #docs_list = DocSource.objects.filter(source_category__icontains=result_json["metadata"]["category"])
+        snippet_code_list = SnippetCode.objects.filter(snippet_category__icontains=metadata_details["category"])
+        for i in snippet_code_list:
+            i.snippet_code = i.snippet_code.replace("NAME_COLLECTION", metadata_details['name_collection'])
+            i.snippet_code = i.snippet_code.replace("MIN_LON", metadata_details['minLon'])
+            i.snippet_code = i.snippet_code.replace("MIN_LAT", metadata_details['minLat'])
+            i.snippet_code = i.snippet_code.replace("MAX_LON", metadata_details['maxLon'])
+            i.snippet_code = i.snippet_code.replace("MAX_LAT", metadata_details['maxLat'])
+            i.snippet_code = i.snippet_code.replace("TEMPORAL_EXTENT", "["+metadata_details['tempExtentBegin']+","+metadata_details['tempExtentEnd']+"]")
 
-    snippet_code_list = SnippetCode.objects.all()   
+        docs_list = DocSource.objects.filter(source_category__icontains=metadata_details["category"])
 
-    context = {
-        "uuid" : result_json["metadata"]["geonet:info"]["uuid"],
-        "result_json" : result_json["metadata"],
-        "snippet_code_list" : snippet_code_list
-        #'title': result_json["metadata"]["title"],
-    }
-    return render(request, 'result_detail.html', context)
+        context = {
+            "uuid" : uuid,
+            #"result_json" : result_json["metadata"],
+            "result_json" : metadata_details,
+            "snippet_code_list" : snippet_code_list,
+            "docs_list" : docs_list
+            #'title': result_json["metadata"]["title"],
+        }
+        return render(request, 'result_detail.html', context)
+    else:
+        #print(metadata_details)
+        context = {
+            "error" : "No metadata found for this uuid (" + uuid + ")"
+        }
+        return render(request, 'result_detail.html', context)
+
+def get_metadata_details(request, uuid):
+    try:
+        metadata_detail = {}
+        url = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&_draft=y+or+n+or+e&_isTemplate=y+or+n&fast=index&uuid="+uuid
+        #print(url)
+        results = requests.get(url).json()
+        #print(results)
+        if ("metadata" in results):
+            current_metadata = results['metadata']
+            if 'responsibleParty' in current_metadata:
+                for i in current_metadata['responsibleParty']:
+                    #print(current_metadata['responsibleParty'])
+                    if 'resource' in i and 'Custodian' not in i:
+                        str_splitted = i.split("|")
+                        contact = email = address = ""
+                        for j in range(len(str_splitted)):
+                            if re.search("^[0-9]$", str_splitted[j]):
+                                continue
+                            if '@' in str_splitted[j]:
+                                email = str_splitted[j]
+                            elif j>0 and j<7 and 'resource' not in str_splitted[j]:
+                                contact = contact + " " + str_splitted[j]
+                            elif j>=7 and 'http' not in str_splitted[j]:
+                                address = address + " " + str_splitted[j]
+                        #metadata_detail['contactResource'] = { 'contactName' : contact.strip(), 'email' : email.strip(), 'address' : address.replace(" 0 ", "").replace("  0", "").strip() }
+                        metadata_detail['contactResource'] = { 'contactName' : contact.strip(), 'email' : email.strip(), 'address' : re.sub(" 0 ", "", address).strip() }
+                    elif 'metadata' in i:
+                        str_splitted = i.split("|")
+                        contact = email = address = ""
+                        for j in range(len(str_splitted)):
+                            if re.search("^[0-9]$", str_splitted[j]):
+                                continue
+                            if '@' in str_splitted[j]:
+                                email = str_splitted[j]
+                            elif j > 0 and j < 7 and 'metadata' not in str_splitted[j]:
+                                contact = contact + " " + str_splitted[j]
+                            elif j >= 7 and 'http' not in str_splitted[j]:
+                                address = address + " " + str_splitted[j]
+                        #metadata_detail['contactMetadata'] = { 'contactName' : contact.strip(), 'email' : email.strip(), 'address' : address.replace(" 0 ", "").replace("  0", "").strip() }
+                        metadata_detail['contactMetadata'] = { 'contactName' : contact.strip(), 'email' : email.strip(), 'address' : re.sub(" 0 ", "", address).strip() }
+
+            if 'legalConstraints' in current_metadata:
+                if type(current_metadata['legalConstraints']) is str:
+                    metadata_detail['legalConstraints'] = current_metadata['legalConstraints']
+                if type(current_metadata['legalConstraints']) is list:
+                    metadata_detail['legalConstraints'] = ", ".join(current_metadata['legalConstraints'])
+            if 'crsDetails' in current_metadata:
+                metadata_detail['crs'] = current_metadata['crsDetails']['name'] + " ("+current_metadata['crsDetails']['code']+":"+current_metadata['crsDetails']['codeSpace']+")"
+            if 'spatialRepresentationType_text' in current_metadata:
+                metadata_detail['refSys'] = current_metadata['spatialRepresentationType_text']
+            if 'geoBox' in current_metadata:
+                bbox = current_metadata['geoBox'].split("|")
+                metadata_detail['minLat'] = bbox[1]
+                metadata_detail['minLon'] = bbox[0]
+                metadata_detail['maxLat'] = bbox[3]
+                metadata_detail['maxLon'] = bbox[2]
+            if 'category' in current_metadata:
+                metadata_detail['category'] = current_metadata['category']
+            if 'abstract' in current_metadata:
+                metadata_detail['abstract'] = current_metadata['abstract']
+            if 'title' in current_metadata:
+                metadata_detail['title'] = current_metadata['title']
+            if 'keyword' in current_metadata:
+                metadata_detail['keyword'] = ", ".join(current_metadata['keyword'])
+            if 'lineage' in current_metadata:
+                metadata_detail['lineage'] = current_metadata['lineage']
+            if 'tempExtentBegin' in current_metadata:
+                metadata_detail['tempExtentBegin'] = current_metadata['tempExtentBegin']
+            if 'tempExtentEnd' in current_metadata:
+                metadata_detail['tempExtentEnd'] = current_metadata['tempExtentEnd']
+            if 'link' in current_metadata:
+                link_split = current_metadata['link'].split('|')
+                metadata_detail['name_collection'] = link_split[0]
+            if 'image' in current_metadata:
+                thumbnail_split = current_metadata['image'].split("|")
+                for e in thumbnail_split:
+                    if 'http' in e or 'https' in e:
+                        metadata_detail['thumbnail'] = e
+
+            return metadata_detail
+        else:
+            #print(results)
+            error = {}
+            error['error'] = results
+            return error
+    except:
+        error = {}
+        error['error'] = "No metadata found"
+        return error
 
 def get_topic_list(request):
     url = "http://edp-portal.eurac.edu/geonetwork/srv/api/0.1/standards/iso19139/codelists/gmd%3AMD_TopicCategoryCode"
@@ -285,7 +428,6 @@ def get_list_metadata_title(request):
             if re.search(keyword_search, item['title']):
                 metadata_title_item_list.append(item['title'])
     return metadata_title_item_list
-
 
 def get_results_by_keyword(request, keyword):
     tmp_results = {'metadata' : []}

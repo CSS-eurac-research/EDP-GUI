@@ -1,0 +1,8 @@
+{% extends 'admin/login.html' %}
+
+{% block branding %}
+    <div class="head">
+        <h1 id="name">EDP-GUI Administration</h1>
+    </div>
+    {% csrf_token %}
+{% endblock %}

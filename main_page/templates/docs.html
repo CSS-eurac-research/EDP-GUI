@@ -35,17 +35,17 @@
         <th id="desc_column_table" class="width_column_table-1">Description</th>
         <th>Link</th>
         <th id="date_column_table" class="width_column_table-2">Date published</th>
-        <th>Type</th>
+        <th>Category</th>
       </tr>
       {% for source in latest_docs_sources_list %}
 
         <tr id="rows_table">
           <td>{{ source.id }}</td>
           <td>{{ source.source_name }}</td>
-          <td>{{ source.soucer_description }}</td>
-          <td><a href="{{ source.source_link }}">Link</a></td>
+          <td>{{ source.source_description }}</td>
+          <td><a href="{{ source.source_link }}" target="_blank">Link</a></td>
           <td>{{ source.pub_date }}</td>
-          <td>{{ source.source_type }}</td>
+          <td>{{ source.source_category }}</td>
         </tr>
           <!-- <li><a href="/polls/{{ question.id }}/">{{ question.question_text }}</a></li> -->
       {% endfor %}

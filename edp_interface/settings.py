@@ -12,10 +12,19 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 from pathlib import Path
 import os
+import ast
+from django.conf import settings
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+#BASE_DIR = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
+MEDIA_ROOT = os.getenv('MEDIA_ROOT', os.path.join(PROJECT_ROOT, "uploaded"))
+
+STATIC_ROOT = os.getenv('STATIC_ROOT',
+                        os.path.join(PROJECT_ROOT, "static")
+                        )
+STATIC_URL = '/static/'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
@@ -26,8 +35,11 @@ SECRET_KEY = '(ttmch2die!2bh@1l25-xlj+8k691n+g-&xtl*rs^c4o8$6*ji'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '10.8.244.236']
-
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '10.8.244.240', 'edp-portal.eurac.edu', '193.106.181.170']
+PROXY_ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '10.8.244.240', 'edp-portal.eurac.edu', '193.106.181.170']
+#CSRF_TRUSTED_ORIGINS = ['127.0.0.1', 'localhost', '10.8.244.240', 'edp-portal.eurac.edu', '193.106.181.170']
+#XS_SHARING_ALLOWED_ORIGINS = "edp-portal.eurac.edu"
+#XS_SHARING_ALLOWED_METHODS = ['POST','GET','OPTIONS', 'PUT', 'DELETE']
 
 # Application definition
 
@@ -71,7 +83,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'edp_interface.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
@@ -125,7 +136,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'CET'
 
 USE_I18N = True
 
@@ -137,6 +148,24 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+# STATICFILES_LOCATION = 'static'
+# SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
+# STATICFILES_DIRS = [
+#     os.path.join(SITE_ROOT, 'static/'),
+#     #'/home/edp_user/django-dev/django/contrib/admin',
+#     #'/usr/lib/python3/dist-packages/django/contrib/admin'
+# ]
+
+#SECURE section
+# SESSION_EXPIRED_CONTROL_ENABLED = ast.literal_eval(os.environ.get('SESSION_EXPIRED_CONTROL_ENABLED', 'True'))
+# SESSION_COOKIE_SECURE = ast.literal_eval(os.environ.get('SESSION_COOKIE_SECURE', 'False'))
+# CSRF_COOKIE_SECURE = ast.literal_eval(os.environ.get('CSRF_COOKIE_SECURE', 'False'))
+# CSRF_COOKIE_HTTPONLY = ast.literal_eval(os.environ.get('CSRF_COOKIE_HTTPONLY', 'False'))
+# CORS_ORIGIN_ALLOW_ALL = ast.literal_eval(os.environ.get('CORS_ORIGIN_ALLOW_ALL', 'False'))
+# X_FRAME_OPTIONS = os.environ.get('X_FRAME_OPTIONS', 'DENY')
+# SECURE_CONTENT_TYPE_NOSNIFF = ast.literal_eval(os.environ.get('SECURE_CONTENT_TYPE_NOSNIFF', 'True'))
+# SECURE_BROWSER_XSS_FILTER = ast.literal_eval(os.environ.get('SECURE_BROWSER_XSS_FILTER', 'True'))
+# SECURE_SSL_REDIRECT = ast.literal_eval(os.environ.get('SECURE_SSL_REDIRECT', 'False'))
+# SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', '3600'))
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = ast.literal_eval(os.environ.get('SECURE_HSTS_INCLUDE_SUBDOMAINS', 'True'))
 

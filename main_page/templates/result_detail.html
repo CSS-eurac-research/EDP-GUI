@@ -31,22 +31,35 @@
   </div>
 </div>
 <hr>
+{% if error %}
+  <div class="center">
+    <h4 style="color: #DE4624;">{{ error }}</h4>
+  </div>
+{% else %}
 <div style="width: 100%">
   <div  class="center">
     <h4 style="color: #DE4624;"><b>{{ result_json.title }}</b> detail</h4>
-    <a id="geonetwork_link" href="http://edp-portal.eurac.edu/geonetwork/srv/eng/catalog.search#/metadata/{{uuid}}" target="_blank"><img src="/static/geonetwork_small.png" style="width: 15px; margin-top: -4px;"> Geonetwork</a>
+    <a id="geonetwork_link" href="http://edp-portal.eurac.edu/geonetwork/srv/eng/catalog.search#/metadata/{{uuid}}/formatters/xsl-view?root=div&view=advanced" target="_blank"><img src="/static/geonetwork_small.png" style="width: 15px; margin-top: -4px;"> Go to full metadata</a>
   </div>
   <br>
 <div style="width: 60%; margin: 0 auto;">
-  {% if result_json.abstract %}
-  <div>
-    <label class="label_detail"><i class="fa fa-book" aria-hidden="true"></i> Abstract</label>
-    <p>{{ result_json.abstract }}</p>
-  </div>
-  {% else %}
-    <div></div>
-  {% endif %}
 
+  <hr>
+
+
+<div class="container">
+  <div class="row align-items-start">
+    <div class="col">
+      {% if result_json.abstract %}
+      <div>
+        <label class="label_detail"><i class="fa fa-book" aria-hidden="true"></i> Abstract</label>
+        <p>{{ result_json.abstract }}</p>
+      </div>
+      {% else %}
+        <div></div>
+      {% endif %}
+
+      
   {% if result_json.keyword %}
   <div>
     <label class="label_detail"><i class="fa fa-key" aria-hidden="true"></i> Keywords</label>
@@ -56,19 +69,64 @@
     <div></div>
   {% endif %}
 
-  {% if result_json.tempExtentBegin %}
+
+
+  {% if result_json.legalConstraints %}
   <div>
-    <label class="label_detail"><i class="fa fa-clock-o" aria-hidden="true"></i> Timeseries</label>
-    <p>{{ result_json.tempExtentBegin }} <img src="/static/right-arrow.png" style="width: 20px;"> {{ result_json.tempExtentEnd }}</p>
+    <label class="label_detail"><i class="fa fa-balance-scale" aria-hidden="true"></i> Legal Constraints</label>
+    <p>{{ result_json.legalConstraints }}</p>
+  </div>
+  {% else %}
+    <div></div>
+  {% endif %}
+  
+  {% if result_json.contactResource %}
+  <div>
+    <label class="label_detail"><i class="fa fa-user-circle-o" aria-hidden="true"></i> Contact for resource</label>
+    <!-- <p>{{ result_json.contactResource }}</p> -->
+    <table>
+      <tr>
+        <td>
+          {{ result_json.contactResource.contactName }} 
+        </td>
+      </tr>
+        <tr>
+        <td>
+          <a href="mailto:{{ result_json.contactResource.email }}​"><i class="fa fa-envelope" aria-hidden="true"></i> {{ result_json.contactResource.email }}</a>
+        </td>
+      </tr>
+      
+      <tr>
+        <td>
+          {{ result_json.contactResource.address }}
+        </td>
+      </tr>
+    </table>
   </div>
   {% else %}
     <div></div>
   {% endif %}
 
-  {% if result_json.responsibleParty %}
+  {% if result_json.contactMetadata %}
   <div>
-    <label class="label_detail"><i class="fa fa-user-circle-o" aria-hidden="true"></i> Contact for resource</label>
-    <p>{{ result_json.responsibleParty }}</p>
+    <label class="label_detail"><i class="fa fa-user-circle-o" aria-hidden="true"></i> Contact for metadata</label>
+    <table>
+      <tr>
+        <td>
+          {{ result_json.contactMetadata.contactName }}
+        </td>
+      </tr>
+        <tr>
+        <td>
+          <a href="mailto:{{ result_json.contactMetadata.email }}​"><i class="fa fa-envelope" aria-hidden="true"></i> {{ result_json.contactMetadata.email }}</a>
+        </td>
+      </tr>      
+      <tr>
+        <td>
+          {{ result_json.contactMetadata.address }}
+        </td>
+      </tr>
+    </table>
   </div>
   {% else %}
     <div></div>
@@ -82,6 +140,68 @@
   {% else %}
     <div></div>
   {% endif %}
+    </div>
+
+    <div class="col">
+
+      {% if result_json.thumbnail %}
+      <div>
+        <!-- <label class="label_detail"><i class="fa fa-clock-o" aria-hidden="true"></i> Period</label> -->
+        <img src="{{ result_json.thumbnail }}" style="width: 50%;">
+      </div>
+      {% else %}
+        <div></div>
+      {% endif %}
+
+      <br>
+
+      {% if result_json.category != "sos" %}
+        {% if result_json.minLat %}
+        <div>
+          <label class="label_detail"><i class="fa fa-square" aria-hidden="true"></i> Bounding box</label>
+          <div>
+            <img src="https://edp-portal.eurac.edu/geonetwork/srv/api/regions/geom.png?geomsrs=EPSG:4326&geom=POLYGON(({{result_json.minLon}} {{result_json.minLat}},{{result_json.minLon}} {{result_json.maxLat}},{{result_json.maxLon}} {{result_json.maxLat}},{{result_json.maxLon}} {{result_json.minLat}},{{result_json.minLon}} {{result_json.minLat}}))">
+          </div>
+        </div>
+        {% else %}
+          <div></div>
+        {% endif %}
+      {% else %}
+      <div></div>
+    {% endif %}
+
+    <br>
+
+    {% if result_json.tempExtentBegin %}
+    <div>
+      <label class="label_detail"><i class="fa fa-clock-o" aria-hidden="true"></i> Period</label>
+      <p>{{ result_json.tempExtentBegin }} <img src="/static/right-arrow.png" style="width: 20px;"> {{ result_json.tempExtentEnd }}</p>
+    </div>
+    {% else %}
+      <div></div>
+    {% endif %}
+  
+    {% if result_json.crs %}
+    <div>
+      <label class="label_detail"><i class="fa fa-globe" aria-hidden="true"></i> Coordinate reference system</label>
+      <p>{{ result_json.crs }}</p>
+    </div>
+    {% else %}
+      <div></div>
+    {% endif %}
+  
+    {% if result_json.refSys %}
+    <div>
+      <label class="label_detail"><i class="fa fa-pencil" aria-hidden="true"></i> Spatial representation</label>
+      <p>{{ result_json.refSys }}</p>
+    </div>
+    {% else %}
+      <div></div>
+    {% endif %}
+    </div>
+  </div>
+  </div>  
+
 
 </div>
 
@@ -119,9 +239,7 @@
 
         <label class="snippet_label">{{ code.snippet_code_name }}</label>
         <div class="snippet_code_div">
-          <code class="snipped_code" id="snipped_code_{{ code.pk }}" style="color: black;" value="{{ code.snippet_code }}">
-            {{ code.snippet_code }}
-          </code>
+          <pre><code class="snipped_code" id="snipped_code_{{ code.pk }}" style="color: black;">{{ code.snippet_code }}</code></pre>
         </div>
 
         <div id="copyDiv">
@@ -138,6 +256,42 @@
   {% endif %}
 </div>
 
+
+<div style="width: 60%; margin: 0 auto;">
+  <h5 style="color: #DE4624;"><i class="fa fa-book" aria-hidden="true"></i> Related docs</h5>
+
+  {% if docs_list %}
+    <table style="width:100%">
+      <tr id="header_table">
+        <th>#</th>
+        <th id="name_column_table" class="width_column_table-2">Name</th>
+        <th id="desc_column_table" class="width_column_table-1">Description</th>
+        <th>Link</th>
+        <th id="date_column_table" class="width_column_table-2">Date published</th>
+        <th>Category</th>
+      </tr>
+      {% for source in docs_list %}
+
+        <tr id="rows_table">
+          <td>{{ source.id }}</td>
+          <td>{{ source.source_name }}</td>
+          <td>{{ source.source_description }}</td>
+          <td><a href="{{ source.source_link }}">Link</a></td>
+          <td>{{ source.pub_date }}</td>
+          <td>{{ source.source_category }}</td>
+        </tr>
+          <!-- <li><a href="/polls/{{ question.id }}/">{{ question.question_text }}</a></li> -->
+      {% endfor %}
+    {% else %}
+        <p>No docs sources are available.</p>
+  {% endif %}
+
+  </table>
+
 </div>
 
+<hr>
+
+</div>
+{% endif %}
 {% endblock %}

@@ -16,6 +16,7 @@
   <script src="//code.jquery.com/jquery-1.12.4.js"></script>
   <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   <script src="../static/abstract_expand.js"></script> 
+
 </head>
 
 <div style="height: 50px; margin-top: 10px; width: 100%;" class="row">
@@ -32,6 +33,7 @@
   </div>
 </div>
 <hr>
+<div id="maploader" class='loader'></div>
 
 <div id="discovery_main_section" class="" style="min-height: 90%;">
 
@@ -40,18 +42,18 @@
       <div class="" style="height: 6%; padding: 5px;">
 
 <div class="row">
-    <script>
-      $(function () {
+   <script type="text/javascript">   
+       $(function () {       
+        var searchbar_keyword = "{{ title_list }}";        
           $("#searchbar").autocomplete({
-              source: "{% url 'edp_portal:discovery' %}",
+              // source: "{% url 'edp_portal:discovery' %}",
+              source: searchbar_keyword.split(","),
               minLength: 2,
               max: 10,
               scroll: true              
           });
-      });
-      
+      });   
   </script>
-
 <script src="../static/search.js"></script>   
 <div style="display: -webkit-inline-box;">
     <form id="formsearch" onsubmit="return dosearch();">
@@ -60,6 +62,10 @@
       <button id="searchbutton" type="submit" class="btn btn-outline-primary"><i class="fa fa-search"></i> Search</button>
     </form>
     <script src="../static/reset_search.js"></script>
+    <script>
+      $("#searchbar").prop("disabled",true);
+      $("#searchbutton").prop("disabled",true);
+    </script>
     <button id="resetbutton" type="submit" class="btn btn-outline-primary" style="margin-left: 40px;" onclick="reset_search()"><i class="fa fa-eraser"></i> Reset search</button>
   </div>
 </div>
@@ -68,19 +74,41 @@
         <hr>
       </div>
       <div class="" style="min-height: 88%;">
-        <h5 id="number_results" style="margin: 5px;"><i class="fa fa-list" aria-hidden="true"></i> Results</h5>
+        {% if metadata_list %}
+        <h5 id="number_results" style="margin: 5px;"><i class="fa fa-list" aria-hidden="true"></i> Results: <b>{{ metadata_list|length }}</b> items found</h5>
         <div id="metadata_results" style="min-height: 85%;">
           
-        </div>
-<!--         {% for metadata in metadata_results %}
-          <a type="button" class="btn btn-outline-primary" style="margin: 5px;">{{ metadata.title }}</a><br>
-        {% endfor %} -->
+            {% for item in metadata_list %}
+
+              <div id="row-{{item.uuid}}" class="row">
+              <div class="col"> <div class="card" style="width: 55rem;">
+                {% if item.thumbnail != None %}
+                  <img src="{{item.thumbnail}}" class="card-img-top">
+                {% else  %}
+                  <!-- <img src="/static/no_image.png" class="card-img-top"> -->
+                {% endif %}
+              <div class="card-body">
+              <a class="card-title" style="color: #DE4624; font-size: 20px;" href="/discovery/{{item.uuid}}" target="_blank">{{item.title}}</a>
+              <div class="card-text abstract-results">{{item.abstract}}</div>
+              <p class="card-text" style="font-weight: bold">{{item.category}}</p>
+              <p class="card-text" style="font-size: 12px; font-style:italic;">{{item.keyword}}</p>
+              </div>
+              </div>
+              </div>
+              </div>
+            {% endfor %}
+
+          </div>
+
+          {% else %}
+              <p>No metadata sources are available.</p>
+        {% endif %}
 
       </div>
     </div>
     <div class="" style="float: left; width: 50%;">
-      <div id="map" ></div>      
-      <script src="../static/map.js"></script>    
+        <div id="map" ></div>      
+        <script src="../static/map.js"></script>   
     </div>
   </div>
 </div>
