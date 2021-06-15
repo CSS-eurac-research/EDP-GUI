@@ -25,14 +25,35 @@ def main_page(request):
 
 def discovery(request):
     title_list = "no title found"
+    #category_list = "no category found"
+    category_list = ["no category found"]
     try:
-        #print(request.GET)
+        print(request.GET)
         conn = psycopg2.connect(
                 database="edp_portal_gui", user='edp_gui_user', password='73bd357832012a62357095bf6d9324f8', host='10.8.244.39', port='5432'
             )
         cursor = conn.cursor()
+        tmp_category_list = GeonetworkMetadata.objects.values_list('category', flat=True)
+        category_list = []
+        for c in tmp_category_list:
+            if c not in category_list and c != None:
+                category_list.append(c)
+        
         title_list = ""
 
+        where_clause_array = []
+        where_clause_array.append("all")
+        if request.GET.get('categories'):
+            cateogories_selected = request.GET.get('categories')
+            if "all" not in cateogories_selected:
+                #print("CATEGORIES " + cateogories_selected)                
+                #print(cateogories_selected.split(","))
+                where_clause_array.remove("all")
+                for c in cateogories_selected.split(","):
+                    where_clause_array.append("category='"+c+"'")
+            else:
+                where_clause_array.append("all")
+        
         #if 'term' in request.GET:  
         #print(request.GET.get("term"))
         #searchKeyword = request.GET.get("term")
@@ -69,7 +90,80 @@ def discovery(request):
         if (title_list == ""):
             title_list = "no title found"    
         #    return JsonResponse(title_list, safe=False, status=200)
-        
+        if request.GET.get('period_begin') and request.GET.get('period_end') and request.GET.get('box') and request.GET.get('search'):
+            period_begin = request.GET.get('period_begin')
+            period_end = request.GET.get('period_end')
+            #print(period_begin + " " + period_end)
+            searchKeyword = request.GET.get('search')
+            boundingbox = request.GET.get('box')
+            boundingbox = boundingbox.split(",")
+            #print(boundingbox)
+            polygon = ""
+            for i in range(len(boundingbox)):
+                if i == 0:
+                    polygon = polygon + boundingbox[i]
+                else:
+                    if i % 2 == 0:
+                        polygon = polygon + "," + boundingbox[i]
+                    elif i%2 != 0:
+                        polygon = polygon + " " + boundingbox[i]
+            
+            polygon = "POLYGON((" + polygon + "))"
+
+            if "all" not in where_clause_array:
+                final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom, period_begin, period_end FROM main_page_geonetworkmetadata mpg WHERE ST_Intersects(ST_GEOMFROMTEXT('" + polygon + "', 4326), mpg.geom) AND (title, abstract, category, keyword)::text ILIKE '%" + "%".join(searchKeyword.split(" ")) + "%' AND date_trunc('day', period_begin) BETWEEN '"+period_begin+"' AND '"+period_end+"' OR date_trunc('day', period_end) BETWEEN '"+period_begin+"' AND '"+period_end+"' AND (" + " OR ".join(where_clause_array) + ") ORDER BY title ASC"
+            else:
+                final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom, period_begin, period_end FROM main_page_geonetworkmetadata mpg WHERE ST_Intersects(ST_GEOMFROMTEXT('" + polygon + "', 4326), mpg.geom) AND (title, abstract, category, keyword)::text ILIKE '%" + "%".join(searchKeyword.split(" ")) + "%' AND date_trunc('day', period_begin) BETWEEN '"+period_begin+"' AND '"+period_end+"' OR date_trunc('day', period_end) BETWEEN '"+period_begin+"' AND '"+period_end+"' ORDER BY title ASC"
+
+            #final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, period_begin, period_end FROM main_page_geonetworkmetadata WHERE date_trunc('day', period_begin) >= '"+period_begin+"' AND date_trunc('day', period_end) <= '"+period_end+"' ORDER BY title ASC;"
+            print(final_query)
+            cursor.execute(final_query)
+            results = cursor.fetchall()
+            return JsonResponse({'metadata_results': results, 'title_list': title_list, 'category_list': category_list}, safe=False, status=200)
+        if request.GET.get('period_begin') and request.GET.get('period_end') and request.GET.get('box'):
+            period_begin = request.GET.get('period_begin')
+            period_end = request.GET.get('period_end')
+            #print(period_begin + " " + period_end)
+            boundingbox = request.GET.get('box')
+            boundingbox = boundingbox.split(",")
+            #print(boundingbox)
+            polygon = ""
+            for i in range(len(boundingbox)):
+                if i == 0:
+                    polygon = polygon + boundingbox[i]
+                else:
+                    if i % 2 == 0:
+                        polygon = polygon + "," + boundingbox[i]
+                    elif i%2 != 0:
+                        polygon = polygon + " " + boundingbox[i]
+            #print(polygon)
+            polygon = "POLYGON((" + polygon + "))"   
+
+            if "all" not in where_clause_array:         
+                final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom, period_begin, period_end FROM main_page_geonetworkmetadata mpg WHERE ST_Intersects(ST_GEOMFROMTEXT('" + polygon + "', 4326), mpg.geom) AND date_trunc('day', period_begin) BETWEEN '"+period_begin+"' AND '"+period_end+"' OR date_trunc('day', period_end) BETWEEN '"+period_begin+"' AND '"+period_end+"' AND (" + " OR ".join(where_clause_array) + ") ORDER BY title ASC"
+            else:
+                final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom, period_begin, period_end FROM main_page_geonetworkmetadata mpg WHERE ST_Intersects(ST_GEOMFROMTEXT('" + polygon + "', 4326), mpg.geom) AND date_trunc('day', period_begin) BETWEEN '"+period_begin+"' AND '"+period_end+"' OR date_trunc('day', period_end) BETWEEN '"+period_begin+"' AND '"+period_end+"' ORDER BY title ASC"
+            #final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, period_begin, period_end FROM main_page_geonetworkmetadata WHERE date_trunc('day', period_begin) >= '"+period_begin+"' AND date_trunc('day', period_end) <= '"+period_end+"' ORDER BY title ASC;"
+            print(final_query)
+            cursor.execute(final_query)
+            results = cursor.fetchall()
+            return JsonResponse({'metadata_results': results, 'title_list': title_list, 'category_list': category_list}, safe=False, status=200)
+        if request.GET.get('period_begin') and request.GET.get('period_end') and request.GET.get('search'):
+            period_begin = request.GET.get('period_begin')
+            period_end = request.GET.get('period_end')
+            #print(period_begin + " " + period_end)
+            searchKeyword = request.GET.get('search')
+            #print("KEYWORD " + searchKeyword)
+            if "all" not in where_clause_array:
+                final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom, period_begin, period_end FROM main_page_geonetworkmetadata mpg WHERE (title, abstract, category, keyword)::text ILIKE '%" + "%".join(searchKeyword.split(" ")) + "%' AND date_trunc('day', period_begin) BETWEEN '"+period_begin+"' AND '"+period_end+"' OR date_trunc('day', period_end) BETWEEN '"+period_begin+"' AND '"+period_end+"' AND (" + " OR ".join(where_clause_array) + ") ORDER BY title ASC"
+            else:
+                final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom, period_begin, period_end FROM main_page_geonetworkmetadata mpg WHERE (title, abstract, category, keyword)::text ILIKE '%" + "%".join(searchKeyword.split(" ")) + "%' AND date_trunc('day', period_begin) BETWEEN '"+period_begin+"' AND '"+period_end+"' OR date_trunc('day', period_end) BETWEEN '"+period_begin+"' AND '"+period_end+"' ORDER BY title ASC"
+
+            #final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, period_begin, period_end FROM main_page_geonetworkmetadata WHERE date_trunc('day', period_begin) >= '"+period_begin+"' AND date_trunc('day', period_end) <= '"+period_end+"' ORDER BY title ASC;"
+            print(final_query)
+            cursor.execute(final_query)
+            results = cursor.fetchall()
+            return JsonResponse({'metadata_results': results, 'title_list': title_list, 'category_list': category_list}, safe=False, status=200)
         if request.GET.get('box') and request.GET.get('search'):
             searchKeyword = request.GET.get('search')
             boundingbox = request.GET.get('box')
@@ -87,13 +181,53 @@ def discovery(request):
             
             polygon = "POLYGON((" + polygon + "))"  
             #print(polygon)
-            #print("KEYWORD " + searchKeyword + " BBOX " + boundingbox)            
-            final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom FROM main_page_geonetworkmetadata mpg WHERE ST_CONTAINS(ST_GEOMFROMTEXT('" + polygon + "', 4326), mpg.geom) AND (title, abstract, category, keyword)::text ILIKE '%" + "%".join(searchKeyword.split(" ")) + "%'"
-            #print(final_query)
+            #print("KEYWORD " + searchKeyword + " BBOX " + boundingbox)
+            if "all" not in where_clause_array:
+                final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom, period_begin, period_end FROM main_page_geonetworkmetadata mpg WHERE ST_Intersects(ST_GEOMFROMTEXT('" + polygon + "', 4326), mpg.geom) AND (title, abstract, category, keyword)::text ILIKE '%" + "%".join(searchKeyword.split(" ")) + "%' AND (" + " OR ".join(where_clause_array) + ") ORDER BY title ASC"
+            else:            
+                final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom, period_begin, period_end FROM main_page_geonetworkmetadata mpg WHERE ST_Intersects(ST_GEOMFROMTEXT('" + polygon + "', 4326), mpg.geom) AND (title, abstract, category, keyword)::text ILIKE '%" + "%".join(searchKeyword.split(" ")) + "%' ORDER BY title ASC"
+            print(final_query)
             cursor.execute(final_query)
             results = cursor.fetchall()
-            return JsonResponse({'metadata_results': results, 'title_list': title_list}, safe=False, status=200)
-        if request.GET.get('box'):            
+            return JsonResponse({'metadata_results': results, 'title_list': title_list, 'category_list': category_list}, safe=False, status=200)
+        if request.GET.get('period_begin') and request.GET.get('period_end'):
+            period_begin = request.GET.get('period_begin')
+            period_end = request.GET.get('period_end')
+            #print(period_begin + " " + period_end)
+            if "all" not in where_clause_array:
+                final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, period_begin, period_end FROM main_page_geonetworkmetadata WHERE date_trunc('day', period_begin) BETWEEN '"+period_begin+"' AND '"+period_end+"' OR date_trunc('day', period_end) BETWEEN '"+period_begin+"' AND '"+period_end+"' AND (" + " OR ".join(where_clause_array) + ") ORDER BY title ASC;"
+            else:
+                final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, period_begin, period_end FROM main_page_geonetworkmetadata WHERE date_trunc('day', period_begin) BETWEEN '"+period_begin+"' AND '"+period_end+"' OR date_trunc('day', period_end) BETWEEN '"+period_begin+"' AND '"+period_end+"' ORDER BY title ASC;"
+            print(final_query)
+            cursor.execute(final_query)
+            results = cursor.fetchall()
+            return JsonResponse({'metadata_results': results, 'title_list': title_list, 'category_list': category_list}, safe=False, status=200)
+        # if request.GET.get('box'):            
+        #     boundingbox = request.GET.get('box')
+        #     boundingbox = boundingbox.split(",")
+        #     #print(boundingbox)
+        #     polygon = ""
+        #     for i in range(len(boundingbox)):
+        #         if i == 0:
+        #             polygon = polygon + boundingbox[i]
+        #         else:
+        #             if i % 2 == 0:
+        #                 polygon = polygon + "," + boundingbox[i]
+        #             elif i%2 != 0:
+        #                 polygon = polygon + " " + boundingbox[i]
+        #     #print(polygon)
+        #     polygon = "POLYGON((" + polygon + "))"      
+        #     if "all" not in where_clause_array:
+        #         final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom, period_begin, period_end FROM main_page_geonetworkmetadata mpg WHERE ST_CONTAINS(ST_GEOMFROMTEXT('" + polygon + "', 4326), mpg.geom) AND (" + " OR ".join(where_clause_array) + ") ORDER BY title ASC"
+        #     else:
+        #         final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom, period_begin, period_end FROM main_page_geonetworkmetadata mpg WHERE ST_CONTAINS(ST_GEOMFROMTEXT('" + polygon + "', 4326), mpg.geom) ORDER BY title ASC"
+        #     print(final_query)
+        #     cursor.execute(final_query)
+        #     #print(conn.commit())
+        #     results = cursor.fetchall()
+        #     return JsonResponse({'metadata_results': results, 'title_list': title_list, 'category_list': category_list}, safe=False, status=200)
+        if request.GET.get('box'):
+            print("BOX")            
             boundingbox = request.GET.get('box')
             boundingbox = boundingbox.split(",")
             #print(boundingbox)
@@ -107,21 +241,52 @@ def discovery(request):
                     elif i%2 != 0:
                         polygon = polygon + " " + boundingbox[i]
             #print(polygon)
-            polygon = "POLYGON((" + polygon + "))"            
-            final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom FROM main_page_geonetworkmetadata mpg WHERE ST_CONTAINS(ST_GEOMFROMTEXT('" + polygon + "', 4326), mpg.geom)"
-            #print(final_query)
+            polygon = "POLYGON((" + polygon + "))"
+
+            print('where_clause_array')
+            print(where_clause_array)
+            if "all" not in where_clause_array:
+                final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom, period_begin, period_end FROM main_page_geonetworkmetadata mpg WHERE ST_Intersects(ST_GEOMFROMTEXT('" + polygon + "', 4326), mpg.geom) AND (" + " OR ".join(where_clause_array) + ") ORDER BY title ASC"
+            else:            
+                final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom, period_begin, period_end FROM main_page_geonetworkmetadata mpg WHERE ST_Intersects(ST_GEOMFROMTEXT('" + polygon + "', 4326), mpg.geom) ORDER BY title ASC"
+            print(final_query)
             cursor.execute(final_query)
             #print(conn.commit())
             results = cursor.fetchall()
-            return JsonResponse({'metadata_results': results, 'title_list': title_list}, safe=False, status=200)
+            return JsonResponse({'metadata_results': results, 'title_list': title_list, 'category_list': category_list}, safe=False, status=200)
         if request.GET.get('search'):
+            print("SEARCH")
             searchKeyword = request.GET.get('search')
             #print("KEYWORD " + searchKeyword)
-            final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom FROM main_page_geonetworkmetadata mpg WHERE (title, abstract, category, keyword)::text ILIKE '%" + "%".join(searchKeyword.split(" ")) + "%'"
+
+            if "all" not in where_clause_array:
+                final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom, period_begin, period_end FROM main_page_geonetworkmetadata mpg WHERE (title, abstract, category, keyword)::text ILIKE '%" + "%".join(searchKeyword.split(" ")) + "%' AND (" + " OR ".join(where_clause_array) + ") ORDER BY title ASC"
+            else:
+                final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom, period_begin, period_end FROM main_page_geonetworkmetadata mpg WHERE (title, abstract, category, keyword)::text ILIKE '%" + "%".join(searchKeyword.split(" ")) + "%' ORDER BY title ASC"
+            cursor.execute(final_query)
+            print(final_query)
+            results = cursor.fetchall()
+            #print(results)
+            return JsonResponse({'metadata_results': results, 'title_list': title_list, 'category_list': category_list}, safe=False, status=200)
+        if request.GET.get('categories'):
+            print("CATEGORY")
+            cateogories_selected = request.GET.get('categories')
+            if "all" not in cateogories_selected:
+                #print("CATEGORIES " + cateogories_selected)
+                where_clause_array = []
+                #print(cateogories_selected.split(","))
+                for c in cateogories_selected.split(","):
+                    where_clause_array.append("category='"+c+"'")
+
+                final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom, period_begin, period_end FROM main_page_geonetworkmetadata mpg WHERE " + " OR ".join(where_clause_array) + " ORDER BY title ASC"
+            else:
+                final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom, period_begin, period_end FROM main_page_geonetworkmetadata mpg ORDER BY title ASC"
+            print(final_query)
             cursor.execute(final_query)
             results = cursor.fetchall()
             #print(results)
-            return JsonResponse({'metadata_results': results, 'title_list': title_list}, safe=False, status=200)
+            return JsonResponse({'metadata_results': results, 'title_list': title_list, 'category_list': category_list}, safe=False, status=200)
+
     except GeonetworkMetadata.DoesNotExist:
         raise Http404("GeonetworkMetadata does not exist")
     #finally:
@@ -130,10 +295,10 @@ def discovery(request):
     #print("finally")
     cursor.close()
     conn.close()
-    metadata_list = GeonetworkMetadata.objects.all()    
+    metadata_list = GeonetworkMetadata.objects.order_by('title')
     #print(title_list)    
     #print(metadata_list)
-    return render(request, 'discovery.html', {'metadata_list': metadata_list, 'title_list': title_list})
+    return render(request, 'discovery.html', {'metadata_list': metadata_list, 'title_list': title_list, 'category_list': category_list})
     #return render(request, 'discovery.html', {}) 
     
 def jupyter_page(request):
@@ -167,12 +332,31 @@ def result_detail(request, uuid):
         #docs_list = DocSource.objects.filter(source_category__icontains=result_json["metadata"]["category"])
         snippet_code_list = SnippetCode.objects.filter(snippet_category__icontains=metadata_details["category"])
         for i in snippet_code_list:
-            i.snippet_code = i.snippet_code.replace("NAME_COLLECTION", metadata_details['name_collection'])
-            i.snippet_code = i.snippet_code.replace("MIN_LON", metadata_details['minLon'])
-            i.snippet_code = i.snippet_code.replace("MIN_LAT", metadata_details['minLat'])
-            i.snippet_code = i.snippet_code.replace("MAX_LON", metadata_details['maxLon'])
-            i.snippet_code = i.snippet_code.replace("MAX_LAT", metadata_details['maxLat'])
-            i.snippet_code = i.snippet_code.replace("TEMPORAL_EXTENT", "["+metadata_details['tempExtentBegin']+","+metadata_details['tempExtentEnd']+"]")
+            if 'name_collection' in metadata_details:
+                i.snippet_code = i.snippet_code.replace("NAME_COLLECTION", metadata_details['name_collection'])
+            if 'minLon' in metadata_details:
+                i.snippet_code = i.snippet_code.replace("MIN_LON", metadata_details['minLon'])
+            if 'minLat' in metadata_details:
+                i.snippet_code = i.snippet_code.replace("MIN_LAT", metadata_details['minLat'])
+            if 'maxLon' in metadata_details:
+                i.snippet_code = i.snippet_code.replace("MAX_LON", metadata_details['maxLon'])
+            if 'maxLat' in metadata_details:
+                i.snippet_code = i.snippet_code.replace("MAX_LAT", metadata_details['maxLat'])
+            if 'tempExtentBegin' in metadata_details and 'tempExtentEnd' in metadata_details:
+                i.snippet_code = i.snippet_code.replace("TEMPORAL_EXTENT", "["+metadata_details['tempExtentBegin']+","+metadata_details['tempExtentEnd']+"]")
+                i.snippet_code = i.snippet_code.replace("STARTTIME", metadata_details['tempExtentBegin'])
+                i.snippet_code = i.snippet_code.replace("ENDTIME", metadata_details['tempExtentEnd'])
+            if 'title' in metadata_details:
+                if metadata_details['category'].lower() == 'sos':
+                    title_split = metadata_details['title'].split('_')
+                    foi = title_split[1]
+                    observable_property = title_split[0]
+                    procedure = metadata_details['title']
+                    sos_url = 'http://monalisasos.eurac.edu/sos/api/v1/'
+                    i.snippet_code = i.snippet_code.replace('FOI', '\"'+foi+'\"')
+                    i.snippet_code = i.snippet_code.replace('OBSERVABLE_PROPERTY', '\"'+observable_property+'\"')
+                    i.snippet_code = i.snippet_code.replace('PROCEDURE', '\"'+procedure+'\"')
+                    i.snippet_code = i.snippet_code.replace('SOS_URL', '\"'+sos_url+'\"')
 
         docs_list = DocSource.objects.filter(source_category__icontains=metadata_details["category"])
 
@@ -196,7 +380,7 @@ def get_metadata_details(request, uuid):
     try:
         metadata_detail = {}
         url = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&_draft=y+or+n+or+e&_isTemplate=y+or+n&fast=index&uuid="+uuid
-        #print(url)
+        print(url)
         results = requests.get(url).json()
         #print(results)
         if ("metadata" in results):
@@ -243,14 +427,34 @@ def get_metadata_details(request, uuid):
             if 'spatialRepresentationType_text' in current_metadata:
                 metadata_detail['refSys'] = current_metadata['spatialRepresentationType_text']
             if 'geoBox' in current_metadata:
-                bbox = current_metadata['geoBox'].split("|")
-                metadata_detail['minLat'] = bbox[1]
-                metadata_detail['minLon'] = bbox[0]
-                metadata_detail['maxLat'] = bbox[3]
-                metadata_detail['maxLon'] = bbox[2]
+                if current_metadata['category'].lower() == 'sos':
+                    bbox = current_metadata['geoBox'].split("|")
+                    metadata_detail['minLat'] = bbox[1]
+                    metadata_detail['minLon'] = bbox[0]
+                    metadata_detail['maxLat'] = str(float(bbox[3]) + 0.05)
+                    metadata_detail['maxLon'] = str(float(bbox[2]) + 0.05)
+                else:
+                    bbox = current_metadata['geoBox'].split("|")
+                    metadata_detail['minLat'] = bbox[1]
+                    metadata_detail['minLon'] = bbox[0]
+                    metadata_detail['maxLat'] = bbox[3]
+                    metadata_detail['maxLon'] = bbox[2]
             if 'category' in current_metadata:
                 metadata_detail['category'] = current_metadata['category']
             if 'abstract' in current_metadata:
+                # expression_regex = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
+                # urls = re.findall(expression_regex,current_metadata['abstract'])
+                # print(urls)
+                # for h in urls:
+                #     if len(h) > 0:
+                #         for j in h:                            
+                #             if j != "":
+                #                 print(j)
+                #                 print('<a href="'+j+'">'+j+'</a>')
+                #                 current_metadata['abstract'] = current_metadata['abstract'].replace(j, '<a href="'+j+'">'+j+'</a>')
+                #     else:
+                #         current_metadata['abstract'] = current_metadata['abstract'].replace(h, '<a href="'+h+'">'+h+'</a>')
+
                 metadata_detail['abstract'] = current_metadata['abstract']
             if 'title' in current_metadata:
                 metadata_detail['title'] = current_metadata['title']
@@ -259,12 +463,13 @@ def get_metadata_details(request, uuid):
             if 'lineage' in current_metadata:
                 metadata_detail['lineage'] = current_metadata['lineage']
             if 'tempExtentBegin' in current_metadata:
-                metadata_detail['tempExtentBegin'] = current_metadata['tempExtentBegin']
+                metadata_detail['tempExtentBegin'] = current_metadata['tempExtentBegin'].replace("t", " ").replace("z", "")
             if 'tempExtentEnd' in current_metadata:
-                metadata_detail['tempExtentEnd'] = current_metadata['tempExtentEnd']
+                metadata_detail['tempExtentEnd'] = current_metadata['tempExtentEnd'].replace("t", " ").replace("z", "")
             if 'link' in current_metadata:
-                link_split = current_metadata['link'].split('|')
-                metadata_detail['name_collection'] = link_split[0]
+                if type(current_metadata['link']) is str:
+                    link_split = current_metadata['link'].split('|')
+                    metadata_detail['name_collection'] = link_split[0]
             if 'image' in current_metadata:
                 thumbnail_split = current_metadata['image'].split("|")
                 for e in thumbnail_split:

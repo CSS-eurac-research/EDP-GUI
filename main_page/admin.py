@@ -153,8 +153,8 @@ class GeonetworkMetadataAdmin(admin.ModelAdmin):
     actions = [download_all_metadata]
 
 class SnippetCodeAdmin(admin.ModelAdmin):
-    list_display = ['snippet_code_name', 'snippet_code', 'snippet_category']
-    search_fields = ['snippet_code_name', 'snippet_code', 'snippet_category']
+    list_display = ['snippet_code_name', 'snippet_code', 'snippet_category', 'snippet_programming_language']
+    search_fields = ['snippet_code_name', 'snippet_code', 'snippet_category',  'snippet_programming_language']
     list_filter = ['snippet_category']
 
 class DocSourceAdmin(admin.ModelAdmin):

@@ -38,45 +38,81 @@
 <div id="discovery_main_section" class="" style="min-height: 90%;">
 
   <div id="discovery_main_row" class="min-height: 90%;">
-    <div class="" style="float: left; width: 50%; height: 90%;">
-      <div class="" style="height: 6%; padding: 5px;">
-
-<div class="row">
-   <script type="text/javascript">   
-       $(function () {       
-        var searchbar_keyword = "{{ title_list }}";        
-          $("#searchbar").autocomplete({
-              // source: "{% url 'edp_portal:discovery' %}",
-              source: searchbar_keyword.split(","),
-              minLength: 2,
-              max: 10,
-              scroll: true              
-          });
-      });   
-  </script>
-<script src="../static/search.js"></script>   
-<div style="display: -webkit-inline-box;">
-    <form id="formsearch" onsubmit="return dosearch();">
-      <label for="search"></label>
-      <input type="text" name="search" id="searchbar">
-      <button id="searchbutton" type="submit" class="btn btn-outline-primary"><i class="fa fa-search"></i> Search</button>
-    </form>
-    <script src="../static/reset_search.js"></script>
-    <script>
-      $("#searchbar").prop("disabled",true);
-      $("#searchbutton").prop("disabled",true);
-    </script>
-    <button id="resetbutton" type="submit" class="btn btn-outline-primary" style="margin-left: 40px;" onclick="reset_search()"><i class="fa fa-eraser"></i> Reset search</button>
-  </div>
-</div>
-</div>
-      <div style="padding: 5px;">
-        <hr>
+    <div class="" style="padding: 5px;">    
+      <div class="row">
+        <script type="text/javascript">   
+            $(function () {       
+              var searchbar_keyword = "{{ title_list }}";        
+                $("#searchbar").autocomplete({
+                    // source: "{% url 'edp_portal:discovery' %}",
+                    source: searchbar_keyword.split(","),
+                    minLength: 2,
+                    max: 10,
+                    scroll: true              
+                });
+            });   
+        </script>
+      <script src="../static/search.js"></script>   
+      <div style="display: -webkit-inline-box; width: 100%;">
+        <script src="../static/reset_search.js"></script>
+        <script>
+          $("#searchbar").prop("disabled",true);
+          $("#searchbutton").prop("disabled",true);
+        </script>
+          <script>
+          $( function() {
+            $( "#period_begin" ).datepicker();
+          } );
+          </script>
+          <script>
+            $( function() {
+              $( "#period_end" ).datepicker();
+            } );
+            </script>
+          <form id="formsearch" onsubmit="return dosearch();">
+            <div class="">
+              <div class="row">
+              <div class="" style="float: left; width: 40%;">
+            <label for="search"></label>
+            <input type="text" name="search" id="searchbar">
+            <button id="searchbutton" type="submit" class="btn btn-outline-primary"><i class="fa fa-search"></i> Search</button>
+          </div>
+          <div class="" style="float: left; width: 50%;">
+            <div class="">
+            <div class="row align-items-start" style="margin-top: 5px;">
+              <div class="" style="color: #DE4624; margin-right: 2px;">Begin: <input type="text" id="period_begin" style="border: 0.5px solid #DE4624; border-radius: 5px;"></div>
+              <div class="" style="color: #DE4624; margin-right: 10px;">End: <input type="text" id="period_end" style="border: 0.5px solid #DE4624; border-radius: 5px;"></div>
+              <div class="" style="display: inline-flex;">
+                <label style="color: #DE4624;">Categories: </label> 
+                <div id="categories_div">                               
+                {% for category in category_list %}
+                <div class="checkbox_categories">
+                  <input class="checkbox_categories_input" type="checkbox" id="{{category}}" name="category" value="{{category}}">
+                  <label for="{{category}}"> {{category}}</label>
+                </div>                  
+                {% endfor %}
+              </div>          
+              </div>
+            </div>
+            </div>
+          </div>  
+          <div class="" style="text-align: right; width: 10%;"><button id="resetbutton" type="submit" class="btn btn-outline-primary" style="margin-left: 40px;" onclick="reset_search()"><i class="fa fa-eraser"></i> Reset search</button></div> 
+          </div>
+          </div>  
+          </form>    
+        </div>
       </div>
+    </div>
+      </div>
+<!--       <div style="padding: 0px;">
+        <hr>
+      </div> -->
+    <div class="" style="float: left; width: 50%; height: 83%;">
+      
       <div class="" style="min-height: 88%;">
         {% if metadata_list %}
         <h5 id="number_results" style="margin: 5px;"><i class="fa fa-list" aria-hidden="true"></i> Results: <b>{{ metadata_list|length }}</b> items found</h5>
-        <div id="metadata_results" style="min-height: 85%;">
+        <div id="metadata_results" style="min-height: 95.7%;">
           
             {% for item in metadata_list %}
 
@@ -92,6 +128,9 @@
               <div class="card-text abstract-results">{{item.abstract}}</div>
               <p class="card-text" style="font-weight: bold">{{item.category}}</p>
               <p class="card-text" style="font-size: 12px; font-style:italic;">{{item.keyword}}</p>
+              {% if item.period_begin %}
+                <p><i class="fa fa-clock-o" aria-hidden="true"></i> {{ item.period_begin }} <img src="/static/right-arrow.png" style="width: 20px;"> {{ item.period_end }}</p>
+              {% endif %}
               </div>
               </div>
               </div>

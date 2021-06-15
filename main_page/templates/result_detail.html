@@ -15,6 +15,8 @@
   <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
   <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="../static/bootstrap/js/bootstrap.js"></script>
+
 </head>
 
 <div style="height: 50px; margin-top: 10px; width: 100%;" class="row">
@@ -53,7 +55,7 @@
       {% if result_json.abstract %}
       <div>
         <label class="label_detail"><i class="fa fa-book" aria-hidden="true"></i> Abstract</label>
-        <p>{{ result_json.abstract }}</p>
+        <p>{{result_json.abstract}}</p>
       </div>
       {% else %}
         <div></div>
@@ -155,20 +157,16 @@
 
       <br>
 
-      {% if result_json.category != "sos" %}
         {% if result_json.minLat %}
         <div>
           <label class="label_detail"><i class="fa fa-square" aria-hidden="true"></i> Bounding box</label>
           <div>
-            <img src="https://edp-portal.eurac.edu/geonetwork/srv/api/regions/geom.png?geomsrs=EPSG:4326&geom=POLYGON(({{result_json.minLon}} {{result_json.minLat}},{{result_json.minLon}} {{result_json.maxLat}},{{result_json.maxLon}} {{result_json.maxLat}},{{result_json.maxLon}} {{result_json.minLat}},{{result_json.minLon}} {{result_json.minLat}}))">
-          </div>
+              <img src="https://edp-portal.eurac.edu/geonetwork/srv/api/regions/geom.png?geomsrs=EPSG:4326&geom=POLYGON(({{result_json.minLon}} {{result_json.minLat}}+100,{{result_json.minLon}} {{result_json.maxLat}},{{result_json.maxLon}} {{result_json.maxLat}},{{result_json.maxLon}} {{result_json.minLat}},{{result_json.minLon}} {{result_json.minLat}}))">
+            </div>
         </div>
         {% else %}
           <div></div>
         {% endif %}
-      {% else %}
-      <div></div>
-    {% endif %}
 
     <br>
 
@@ -205,57 +203,79 @@
 
 </div>
 
+
+{% if snippet_code_list %}
 <hr style="width: 90%;">
 
 <div style="width: 60%; margin: 0 auto;">
   <h5 style="color: #DE4624;"><i class="fa fa-code" aria-hidden="true"></i> Snippet code</h5>
 
   <script>
-    function myFunction(id) {
+    function copySnippetCode(id) {
 
-      var copyText = $("#snipped_code_"+id)[0].innerText;
+      //var copyText = $("#snipped_code_"+id)[0].innerText;
+      var copyText = $("#snipped_code_"+id)[0].textContent;
       //console.log(copyText);
-
-      var $temp = $("<input>");
-      $("body").append($temp);
-      $temp.val(copyText).select();
+      var textArea = document.createElement('textarea');
+      textArea.textContent = copyText;
+      document.body.append(textArea);
+      textArea.select();
+      //var $temp = $("<input>");
+      //$("body").append($temp);
+      //$temp.val(copyText).select();
       document.execCommand("copy");
-      $temp.remove();
+      //$temp.remove();
       
-      var tooltip = document.getElementById("copyTooltip");
+      var tooltip = document.getElementById("copyTooltip_"+id);
       tooltip.innerHTML = '<i class="fa fa-check-circle" aria-hidden="true"></i> Copied';
-      $("#copyTooltip").css("color", "green");
+      $("#copyTooltip_"+id).css("color", "green");
     }
     
-    function outFunc() {
-      var tooltip = document.getElementById("copyTooltip");
+    function outFunc(id) {
+      var tooltip = document.getElementById("copyTooltip_"+id);
       tooltip.innerHTML = "Copy to clipboard";
-      $("#copyTooltip").css("color", "black");
+      $("#copyTooltip_"+id).css("color", "black");
     }
     </script>
 
-  {% if snippet_code_list %}
+<div>
+
+  <ul class="nav nav-tabs" id="programming_languages_list" role="tablist">
+    
+        {% for code in snippet_code_list %}
+          {% if code.snippet_programming_language != 'No programming language' %}
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="{{ code.snippet_programming_language }}-tab" data-bs-toggle="tab" data-bs-target="#{{ code.snippet_programming_language }}" type="button" role="tab" aria-controls="{{ code.snippet_programming_language }}" aria-selected="false" style="color: #DE4624;">{{ code.snippet_programming_language }}</button>
+    </li>
+    {% endif %}
+        {% endfor %}
+  </ul>
+  <div class="tab-content" id="snippet_code">
+    {% if snippet_code_list %}
       {% for code in snippet_code_list %}
+    <div class="tab-pane fade" id="{{ code.snippet_programming_language }}" role="tabpanel" aria-labelledby="{{ code.snippet_programming_language }}-tab" style="padding: 5px;">
+      
+      <div id="copyDiv">
+        <button class="copyButton_snippet" id="copyButton_{{ code.pk }}" onclick="copySnippetCode('{{ code.pk }}')" onmouseout="outFunc('{{ code.pk }}')">            
+          <i class="fa fa-clipboard" aria-hidden="true"></i> Copy code
+        </button>
+        <span class="copyTooltip_snippet" id="copyTooltip_{{ code.pk }}">Copy to clipboard</span>
+      </div>
+      <hr>
+      <pre><code class="snipped_code" id="snipped_code_{{ code.pk }}" style="color: black;">{{ code.snippet_code }}</code></pre>
 
-        <label class="snippet_label">{{ code.snippet_code_name }}</label>
-        <div class="snippet_code_div">
-          <pre><code class="snipped_code" id="snipped_code_{{ code.pk }}" style="color: black;">{{ code.snippet_code }}</code></pre>
-        </div>
-
-        <div id="copyDiv">
-          <button id="copyButton" onclick="myFunction('{{ code.pk }}')" onmouseout="outFunc()">            
-            <i class="fa fa-clipboard" aria-hidden="true"></i> Copy code
-          </button>
-          <span id="copyTooltip">Copy to clipboard</span>
-        </div>
-          <hr>
-
-      {% endfor %}
+    </div>
+    {% endfor %}
     {% else %}
         <p>No snippet code are available.</p>
   {% endif %}
-</div>
+  </div>
 
+</div>
+</div>
+{% endif %}
+
+<hr style="width: 90%;">
 
 <div style="width: 60%; margin: 0 auto;">
   <h5 style="color: #DE4624;"><i class="fa fa-book" aria-hidden="true"></i> Related docs</h5>
@@ -263,7 +283,7 @@
   {% if docs_list %}
     <table style="width:100%">
       <tr id="header_table">
-        <th>#</th>
+        <!-- <th>#</th> -->
         <th id="name_column_table" class="width_column_table-2">Name</th>
         <th id="desc_column_table" class="width_column_table-1">Description</th>
         <th>Link</th>
@@ -273,7 +293,7 @@
       {% for source in docs_list %}
 
         <tr id="rows_table">
-          <td>{{ source.id }}</td>
+          <!-- <td>{{ source.id }}</td> -->
           <td>{{ source.source_name }}</td>
           <td>{{ source.source_description }}</td>
           <td><a href="{{ source.source_link }}">Link</a></td>
@@ -294,4 +314,7 @@
 
 </div>
 {% endif %}
+<script src="../static/dropdownmenu_prog_languages.js"></script> 
+
 {% endblock %}
+

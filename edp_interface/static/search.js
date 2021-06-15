@@ -1,6 +1,5 @@
 
 function dosearch() {
-    
     $('#metadata_results').empty();
     $('#metadata_results').prepend("<div class='loader'></div>");
 
@@ -22,29 +21,30 @@ function dosearch() {
             }
         }
     });
-
-    //var search_request = {'keyword':'', 'boundingbox': ''};
-    var search_request = {};
-    //search_request['keyword'] = searchbar.value;
     
     var href = window.location.href;
-    var url = href;//+'?search='+searchbar.value;
+    var url = href+'?';//+'?search='+searchbar.value;
     var boundingbox = "";
+    var url_params = [];
 
     map.eachLayer(function(layer) {
+        console.log(layer);
         if(layer.hasOwnProperty("layerID")){
             if(layer.layerID=="boundingbox"){
                 var polygon = layer.toGeoJSON();
                 boundingbox = polygon['geometry']['coordinates'][0];
-                search_request = {'boundingbox': boundingbox };
+                console.log(polygon);
+                console.log(boundingbox);
             }            
         }
     });
 
     map.eachLayer(function(layer) {
         if(layer instanceof L.Rectangle) {
-            //console.log(layer);
-            map.removeLayer(layer);
+            //console.log(layer.layerID);
+            if (layer.layerID != "boundingbox") {
+                map.removeLayer(layer);
+            }
         }
         if(layer instanceof L.Marker) {
             //console.log(layer);
@@ -52,14 +52,38 @@ function dosearch() {
         }
     });
 
-    if(boundingbox != ""){
-        //console.log("keybox ok");
-        url = url + '?search='+ (searchbar.value=="" ? 'all' : searchbar.value) + '&' + 'box=' + boundingbox;
-        //search_request.keyword = searchbar.value;
-    } else {
-        //console.log("keybox no");
-        url = url + '?search=' + (searchbar.value=="" ? 'all' : searchbar.value);
+    var categories_selected = [];
+    $.each($("input[name='category']:checked"), function(){            
+      categories_selected.push($(this).val());
+    });
+    $.each($("input[name='category']:not(:checked)"), function(){  
+      var index = categories_selected.indexOf($(this).val()); 
+    });
+
+    if (categories_selected.length==0) {
+      categories_selected.push("all");
     }
+    
+    url_params.push('categories='+categories_selected.join(","));
+
+    //Date picker YYYY-MM-DD   
+    var period_begin = document.getElementById('period_begin').value
+    var period_end = document.getElementById('period_end').value
+
+    if (boundingbox!=""){
+        url_params.push('box=' + boundingbox);
+    } 
+    if (searchbar.value!=""){
+        url_params.push('search=' + searchbar.value);
+    } 
+    if (period_begin!="" && period_end!="") {
+        url_params.push('period_begin='+ period_begin + '&period_end=' + period_end);
+    }
+    
+    console.log(url_params);
+    var final_url_params = url_params.join("&");
+    url = url + final_url_params;
+    console.log(url);
 
     //console.log(search_request);
     //console.log(url);

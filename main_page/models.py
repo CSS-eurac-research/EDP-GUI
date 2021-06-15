@@ -34,6 +34,7 @@ class SnippetCode(models.Model):
     snippet_code = models.TextField(max_length=10000, null=True)
     # snippet_code_type = models.CharField(choices=SNIPPET_CODE_TYPE, max_length=50)
     snippet_category = models.CharField(max_length=200, default="No category")
+    snippet_programming_language = models.CharField(max_length=200, default="No programming language")
 
     def __str__(self):
         return self.snippet_code_name
@@ -47,6 +48,8 @@ class GeonetworkMetadata(models.Model):
     thumbnail = models.CharField(max_length=1000, null=True)
     geom = models.PolygonField(srid=4326, null=True)
     last_update = models.DateTimeField(null=True, editable=False)
+    period_begin = models.DateTimeField(null=True)
+    period_end = models.DateTimeField(null=True)
     
     def __str__(self):
         return self.title

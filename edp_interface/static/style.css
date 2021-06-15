@@ -187,7 +187,8 @@ td {
 
 #map {
   width: 100%;
-  height: 90%;
+  height: 83%;
+  z-index: 1;
 }
 
 #discover_main_section {
@@ -217,6 +218,7 @@ td {
 
 #formsearch {
   /*margin: 0 auto;*/
+  width: 100%;
 }
 
 .label_detail {
@@ -237,24 +239,24 @@ td {
 }
 
 
-#copyTooltip{
+.copyTooltip_snippet{
   visibility: hidden;
   margin-left: 5px;
 }
 
-#copyButton:hover + #copyTooltip {
+.copyButton_snippet:hover + .copyTooltip_snippet {
   visibility: visible;
   opacity: 1;
 }
 
-#copyButton {
+.copyButton_snippet {
   color: #DE4624;
   border: 1px solid #DE4624;
   background-color: white;
   border-radius: 15px;
 }
 
-#copyButton:hover {
+.copyButton_snippet:hover {
   color: white;
   border: 1px solid #DE4624;
   background-color: #DE4624;
@@ -262,7 +264,8 @@ td {
 }
 
 #copyDiv{
-  margin-top: 5px;
+  top: 7px;
+  position: relative;
 }
 
 .abstract-results {
@@ -404,4 +407,25 @@ td {
   .card img {
     width: 40%;
   }
+}
+
+#categories_div{
+  /* overflow: scroll;
+  overflow-x: hidden; */
+  display: -webkit-inline-box;
+}
+
+.checkbox_categories {
+  margin: 2px;
+}
+
+
+.nav-link.active {
+  font-weight: bold;
+}
+
+
+textarea {
+  z-index: -100;
+  position: fixed;
 }

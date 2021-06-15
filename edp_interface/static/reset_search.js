@@ -1,9 +1,22 @@
 function reset_search() {
     
+    var searchbar = document.getElementById("searchbar");
+    searchbar.value = "";
+
+    var period_begin_input = document.getElementById("period_begin");
+    period_begin_input.value = "";
+    var period_end_input = document.getElementById("period_end");
+    period_end_input.value = "";
+
+    var checkboxes = document.getElementsByClassName("checkbox_categories_input")
+    
+    for (i=0; i<checkboxes.length; i++) {
+        checkboxes[i].checked = false;
+    }
+
     location.reload();
 
-    /* var searchbar = document.getElementById("searchbar");
-    searchbar.value = "";
+    /*
     //console.log("searchbar reset");
 
     var metadata_results = document.getElementById("metadata_results");
@@ -19,6 +32,6 @@ function reset_search() {
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: attribution }).addTo(map);
 
     map.setView([48, 10], 5);
- */
-    //console.log("Search keyword and bounding box reset!");
+
+    //console.log("Search keyword and bounding box reset!");*/
   }

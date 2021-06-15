@@ -27,6 +27,20 @@ map.on('draw:created', function (e) {
     $('#metadata_results').empty();
     $('#metadata_results').prepend("<div class='loader'></div>");
 
+
+    map.eachLayer(function(layer) {
+        if(layer instanceof L.Rectangle) {
+            // console.log(layer);
+            if (layer.layerID != "boundingbox") {
+                map.removeLayer(layer);
+            }
+        }
+        if(layer instanceof L.Marker) {
+            //console.log(layer);
+            map.removeLayer(layer);
+        }
+    });
+
     drawnItems.clearLayers();
     var type = e.layerType, layer = e.layer;
     var coords = layer.getLatLngs();
@@ -47,7 +61,6 @@ map.on('draw:created', function (e) {
     //$('#boundingbox').val(coords[0][0] + ", " + coords[0][1] + ", " + coords[0][2] + ", " + coords[0][3]);
 
     var boundingbox = polygon['geometry']['coordinates'][0];
-    var search_request = {'boundingbox': boundingbox };
 
     var csrftoken = Cookies.get('csrftoken');
 
@@ -65,30 +78,67 @@ map.on('draw:created', function (e) {
         }
     });
 
-    map.eachLayer(function(layer) {
-        if(layer instanceof L.Rectangle) {
-            // console.log(layer);
-            map.removeLayer(layer);
-        }
-        if(layer instanceof L.Marker) {
-            //console.log(layer);
-            map.removeLayer(layer);
-        }
-    });
-
     //console.log(csrftoken);
 
     var href = window.location.href;
-    var url = href;//+'?search='+searchbar.value;
+    var url = href + '?';//+'?search='+searchbar.value;
+    var url_params = [];
 
+    // if(boundingbox != ""){
+    //     //console.log("keybox ok");
+    //     url = url + '?search='+searchbar.value + '&' + 'box=' + boundingbox;
+    //     //search_request.keyword = searchbar.value;
+    // } else {
+    //     //console.log("keybox no");
+    //     url = url + '?search='+searchbar.value;
+    // }
+
+    var categories_selected = [];
+    $.each($("input[name='category']:checked"), function(){            
+      categories_selected.push($(this).val());
+    });
+    $.each($("input[name='category']:not(:checked)"), function(){  
+      var index = categories_selected.indexOf($(this).val()); 
+    });
+
+    if (categories_selected.length==0) {
+      categories_selected.push("all");
+    }
+
+    url_params.push('categories='+categories_selected.join(","));
+
+    //Date picker 2013-01-01   
+    var period_begin = document.getElementById('period_begin').value
+    var period_end = document.getElementById('period_end').value
+
+    if (boundingbox!=""){
+        url_params.push('box=' + boundingbox);
+    } 
+    if (searchbar.value!=""){
+        url_params.push('search=' + searchbar.value);
+    } 
+    if (period_begin!="" && period_end!="") {
+        url_params.push('period_begin='+ period_begin + '&period_end=' + period_end);
+    }
+    
+    console.log(url_params);
+    var final_url_params = url_params.join("&");
+    url = url + final_url_params;
+    console.log(url);
+
+    /*
     if(boundingbox != ""){
         //console.log("keybox ok");
-        url = url + '?search='+searchbar.value + '&' + 'box=' + boundingbox;
+        url = url + '?box=' + boundingbox;
         //search_request.keyword = searchbar.value;
-    } else {
+    } else if (boundingbox!="" && period_begin!="" && period_end!="") {
+        url = url + '?box='+boundingbox+'&period_begin='+ period_begin + '&period_end=' + period_end;
+    } else if (boundingbox!="" && searchbar.value!="") {
         //console.log("keybox no");
-        url = url + '?search='+searchbar.value;
-    }
+        url = url + '?search='+ (searchbar.value=="" ? 'all' : searchbar.value) + '&' + 'box=' + boundingbox;
+    } else if (boundingbox!="" && period_begin!="" && period_end!="" && searchbar.value!="") {
+        url = url + '?search='+ (searchbar.value=="" ? 'all' : searchbar.value) + '&' + 'box=' + boundingbox+'&period_begin='+ period_begin + '&period_end=' + period_end;
+    }*/
 
     //console.log(search_request);
     //console.log(url);
