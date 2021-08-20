@@ -62,7 +62,7 @@ map.on('draw:created', function (e) {
 
     var boundingbox = polygon['geometry']['coordinates'][0];
 
-    var csrftoken = Cookies.get('csrftoken');
+    //var csrftoken = Cookies.get('csrftoken');
 
     function csrfSafeMethod(method) {
         // these HTTP methods do not require CSRF protection

@@ -29,7 +29,8 @@
     </div>      
   </div>
   <div class="col">
-    
+    <img style="width: 360px;" src="/static/efre-fesr_logo.jpg" id="fesr_logo">
+
   </div>
 </div>
 <hr>
@@ -108,7 +109,6 @@
         <hr>
       </div> -->
     <div class="" style="float: left; width: 50%; height: 83%;">
-      
       <div class="" style="min-height: 88%;">
         {% if metadata_list %}
         <h5 id="number_results" style="margin: 5px;"><i class="fa fa-list" aria-hidden="true"></i> Results: <b>{{ metadata_list|length }}</b> items found</h5>
@@ -117,7 +117,7 @@
             {% for item in metadata_list %}
 
               <div id="row-{{item.uuid}}" class="row">
-              <div class="col"> <div class="card" style="width: 55rem;">
+              <div class="col"> <div class="card card_rem">
                 {% if item.thumbnail != None %}
                   <img src="{{item.thumbnail}}" class="card-img-top">
                 {% else  %}
@@ -125,7 +125,7 @@
                 {% endif %}
               <div class="card-body">
               <a class="card-title" style="color: #DE4624; font-size: 20px;" href="/discovery/{{item.uuid}}" target="_blank">{{item.title}}</a>
-              <div class="card-text abstract-results">{{item.abstract}}</div>
+              <div class="card-text abstract-results"><span class="abstract_par">{{item.abstract}}</span></div>
               <p class="card-text" style="font-weight: bold">{{item.category}}</p>
               <p class="card-text" style="font-size: 12px; font-style:italic;">{{item.keyword}}</p>
               {% if item.period_begin %}

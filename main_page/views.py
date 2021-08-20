@@ -195,7 +195,7 @@ def discovery(request):
             period_end = request.GET.get('period_end')
             #print(period_begin + " " + period_end)
             if "all" not in where_clause_array:
-                final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, period_begin, period_end FROM main_page_geonetworkmetadata WHERE date_trunc('day', period_begin) BETWEEN '"+period_begin+"' AND '"+period_end+"' OR date_trunc('day', period_end) BETWEEN '"+period_begin+"' AND '"+period_end+"' AND (" + " OR ".join(where_clause_array) + ") ORDER BY title ASC;"
+                final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, period_begin, period_end FROM main_page_geonetworkmetadata WHERE (date_trunc('day', period_begin) BETWEEN '"+period_begin+"' AND '"+period_end+"' OR date_trunc('day', period_end) BETWEEN '"+period_begin+"' AND '"+period_end+"') AND (" + " OR ".join(where_clause_array) + ") ORDER BY title ASC;"
             else:
                 final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, period_begin, period_end FROM main_page_geonetworkmetadata WHERE date_trunc('day', period_begin) BETWEEN '"+period_begin+"' AND '"+period_end+"' OR date_trunc('day', period_end) BETWEEN '"+period_begin+"' AND '"+period_end+"' ORDER BY title ASC;"
             print(final_query)

@@ -202,7 +202,7 @@ td {
 }
 
 #searchbar {
-  width: 600px;
+  width: 300px;
   border-radius: 25px;
   border: 0.5px solid #DE4624;
   margin-left: 20px;
@@ -216,9 +216,13 @@ td {
   margin-left: 20px;
 }
 
+#fesr_logo {
+  width:480px;
+}
+
 #formsearch {
   /*margin: 0 auto;*/
-  width: 100%;
+  width: 95%;
 }
 
 .label_detail {
@@ -269,13 +273,24 @@ td {
 }
 
 .abstract-results {
-  height: 1.5rem;
-  overflow: hidden;
+  height: 4rem;
+  overflow-x: hidden;
 }
+
+/* .abstract-results {
+  white-space: nowrap;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+  width: 8%;
+} */
 
 .abstract-results:hover {
   cursor: pointer;
 }
+
+/* .abstract-results:active, .abstract-results:hover {
+  overflow-x: visible;
+} */
 
 .expand {
   overflow: visible;
@@ -359,6 +374,11 @@ td {
   margin: 0 auto;
 }
 
+.card_rem {
+  width: 55rem;
+}
+
+
 /* Safari */
 @-webkit-keyframes spin {
   0% { -webkit-transform: rotate(0deg); }
@@ -402,10 +422,17 @@ td {
   .card img {
     width: 50%;
   }
+  #searchbar {
+    width: 300px;
+  }
 }
+
 @media only screen and (max-width: 1200px) {
   .card img {
     width: 40%;
+  }
+  #searchbar {
+    width: 300px;
   }
 }
 
@@ -428,4 +455,15 @@ td {
 textarea {
   z-index: -100;
   position: fixed;
+}
+
+@media only screen and (max-width: 1250px) {
+
+  #searchbar {
+    width: 300px;
+  }
+
+  .card_rem {
+    width: 37rem;
+  }
 }
