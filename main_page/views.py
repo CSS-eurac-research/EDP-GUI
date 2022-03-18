@@ -323,13 +323,13 @@ def result_detail(request, uuid):
             if 'name_collection' in metadata_details:
                 i.snippet_code = i.snippet_code.replace("NAME_COLLECTION", metadata_details['name_collection'])
             if 'minLon' in metadata_details:
-                i.snippet_code = i.snippet_code.replace("MIN_LON", metadata_details['minLon'])
+                i.snippet_code = i.snippet_code.replace("MIN_LON", str(metadata_details['minLon']))
             if 'minLat' in metadata_details:
-                i.snippet_code = i.snippet_code.replace("MIN_LAT", metadata_details['minLat'])
+                i.snippet_code = i.snippet_code.replace("MIN_LAT", str(metadata_details['minLat']))
             if 'maxLon' in metadata_details:
-                i.snippet_code = i.snippet_code.replace("MAX_LON", metadata_details['maxLon'])
+                i.snippet_code = i.snippet_code.replace("MAX_LON", str(metadata_details['maxLon']))
             if 'maxLat' in metadata_details:
-                i.snippet_code = i.snippet_code.replace("MAX_LAT", metadata_details['maxLat'])
+                i.snippet_code = i.snippet_code.replace("MAX_LAT", str(metadata_details['maxLat']))
             if 'tempExtentBegin' in metadata_details and 'tempExtentEnd' in metadata_details:
                 i.snippet_code = i.snippet_code.replace("TEMPORAL_EXTENT", "["+metadata_details['tempExtentBegin']+","+metadata_details['tempExtentEnd']+"]")
                 i.snippet_code = i.snippet_code.replace("STARTTIME", metadata_details['tempExtentBegin'])
