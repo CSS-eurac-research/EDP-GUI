@@ -162,7 +162,8 @@
         <div>
           <label class="label_detail"><i class="fa fa-square" aria-hidden="true"></i> Bounding box</label>
           <div>
-              <img src="https://edp-portal.eurac.edu/geonetwork/srv/api/regions/geom.png?geomsrs=EPSG:4326&geom=POLYGON(({{result_json.minLon}} {{result_json.minLat}}+100,{{result_json.minLon}} {{result_json.maxLat}},{{result_json.maxLon}} {{result_json.maxLat}},{{result_json.maxLon}} {{result_json.minLat}},{{result_json.minLon}} {{result_json.minLat}}))">
+              <!-- <img src="https://edp-portal.eurac.edu/geonetwork/srv/api/regions/geom.png?geomsrs=EPSG:4326&geom=POLYGON(({{result_json.minLon}} {{result_json.minLat}}+100,{{result_json.minLon}} {{result_json.maxLat}},{{result_json.maxLon}} {{result_json.maxLat}},{{result_json.maxLon}} {{result_json.minLat}},{{result_json.minLon}} {{result_json.minLat}}))"> -->
+              <img src="https://edp-portal.eurac.edu/geonetwork/srv/api/records/{{uuid}}/extents.png">
             </div>
         </div>
         {% else %}

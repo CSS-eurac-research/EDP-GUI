@@ -379,18 +379,34 @@ def get_metadata_details(request, uuid):
 
         for contact in metadataRecords['contact']:
             if 'pointOfContact' in contact['role']:
-                metadata_detail['contactMetadata'] = { 'contactName' : contact, 'email' : contact['email'], 'address' : contact['address'] }
+                metadata_detail['contactMetadata'] = { 'contactName' : contact['organisation'], 'email' : contact['email'], 'address' : contact['address'] }
             if 'author' in contact['role']:
-                metadata_detail['contactResource'] = { 'contactName' : contact, 'email' : contact['email'], 'address': contact['address'] }
+                metadata_detail['contactResource'] = { 'contactName' : contact['organisation'], 'email' : contact['email'], 'address': contact['address'] }
 
         metadata_detail['legalConstraints'] = metadataRecords['MD_LegalConstraintsOtherConstraintsObject'][0]['default']
         metadata_detail['crs'] = metadataRecords['crsDetails'][0]['name'] + " ("+metadataRecords['crsDetails'][0]['code']+":"+metadataRecords['crsDetails'][0]['codeSpace']+")"
         metadata_detail['refSys'] = metadataRecords['cl_spatialRepresentationType'][0]['default']
         if 'geom' in metadataRecords:
-                metadata_detail['minLat'] = metadataRecords['geom']['coordinates'][0][1]
-                metadata_detail['minLon'] = metadataRecords['geom']['coordinates'][0][0]
-                metadata_detail['maxLat'] = metadataRecords['geom']['coordinates'][0][2]
-                metadata_detail['maxLon'] = metadataRecords['geom']['coordinates'][0][3]
+            k=0
+            for i in metadataRecords['geom']['coordinates'][0]:
+                if k == 0:
+                    minLat = i[1]
+                    minLon = i[0]
+                    maxLat = i[1]
+                    maxLon = i[0]
+                if minLat > i[1]:
+                    minLat = i[1]
+                if minLon > i[0]:
+                    minLon = i[0]
+                if maxLat < i[1]:
+                    maxLat = i[1]
+                if maxLon < i[0]:
+                    maxLon = i[0]
+                k=k+1        
+            metadata_detail['minLat'] = minLat
+            metadata_detail['minLon'] = minLon
+            metadata_detail['maxLat'] = maxLat
+            metadata_detail['maxLon'] = maxLon
 
         if 'resourceTitleObject' in metadataRecords:
             metadata_detail['title'] = metadataRecords['resourceTitleObject']['default']
