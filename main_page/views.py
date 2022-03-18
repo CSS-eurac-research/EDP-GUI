@@ -383,8 +383,8 @@ def get_metadata_details(request, uuid):
             if 'author' in contact['role']:
                 metadata_detail['contactResource'] = { 'contactName' : contact, 'email' : contact['email'], 'address': contact['address'] }
 
-        metadata_detail['legalConstraints'] = metadataRecords[0]['MD_LegalConstraintsOtherConstraintsObject']
-        metadata_detail['crs'] = metadataRecords[0]['crsDetails']['name'] + " ("+metadataRecords[0]['crsDetails']['code']+":"+metadataRecords[0]['crsDetails']['codeSpace']+")"
+        metadata_detail['legalConstraints'] = metadataRecords['MD_LegalConstraintsOtherConstraintsObject'][0]['default']
+        metadata_detail['crs'] = metadataRecords['crsDetails'][0]['name'] + " ("+metadataRecords['crsDetails'][0]['code']+":"+metadataRecords['crsDetails'][0]['codeSpace']+")"
         metadata_detail['refSys'] = metadataRecords['cl_spatialRepresentationType'][0]['default']
         if 'geom' in metadataRecords:
                 metadata_detail['minLat'] = metadataRecords['geom']['coordinates'][0][1]
@@ -398,7 +398,7 @@ def get_metadata_details(request, uuid):
             metadata_detail['title'] = metadataRecords['resourceAltTitleObject']['default']
         if 'resourceAbstractObject' in metadataRecords:
             metadata_detail['abstract'] = metadataRecords['resourceAbstractObject']['default']
-        
+
         if 'overview' in metadataRecords:
             metadata_detail['thumbnail'] = metadataRecords['overview'][0]['url']
 
@@ -410,23 +410,22 @@ def get_metadata_details(request, uuid):
             metadata_detail['category'] = 'maps'
         else:
             metadata_detail['category'] = 'database'
-        
+
         if 'tag' in metadataRecords:
             keywords = []
             for t in metadataRecords['tag']:        
                 keywords.append(t['default'])   
             metadata_detail['keyword'] = ", ".join(keywords)
-        
+
         if 'lineage' in metadataRecords:
             metadata_detail['lineage'] = metadataRecords['lineageObject']
-        
+
         if 'resourceTemporalExtentDetails' in metadataRecords:
             metadata_detail['tempExtentBegin'] = metadataRecords['resourceTemporalExtentDetails'][0]['start']['date']
             metadata_detail['tempExtentEnd'] = metadataRecords['resourceTemporalExtentDetails'][0]['end']['date']
 
         if 'link' in metadataRecords:
             metadata_detail['name_collection'] = metadataRecords['link'][0]['url']
-
         return metadata_detail
         
     # except:
