@@ -9,6 +9,8 @@ import ast, re
 import psycopg2
 from .models import DocSource, SnippetCode, GeonetworkMetadata
 
+ACCEPT_HTTP = "application/json"
+CONTENT_TYPE = "application/json"
 
 class DocsPageView(generic.ListView):
     template_name = 'docs.html'
@@ -314,22 +316,8 @@ def maps_page(request):
     return render(request, 'maps.html', {})
 
 def result_detail(request, uuid):
-    # url = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&_draft=y+or+n+or+e&_isTemplate=y+or+n&fast=index&uuid="+uuid
-    # #url = "http://edp-portal.eurac.edu/geonetwork/srv/api/0.1/records/"+uuid
-    # print(url)
-    # results = requests.get(url, headers = {"Accept":"application/json;charset=utf-8", "content-type": "application/json;charset=utf-8"})
-    # print(results.json())
-    # result_json_str = JsonResponse(results.json()).content.decode("utf-8") 
-    # result_json = ast.literal_eval(result_json_str)
     metadata_details = get_metadata_details(request, uuid)
-    #print(metadata_details)
     if ("error"  not in metadata_details):
-    #     result_json["metadata"]["keyword"] = ", ".join(result_json["metadata"]["keyword"])
-    #     result_json["metadata"]["responsibleParty"] = result_json["metadata"]["responsibleParty"][0].replace("|", " ")
-        
-                
-        #snippet_code_list = SnippetCode.objects.filter(snippet_category__icontains=result_json["metadata"]["category"])
-        #docs_list = DocSource.objects.filter(source_category__icontains=result_json["metadata"]["category"])
         snippet_code_list = SnippetCode.objects.filter(snippet_category__icontains=metadata_details["category"])
         for i in snippet_code_list:
             if 'name_collection' in metadata_details:
@@ -379,124 +367,72 @@ def result_detail(request, uuid):
 def get_metadata_details(request, uuid):
     try:
         metadata_detail = {}
-        url = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&_draft=y+or+n+or+e&_isTemplate=y+or+n&fast=index&uuid="+uuid
+        #url = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&_draft=y+or+n+or+e&_isTemplate=y+or+n&fast=index&uuid="+uuid
+        url = "https://edp-portal.eurac.edu/geonetwork/srv/api/search/records/_search" + uuid
         print(url)
-        results = requests.get(url).json()
+        body = {"query":{"bool":{"must":[{"multi_match":{"query":uuid,"fields":["id","uuid"]}},{"terms":{"isTemplate":["n","y"]}},{"terms":{"draft":["n","y","e"]}}]}}}
+        headers = {'ACCEPT': ACCEPT_HTTP, 'CONTENT-TYPE': CONTENT_TYPE}
+        results = requests.post(url, data=body, headers=headers)
+        hits = json.loads(results.text)['hits']
+        metadataRecords = hits[0]['_source']
         #print(results)
-        if ("metadata" in results):
-            current_metadata = results['metadata']
-            if 'responsibleParty' in current_metadata:
-                for i in current_metadata['responsibleParty']:
-                    #print(current_metadata['responsibleParty'])
-                    if 'resource' in i and 'Custodian' not in i:
-                        str_splitted = i.split("|")
-                        contact = email = address = ""
-                        for j in range(len(str_splitted)):
-                            if re.search("^[0-9]$", str_splitted[j]):
-                                continue
-                            if '@' in str_splitted[j]:
-                                email = str_splitted[j]
-                            elif j>0 and j<7 and 'resource' not in str_splitted[j]:
-                                contact = contact + " " + str_splitted[j]
-                            elif j>=7 and 'http' not in str_splitted[j]:
-                                address = address + " " + str_splitted[j]
-                        #metadata_detail['contactResource'] = { 'contactName' : contact.strip(), 'email' : email.strip(), 'address' : address.replace(" 0 ", "").replace("  0", "").strip() }
-                        metadata_detail['contactResource'] = { 'contactName' : contact.strip(), 'email' : email.strip(), 'address' : re.sub(" 0 ", "", address).strip() }
-                    elif 'metadata' in i:
-                        str_splitted = i.split("|")
-                        contact = email = address = ""
-                        for j in range(len(str_splitted)):
-                            if re.search("^[0-9]$", str_splitted[j]):
-                                continue
-                            if '@' in str_splitted[j]:
-                                email = str_splitted[j]
-                            elif j > 0 and j < 7 and 'metadata' not in str_splitted[j]:
-                                contact = contact + " " + str_splitted[j]
-                            elif j >= 7 and 'http' not in str_splitted[j]:
-                                address = address + " " + str_splitted[j]
-                        #metadata_detail['contactMetadata'] = { 'contactName' : contact.strip(), 'email' : email.strip(), 'address' : address.replace(" 0 ", "").replace("  0", "").strip() }
-                        metadata_detail['contactMetadata'] = { 'contactName' : contact.strip(), 'email' : email.strip(), 'address' : re.sub(" 0 ", "", address).strip() }
 
-            if 'legalConstraints' in current_metadata:
-                if type(current_metadata['legalConstraints']) is str:
-                    metadata_detail['legalConstraints'] = current_metadata['legalConstraints']
-                if type(current_metadata['legalConstraints']) is list:
-                    metadata_detail['legalConstraints'] = ", ".join(current_metadata['legalConstraints'])
-            if 'crsDetails' in current_metadata:
-                metadata_detail['crs'] = current_metadata['crsDetails']['name'] + " ("+current_metadata['crsDetails']['code']+":"+current_metadata['crsDetails']['codeSpace']+")"
-            if 'spatialRepresentationType_text' in current_metadata:
-                metadata_detail['refSys'] = current_metadata['spatialRepresentationType_text']
-            if 'geoBox' in current_metadata:
-                if current_metadata['category'].lower() == 'sos':
-                    bbox = current_metadata['geoBox'].split("|")
-                    metadata_detail['minLat'] = bbox[1]
-                    metadata_detail['minLon'] = bbox[0]
-                    metadata_detail['maxLat'] = str(float(bbox[3]) + 0.05)
-                    metadata_detail['maxLon'] = str(float(bbox[2]) + 0.05)
-                else:
-                    bbox = current_metadata['geoBox'].split("|")
-                    metadata_detail['minLat'] = bbox[1]
-                    metadata_detail['minLon'] = bbox[0]
-                    metadata_detail['maxLat'] = bbox[3]
-                    metadata_detail['maxLon'] = bbox[2]
-            if 'category' in current_metadata:
-                metadata_detail['category'] = current_metadata['category']
-            if 'abstract' in current_metadata:
-                # expression_regex = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
-                # urls = re.findall(expression_regex,current_metadata['abstract'])
-                # print(urls)
-                # for h in urls:
-                #     if len(h) > 0:
-                #         for j in h:                            
-                #             if j != "":
-                #                 print(j)
-                #                 print('<a href="'+j+'">'+j+'</a>')
-                #                 current_metadata['abstract'] = current_metadata['abstract'].replace(j, '<a href="'+j+'">'+j+'</a>')
-                #     else:
-                #         current_metadata['abstract'] = current_metadata['abstract'].replace(h, '<a href="'+h+'">'+h+'</a>')
+        for contact in metadataRecords['contact']:
+            if 'pointOfContact' in contact['role']:
+                metadata_detail['contactMetadata'] = { 'contactName' : contact, 'email' : contact['email'], 'address' : contact['address'] }
+            if 'author' in contact['role']:
+                metadata_detail['contactResource'] = { 'contactName' : contact, 'email' : contact['email'], 'address': contact['address'] }
 
-                metadata_detail['abstract'] = current_metadata['abstract']
-            if 'title' in current_metadata:
-                metadata_detail['title'] = current_metadata['title']
-            if 'keyword' in current_metadata:
-                metadata_detail['keyword'] = ", ".join(current_metadata['keyword'])
-            if 'lineage' in current_metadata:
-                metadata_detail['lineage'] = current_metadata['lineage']
-            if 'tempExtentBegin' in current_metadata:
-                metadata_detail['tempExtentBegin'] = current_metadata['tempExtentBegin'].replace("t", " ").replace("z", "")
-            if 'tempExtentEnd' in current_metadata:
-                metadata_detail['tempExtentEnd'] = current_metadata['tempExtentEnd'].replace("t", " ").replace("z", "")
-            if 'link' in current_metadata:
-                if type(current_metadata['link']) is str:
-                    link_split = current_metadata['link'].split('|')
-                    metadata_detail['name_collection'] = link_split[0]
-            if 'image' in current_metadata:
-                thumbnail_split = current_metadata['image'].split("|")
-                for e in thumbnail_split:
-                    if 'http' in e or 'https' in e:
-                        metadata_detail['thumbnail'] = e
+        metadata_detail['legalConstraints'] = metadataRecords[0]['MD_LegalConstraintsOtherConstraintsObject']
+        metadata_detail['crs'] = metadataRecords[0]['crsDetails']['name'] + " ("+metadataRecords[0]['crsDetails']['code']+":"+metadataRecords[0]['crsDetails']['codeSpace']+")"
+        metadata_detail['refSys'] = metadataRecords['cl_spatialRepresentationType'][0]['default']
+        if 'geom' in metadataRecords:
+                metadata_detail['minLat'] = metadataRecords['geom']['coordinates'][0][1]
+                metadata_detail['minLon'] = metadataRecords['geom']['coordinates'][0][0]
+                metadata_detail['maxLat'] = metadataRecords['geom']['coordinates'][0][2]
+                metadata_detail['maxLon'] = metadataRecords['geom']['coordinates'][0][3]
 
-            return metadata_detail
+        if 'resourceTitleObject' in metadataRecords:
+            metadata_detail['title'] = metadataRecords['resourceTitleObject']['default']
+        elif 'resourceAltTitleObject' in metadataRecords:
+            metadata_detail['title'] = metadataRecords['resourceAltTitleObject']['default']
+        if 'resourceAbstractObject' in metadataRecords:
+            metadata_detail['abstract'] = metadataRecords['resourceAbstractObject']['default']
+        
+        if 'overview' in metadataRecords:
+            metadata_detail['thumbnail'] = metadataRecords['overview'][0]['url']
+
+        if 'openEO' in metadata_detail['title'] or 'openeo' in metadata_detail['title']:
+            metadata_detail['category'] = 'openEO'
+        elif 'sos' in metadata_detail['title'] or 'SOS' in metadata_detail['title'] or 'sos' in metadata_detail['abstract'] or 'SOS' in metadata_detail['abstract']:
+            metadata_detail['category'] = 'sos'
+        elif 'maps' in metadata_detail['thumbnail']:
+            metadata_detail['category'] = 'maps'
         else:
-            #print(results)
-            error = {}
-            error['error'] = results
-            return error
+            metadata_detail['category'] = 'database'
+        
+        if 'tag' in metadataRecords:
+            keywords = []
+            for t in metadataRecords['tag']:        
+                keywords.append(t['default'])   
+            metadata_detail['keyword'] = ", ".join(keywords)
+        
+        if 'lineage' in metadataRecords:
+            metadata_detail['lineage'] = metadataRecords['lineageObject']
+        
+        if 'resourceTemporalExtentDetails' in metadataRecords:
+            metadata_detail['tempExtentBegin'] = metadataRecords['resourceTemporalExtentDetails'][0]['start']['date']
+            metadata_detail['tempExtentEnd'] = metadataRecords['resourceTemporalExtentDetails'][0]['end']['date']
+
+        if 'link' in metadataRecords:
+            metadata_detail['name_collection'] = metadataRecords['link'][0]['url']
+
+        return metadata_detail
+        
     except:
         error = {}
         error['error'] = "No metadata found"
         return error
-
-def get_topic_list(request):
-    url = "http://edp-portal.eurac.edu/geonetwork/srv/api/0.1/standards/iso19139/codelists/gmd%3AMD_TopicCategoryCode"
-    results = requests.get(url, headers={"Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9", "Accept-Language": "q=0.9,en-US;q=0.8,en"})
-    topic_list_str = JsonResponse(results.json()).content.decode("utf-8") 
-    topic_list_dict = ast.literal_eval(topic_list_str)
-    topic_list = []
-    for t in topic_list_dict:
-        if re.search(str(request.GET.get('term')), t):
-            topic_list.append(topic_list_dict[t])
-    return topic_list
 
 def get_total_number_metadata(request, url_geometry_part):
     url = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&summaryOnly=1&"+url_geometry_part
@@ -508,193 +444,3 @@ def get_total_number_metadata(request, url_geometry_part):
     else:
         return(0)
 
-def get_results_bounding_box(request, polygon, keyword=""):   
-    tmp_results = {'metadata' : []}
-    metadata_results = {'metadata' : []}
-    c = 0
-    polygon_str = ""
-
-    print(polygon)
-
-    for i in range(len(polygon)):
-        for c in range(2):
-            if float(polygon[i][c]) >= 0:
-                polygon[i][c] = "+" + str(polygon[i][c])
-            polygon_str = polygon_str + str(polygon[i][c])
-        if i == len(polygon)-1:
-            polygon_str = polygon_str
-        else:
-            polygon_str = polygon_str + ","
-    #print(polygon_str)
-    #url_geometry_part = "geometry=POLYGON((" + polygon[0]+polygon[1] + "," +  polygon[2]+polygon[3] + "," +  polygon[4]+polygon[5] + "," +  polygon[6]+polygon[7] + "," +  polygon[8]+polygon[9] + "))"
-    url_geometry_part = "geometry=POLYGON((" + polygon_str + "))"
-    #final_url = url_first_part + url_geometry_part + url_end_part
-
-    total_number_metadata = get_total_number_metadata(request, url_geometry_part)
-    #print(total_number_metadata)
-    number_loop = int(int(total_number_metadata) / 100)
-    #print("#loop "+str(number_loop))
-
-    if (int(total_number_metadata)%100 > 0):
-        for k in range(number_loop+1):
-            url_first_part = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&any=" + keyword + "&bucket=s101&facet.q=&fast=index&from="+str((100*k)+1)+"&"
-            url_end_part = "&relation=within_bbox&resultType=details&sortBy=title&sortOrder=reverse&to="+str((k+1)*100)
-            final_url = url_first_part + url_geometry_part + url_end_part
-            print(final_url)
-            results = requests.get(final_url)
-            current_results = ast.literal_eval(JsonResponse(results.json()).content.decode("utf-8"))            
-            if 'metadata' in current_results:
-                #print("current "+str(len(current_results['metadata'])))
-                #print(current_results['metadata'])
-                tmp_results['metadata'].append(current_results['metadata'])
-
-    else:
-        for k in range(number_loop):
-            url_first_part = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&any=" + keyword + "&bucket=s101&facet.q=&fast=index&from="+str((100*k)+1)+"&"
-            url_end_part = "&relation=within_bbox&resultType=details&sortBy=title&sortOrder=reverse&to="+str((k+1)*100)
-            final_url = url_first_part + url_geometry_part + url_end_part
-            print(final_url)
-            results = requests.get(final_url)
-            current_results = ast.literal_eval(JsonResponse(results.json()).content.decode("utf-8"))
-            if 'metadata' in current_results:
-                #print("current "+str(len(current_results['metadata'])))
-                #print(current_results['metadata'])
-                tmp_results['metadata'].append(current_results['metadata'])
-
-    #print("metadata "+str(len(tmp_results['metadata'])))
-
-    #print(tmp_results)
-    #print(metadata_results)
-    print(len(tmp_results['metadata']))
-
-    if (len(tmp_results['metadata']) > 1):
-        for h in range(len(tmp_results['metadata'])):
-            #print(tmp_results['metadata'][h])
-            print(h)
-            metadata_results['metadata'] = metadata_results['metadata'] + tmp_results['metadata'][h]
-    elif (len(tmp_results['metadata'])==1):
-        metadata_results['metadata'] = tmp_results['metadata'][0]
-    else:
-        metadata_results['metadata'] = ['no results']
-    
-    #print("metadata "+str(len(metadata_results['metadata'])))
-    #print(metadata_results['metadata'])
-
-    if 'metadata' not in metadata_results:
-        print('metadata not present')
-        return "no results"
-
-    return metadata_results['metadata']
-
-def get_list_metadata_title(request):
-    tmp_results = {'metadata' : []}
-    results = requests.get("http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&summaryOnly=1")
-    summary_results = ast.literal_eval(JsonResponse(results.json(), safe=False).content.decode("utf-8"))
-    #print(summary_results)
-    total_number_metadata = summary_results[0]['@count']
-    metadata_title_item_list = []
-    #print(total_number_metadata)
-    number_loop = int(int(total_number_metadata) / 100)
-    if (int(total_number_metadata)%100 > 0):
-        for k in range(number_loop+1):
-            url_first_part = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&bucket=s101&facet.q=&fast=index&from="+str((100*k)+1)
-            url_end_part = "&resultType=details&sortBy=title&sortOrder=reverse&to="+str((k+1)*100)
-            final_url = url_first_part + url_end_part
-            print(final_url)
-            results = requests.get(final_url)
-            current_results = ast.literal_eval(JsonResponse(results.json()).content.decode("utf-8"))            
-            if 'metadata' in current_results:
-                #print("current "+str(len(current_results['metadata'])))
-                #print(current_results['metadata'])
-                tmp_results['metadata'].append(current_results['metadata'])
-
-    else:
-        for k in range(number_loop):
-            url_first_part = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&bucket=s101&facet.q=&fast=index&from="+str((100*k)+1)
-            url_end_part = "&resultType=details&sortBy=title&sortOrder=reverse&to="+str((k+1)*100)
-            final_url = url_first_part + url_end_part
-            print(final_url)
-            results = requests.get(final_url)
-            current_results = ast.literal_eval(JsonResponse(results.json()).content.decode("utf-8"))
-            if 'metadata' in current_results:
-                #print("current "+str(len(current_results['metadata'])))
-                #print(current_results['metadata'])
-                tmp_results['metadata'].append(current_results['metadata'])
-
-    #print(len(tmp_results))
-    #print(len(tmp_results['metadata']))
-    keyword_search = str(request.GET.get('term'))
-    #print(keyword_search)
-    #print(tmp_results)
-    print(len(tmp_results['metadata']))
-
-    for i in range(len(tmp_results['metadata'])):
-        for item in tmp_results['metadata'][i]:
-            if re.search(keyword_search, item['title']):
-                metadata_title_item_list.append(item['title'])
-    return metadata_title_item_list
-
-def get_results_by_keyword(request, keyword):
-    tmp_results = {'metadata' : []}
-    metadata_results = {'metadata' : []}
-    c = 0
-    results = requests.get("http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&summaryOnly=1")
-    summary_results = ast.literal_eval(JsonResponse(results.json(), safe=False).content.decode("utf-8"))
-    #print(summary_results)
-    total_number_metadata = summary_results[0]['@count']
-    #print(total_number_metadata)
-    number_loop = int(int(total_number_metadata) / 100)
-    #print("#loop "+str(number_loop))
-
-    if (int(total_number_metadata)%100 > 0):
-        for k in range(number_loop+1):
-            url_first_part = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&any=" + keyword + "&bucket=s101&facet.q=&fast=index&from="+str((100*k)+1)
-            url_end_part = "&resultType=details&sortBy=title&sortOrder=reverse&to="+str((k+1)*100)
-            final_url = url_first_part + url_end_part
-            print(final_url)
-            results = requests.get(final_url)
-            current_results = ast.literal_eval(JsonResponse(results.json()).content.decode("utf-8"))            
-            if 'metadata' in current_results:
-                #print("current "+str(len(current_results['metadata'])))
-                #print(current_results['metadata'])
-                tmp_results['metadata'].append(current_results['metadata'])
-
-    else:
-        for k in range(number_loop):
-            url_first_part = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&any=" + keyword + "&bucket=s101&facet.q=&fast=index&from="+str((100*k)+1)
-            url_end_part = "&resultType=details&sortBy=title&sortOrder=reverse&to="+str((k+1)*100)
-            final_url = url_first_part + url_end_part
-            print(final_url)
-            results = requests.get(final_url)
-            current_results = ast.literal_eval(JsonResponse(results.json()).content.decode("utf-8"))
-            if 'metadata' in current_results:
-                #print("current "+str(len(current_results['metadata'])))
-                #print(current_results['metadata'])
-                tmp_results['metadata'].append(current_results['metadata'])
-
-    #print("metadata "+str(len(tmp_results['metadata'])))
-    #print(len(tmp_results['metadata']))
-    #print(tmp_results['metadata'])
-    #if(len(tmp_results['metadata'])>1):
-
-    #print(tmp_results)
-    print(len(tmp_results['metadata']))
-    if (len(tmp_results['metadata']) > 1):
-        for h in range(len(tmp_results['metadata'])):
-            #print(tmp_results['metadata'][h])
-            metadata_results['metadata'] = metadata_results['metadata'] + tmp_results['metadata'][h]
-    elif (len(tmp_results['metadata'])==1):
-        metadata_results['metadata'] = tmp_results['metadata'][0]
-    else:
-        metadata_results['metadata'] = ['no results']
-
-    #else:
-    #    metadata_results['metadata'] + tmp_results['metadata'][0]
-    #print("metadata "+str(len(metadata_results['metadata'])))
-    #print(metadata_results['metadata'])
-
-    if 'metadata' not in metadata_results:
-        print('metadata not present')
-        return "no results"
-
-    return metadata_results['metadata']
