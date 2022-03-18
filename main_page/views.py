@@ -370,11 +370,11 @@ def get_metadata_details(request, uuid):
         #url = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&_draft=y+or+n+or+e&_isTemplate=y+or+n&fast=index&uuid="+uuid
         url = "https://edp-portal.eurac.edu/geonetwork/srv/api/search/records/_search"
         print(url)
-        body = {"query":{"bool":{"must":[{"multi_match":{"query":uuid,"fields":["id","uuid"]}},{"terms":{"isTemplate":["n","y"]}},{"terms":{"draft":["n","y","e"]}}]}}}
+        body = "{\"query\":{\"bool\":{\"must\":[{\"multi_match\":{\"query\":\""+uuid+"\",\"fields\":[\"id\",\"uuid\"]}},{\"terms\":{\"isTemplate\":[\"n\",\"y\"]}},{\"terms\":{\"draft\":[\"n\",\"y\",\"e\"]}}]}}}"
         headers = {'ACCEPT': ACCEPT_HTTP, 'CONTENT-TYPE': CONTENT_TYPE}
         results = requests.post(url, data=body, headers=headers)
-        hits = json.loads(results.text)['hits']
-        metadataRecords = hits[0]['_source']
+        tmp = json.loads(results.text)
+        metadataRecords = tmp['hits']
         #print(results)
 
         for contact in metadataRecords['contact']:
