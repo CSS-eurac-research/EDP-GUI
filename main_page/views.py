@@ -374,7 +374,7 @@ def get_metadata_details(request, uuid):
         headers = {'ACCEPT': ACCEPT_HTTP, 'CONTENT-TYPE': CONTENT_TYPE}
         results = requests.post(url, data=body, headers=headers)
         tmp = json.loads(results.text)
-        metadataRecords = tmp['hits']
+        metadataRecords = tmp['hits']['hits'][0]['_source']
         #print(results)
 
         for contact in metadataRecords['contact']:
