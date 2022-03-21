@@ -365,7 +365,7 @@ def result_detail(request, uuid):
         return render(request, 'result_detail.html', context)
 
 def get_metadata_details(request, uuid):
-    #try:
+    try:
         metadata_detail = {}
         #url = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&_draft=y+or+n+or+e&_isTemplate=y+or+n&fast=index&uuid="+uuid
         url = "https://edp-portal.eurac.edu/geonetwork/srv/api/search/records/_search"
@@ -450,10 +450,10 @@ def get_metadata_details(request, uuid):
             metadata_detail['name_collection'] = metadataRecords['link'][0]['url']
         return metadata_detail
         
-    # except:
-    #     error = {}
-    #     error['error'] = "No metadata found"
-    #     return error
+    except:
+        error = {}
+        error['error'] = "Some errors occurred: no metadata found or problems in parsing metadata."
+        return error
 
 def get_total_number_metadata(request, url_geometry_part):
     url = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&summaryOnly=1&"+url_geometry_part
