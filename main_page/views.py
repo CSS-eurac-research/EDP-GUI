@@ -424,14 +424,16 @@ def get_metadata_details(request, uuid):
         if 'overview' in metadataRecords:
             metadata_detail['thumbnail'] = metadataRecords['overview'][0]['url']
 
-        if 'openEO' in metadata_detail['title'] or 'openeo' in metadata_detail['title']:
-            metadata_detail['category'] = 'openEO'
-        elif 'sos' in metadata_detail['title'] or 'SOS' in metadata_detail['title'] or 'sos' in metadata_detail['abstract'] or 'SOS' in metadata_detail['abstract']:
-            metadata_detail['category'] = 'sos'
-        elif 'maps' in metadata_detail['thumbnail']:
-            metadata_detail['category'] = 'maps'
-        else:
-            metadata_detail['category'] = 'database'
+        if 'cat' in metadataRecords:
+            if metadataRecords['cat'] == 'OpenEO':
+                metadata_detail['category'] = 'OpenEO'
+            elif metadataRecords['cat'] == 'SOS':
+                metadata_detail['category'] = 'SOS'
+            elif metadataRecords['cat'] == 'maps':
+                metadata_detail['category'] = 'Maps'
+            else:
+                metadata_detail['category'] = 'Database'
+        
 
         if 'tag' in metadataRecords:
             keywords = []
