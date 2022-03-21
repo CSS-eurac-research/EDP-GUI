@@ -383,9 +383,15 @@ def get_metadata_details(request, uuid):
             if 'author' in contact['role']:
                 metadata_detail['contactResource'] = { 'contactName' : contact['organisation'], 'email' : contact['email'], 'address': contact['address'] }
 
-        metadata_detail['legalConstraints'] = metadataRecords['MD_LegalConstraintsOtherConstraintsObject'][0]['default']
-        metadata_detail['crs'] = metadataRecords['crsDetails'][0]['name'] + " ("+metadataRecords['crsDetails'][0]['code']+":"+metadataRecords['crsDetails'][0]['codeSpace']+")"
-        metadata_detail['refSys'] = metadataRecords['cl_spatialRepresentationType'][0]['default']
+        if 'MD_LegalConstraintsOtherConstraintsObject' in metadataRecords:
+            metadata_detail['legalConstraints'] = metadataRecords['MD_LegalConstraintsOtherConstraintsObject'][0]['default']
+        
+        if 'crsDetails' in metadataRecords:
+            metadata_detail['crs'] = metadataRecords['crsDetails'][0]['name'] + " ("+metadataRecords['crsDetails'][0]['code']+":"+metadataRecords['crsDetails'][0]['codeSpace']+")"
+
+        if 'cl_spatialRepresentationType' in metadataRecords:
+            metadata_detail['refSys'] = metadataRecords['cl_spatialRepresentationType'][0]['default']
+
         if 'geom' in metadataRecords:
             k=0
             for i in metadataRecords['geom']['coordinates'][0]:
