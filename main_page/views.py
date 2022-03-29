@@ -450,6 +450,7 @@ def get_metadata_details(request, uuid):
 
         if 'link' in metadataRecords:
             metadata_detail['name_collection'] = metadataRecords['link'][0]['url']
+        print(metadata_detail)
         return metadata_detail
         
     except:
