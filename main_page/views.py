@@ -424,15 +424,18 @@ def get_metadata_details(request, uuid):
         if 'overview' in metadataRecords:
             metadata_detail['thumbnail'] = metadataRecords['overview'][0]['url']
 
-        if 'cat' in metadataRecords:
-            if metadataRecords['cat'] == 'OpenEO':
-                metadata_detail['category'] = 'OpenEO'
-            elif metadataRecords['cat'] == 'SOS':
-                metadata_detail['category'] = 'SOS'
-            elif metadataRecords['cat'] == 'maps':
-                metadata_detail['category'] = 'Maps'
-            else:
-                metadata_detail['category'] = 'Database'
+        gn_cat = GeonetworkMetadata.objects.filter(uuid=uuid)
+        print(gn_cat[0].category)
+        metadata_detail['category'] = gn_cat[0].category
+        #if 'cat' in metadataRecords:
+        #    if metadataRecords['cat'] == 'OpenEO':
+        #        metadata_detail['category'] = 'OpenEO'
+        #    elif metadataRecords['cat'] == 'SOS':
+        #        metadata_detail['category'] = 'SOS'
+        #    elif metadataRecords['cat'] == 'maps':
+        #        metadata_detail['category'] = 'Maps'
+        #    else:
+        #        metadata_detail['category'] = 'Database'
         
 
         if 'tag' in metadataRecords:
