@@ -50,6 +50,8 @@ class GeonetworkMetadata(models.Model):
     last_update = models.DateTimeField(null=True, editable=False)
     period_begin = models.DateTimeField(null=True)
     period_end = models.DateTimeField(null=True)
+    doi = models.CharField(max_length=500, null=True)
+    citation = models.TextField(max_length=10000, null=True)
     
     def __str__(self):
         return self.title

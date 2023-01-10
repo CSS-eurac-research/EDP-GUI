@@ -427,6 +427,11 @@ def get_metadata_details(request, uuid):
         gn_cat = GeonetworkMetadata.objects.filter(uuid=uuid)
         print(gn_cat[0].category)
         metadata_detail['category'] = gn_cat[0].category
+
+        if gn_cat[0].doi:
+            metadata_detail['doi'] = gn_cat[0].doi
+        if gn_cat[0].citation:
+            metadata_detail['citation'] = gn_cat[0].citation
         #if 'cat' in metadataRecords:
         #    if metadataRecords['cat'] == 'OpenEO':
         #        metadata_detail['category'] = 'OpenEO'

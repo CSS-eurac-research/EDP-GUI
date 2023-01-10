@@ -5,7 +5,7 @@ import requests
 from datetime import datetime
 from django.contrib.admin import AdminSite
 
-@admin.action(description='Download all the metadata from the Geonetwork catalaog')
+#@admin.action(description='Download all the metadata from the Geonetwork catalaog')
 def download_all_metadata(modelAdmin, request, queryset):
     conn = psycopg2.connect(
        database="edp_portal_gui", user='edp_gui_user', password='73bd357832012a62357095bf6d9324f8', host='10.8.244.39',
@@ -149,6 +149,7 @@ def download_all_metadata(modelAdmin, request, queryset):
 class GeonetworkMetadataAdmin(admin.ModelAdmin):
     list_display = ['title', 'uuid', 'category', 'last_update']
     search_fields = ['title', 'uuid', 'category', 'keyword', 'abstract']
+    readonly_fields=('doi','citation')
     list_filter = ['category']
     actions = [download_all_metadata]
 

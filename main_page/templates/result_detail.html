@@ -62,6 +62,24 @@
         <div></div>
       {% endif %}
 
+      {% if result_json.doi %}
+      <div>
+        <label class="label_detail"><i class="fa fa-link" aria-hidden="true"></i> Digital Object Identifier (DOI)</label>
+        <p><a href="{{result_json.doi}}">{{result_json.doi}}</a></p>        
+      </div>
+      {% else %}
+        <div></div>
+      {% endif %}
+
+      {% if result_json.citation %}
+      <div>
+        <label class="label_detail"><i class="fa fa-paperclip" aria-hidden="true"></i> Citation</label>
+        <p>{{result_json.citation}}</p>
+      </div>
+      {% else %}
+        <div></div>
+      {% endif %}
+
       
   {% if result_json.keyword %}
   <div>
