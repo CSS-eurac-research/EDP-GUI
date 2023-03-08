@@ -377,11 +377,12 @@ def get_metadata_details(request, uuid):
         metadataRecords = tmp['hits']['hits'][0]['_source']
         #print(results)
 
-        for contact in metadataRecords['contact']:
-            if 'pointOfContact' in contact['role']:
-                metadata_detail['contactMetadata'] = { 'contactName' : contact['organisation'], 'email' : contact['email'], 'address' : contact['address'] }
-            if 'author' in contact['role']:
-                metadata_detail['contactResource'] = { 'contactName' : contact['organisation'], 'email' : contact['email'], 'address': contact['address'] }
+        if 'contact' in metadataRecords:
+            for contact in metadataRecords['contact']:
+                if 'pointOfContact' in contact['role']:
+                    metadata_detail['contactMetadata'] = { 'contactName' : contact['organisation'], 'email' : contact['email'], 'address' : contact['address'] }
+                if 'author' in contact['role']:
+                    metadata_detail['contactResource'] = { 'contactName' : contact['organisation'], 'email' : contact['email'], 'address': contact['address'] }
 
         if 'MD_LegalConstraintsOtherConstraintsObject' in metadataRecords:
             metadata_detail['legalConstraints'] = metadataRecords['MD_LegalConstraintsOtherConstraintsObject'][0]['default']
@@ -432,6 +433,8 @@ def get_metadata_details(request, uuid):
             metadata_detail['doi'] = gn_cat[0].doi
         if gn_cat[0].citation:
             metadata_detail['citation'] = gn_cat[0].citation
+        if gn_cat[0].supplemental_information:
+            metadata_detail['supplemental_information'] = gn_cat[0].supplemental_information
         #if 'cat' in metadataRecords:
         #    if metadataRecords['cat'] == 'OpenEO':
         #        metadata_detail['category'] = 'OpenEO'

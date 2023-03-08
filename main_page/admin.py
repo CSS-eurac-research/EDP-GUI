@@ -149,7 +149,7 @@ def download_all_metadata(modelAdmin, request, queryset):
 class GeonetworkMetadataAdmin(admin.ModelAdmin):
     list_display = ['title', 'uuid', 'category', 'last_update']
     search_fields = ['title', 'uuid', 'category', 'keyword', 'abstract']
-    readonly_fields=('doi','citation')
+    readonly_fields=('doi','citation', 'supplemental_information')
     list_filter = ['category']
     actions = [download_all_metadata]
 
