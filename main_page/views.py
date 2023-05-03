@@ -375,7 +375,7 @@ def get_metadata_details(request, uuid):
         results = requests.post(url, data=body, headers=headers)
         tmp = json.loads(results.text)
         metadataRecords = tmp['hits']['hits'][0]['_source']
-        #print(results)
+        print(results)
 
         if 'contact' in metadataRecords:
             for contact in metadataRecords['contact']:
@@ -460,7 +460,8 @@ def get_metadata_details(request, uuid):
             metadata_detail['tempExtentEnd'] = metadataRecords['resourceTemporalExtentDetails'][0]['end']['date']
 
         if 'link' in metadataRecords:
-            metadata_detail['name_collection'] = metadataRecords['link'][0]['url']
+            metadata_detail['name_collection'] = metadataRecords['link'][0]['name']
+        
         print(metadata_detail)
         return metadata_detail
         
