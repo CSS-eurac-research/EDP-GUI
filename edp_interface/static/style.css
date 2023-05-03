@@ -99,27 +99,27 @@
 }
 
 .main_page_buttons {
-  color: #DE4624;
-  border-color: #DE4624;
+  color: #DF1B12;
+  border-color: #DF1B12;
 }
 
 .main_page_buttons:hover {
   color: #FFFFFF;
-  border-color: #DE4624;
-  background-color: #DE4624;
+  border-color: #DF1B12;
+  background-color: #DF1B12;
 }
 
 .main_page_buttons:focus {
   color: #FFFFFF;
-  border-color: #DE4624;
-  background-color: #DE4624;
+  border-color: #DF1B12;
+  background-color: #DF1B12;
   box-shadow: 0 0 0 0.2rem rgb(222 70 36 / 50%) !important;
 }
 
 .main_page_buttons:active {
   color: #FFFFFF !important;
-  border-color: #DE4624 !important;
-  background-color: #DE4624 !important;
+  border-color: #DF1B12 !important;
+  background-color: #DF1B12 !important;
 }
 
 
@@ -204,7 +204,7 @@ td {
 #searchbar {
   width: 300px;
   border-radius: 25px;
-  border: 0.5px solid #DE4624;
+  border: 0.5px solid #DF1B12;
   margin-left: 20px;
   height: 38px;
   border-top-right-radius: 5px;
@@ -212,7 +212,7 @@ td {
 }
 
 #searchbar:focus {
-  border: 1.5px solid #DE4624;
+  border: 1.5px solid #DF1B12;
   margin-left: 20px;
 }
 
@@ -254,16 +254,16 @@ td {
 }
 
 .copyButton_snippet {
-  color: #DE4624;
-  border: 1px solid #DE4624;
+  color: #DF1B12;
+  border: 1px solid #DF1B12;
   background-color: white;
   border-radius: 15px;
 }
 
 .copyButton_snippet:hover {
   color: white;
-  border: 1px solid #DE4624;
-  background-color: #DE4624;
+  border: 1px solid #DF1B12;
+  background-color: #DF1B12;
   border-radius: 15px;
 }
 
@@ -344,8 +344,8 @@ td {
 }
 
 #searchbutton {
-  color: #DE4624;
-  border: 1px solid #DE4624;
+  color: #DF1B12;
+  border: 1px solid #DF1B12;
   background-color: white;
   border-radius: 25px;
   border-top-left-radius: 5px;
@@ -355,8 +355,8 @@ td {
 
 #searchbutton:hover {
   color: white;
-  border: 1px solid #DE4624;
-  background-color: #DE4624;
+  border: 1px solid #DF1B12;
+  background-color: #DF1B12;
   border-radius: 25px;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
@@ -366,7 +366,7 @@ td {
 .loader {
   border: 16px solid #f3f3f3;
   border-radius: 50%;
-  border-top: 16px solid #DE4624;
+  border-top: 16px solid #DF1B12;
   width: 120px;
   height: 120px;
   -webkit-animation: spin 2s linear infinite; /* Safari */

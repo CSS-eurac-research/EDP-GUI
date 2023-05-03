@@ -5,7 +5,7 @@
 <head>
 
   <title>Result details - EDP</title>
-  <link rel="shortcut icon" href="/static/favicon.ico">
+  <link rel="shortcut icon" href="/static/apple-touch-icon.png">
   <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css"/>
@@ -36,12 +36,12 @@
 <hr>
 {% if error %}
   <div class="center">
-    <h4 style="color: #DE4624;">{{ error }}</h4>
+    <h4 style="color: #DF1B12;">{{ error }}</h4>
   </div>
 {% else %}
 <div style="width: 100%">
   <div  class="center">
-    <h4 style="color: #DE4624;"><b>{{ result_json.title }}</b> detail</h4>
+    <h4 style="color: #DF1B12;"><b>{{ result_json.title }}</b> detail</h4>
     <a id="geonetwork_link" href="http://edp-portal.eurac.edu/geonetwork/srv/eng/catalog.search#/metadata/{{uuid}}/formatters/xsl-view?root=div&view=advanced" target="_blank"><img src="/static/geonetwork_small.png" style="width: 15px; margin-top: -4px;"> Go to full metadata</a>
   </div>
   <br>
@@ -75,6 +75,15 @@
       <div>
         <label class="label_detail"><i class="fa fa-retweet" aria-hidden="true"></i> Citation</label>
         <p>{{result_json.citation}}</p>
+      </div>
+      {% else %}
+        <div></div>
+      {% endif %}
+
+      {% if result_json.supplemental_information %}
+      <div>
+        <label class="label_detail"><i class="fa fa-plus-square" aria-hidden="true"></i> Supplemental information</label>
+        <p>{{result_json.supplemental_information}}</p>
       </div>
       {% else %}
         <div></div>
@@ -228,7 +237,7 @@
 <hr style="width: 90%;">
 
 <div style="width: 60%; margin: 0 auto;">
-  <h5 style="color: #DE4624;"><i class="fa fa-code" aria-hidden="true"></i> Snippet code</h5>
+  <h5 style="color: #DF1B12;"><i class="fa fa-code" aria-hidden="true"></i> Snippet code</h5>
 
   <script>
     function copySnippetCode(id) {
@@ -265,7 +274,7 @@
         {% for code in snippet_code_list %}
           {% if code.snippet_programming_language != 'No programming language' %}
     <li class="nav-item" role="presentation">
-      <button class="nav-link" id="{{ code.snippet_programming_language }}-tab" data-bs-toggle="tab" data-bs-target="#{{ code.snippet_programming_language }}" type="button" role="tab" aria-controls="{{ code.snippet_programming_language }}" aria-selected="false" style="color: #DE4624;">{{ code.snippet_programming_language }}</button>
+      <button class="nav-link" id="{{ code.snippet_programming_language }}-tab" data-bs-toggle="tab" data-bs-target="#{{ code.snippet_programming_language }}" type="button" role="tab" aria-controls="{{ code.snippet_programming_language }}" aria-selected="false" style="color: #DF1B12;">{{ code.snippet_programming_language }}</button>
     </li>
     {% endif %}
         {% endfor %}
@@ -298,7 +307,7 @@
 <hr style="width: 90%;">
 
 <div style="width: 60%; margin: 0 auto;">
-  <h5 style="color: #DE4624;"><i class="fa fa-book" aria-hidden="true"></i> Related docs</h5>
+  <h5 style="color: #DF1B12;"><i class="fa fa-book" aria-hidden="true"></i> Related docs</h5>
 
   {% if docs_list %}
     <table style="width:100%">

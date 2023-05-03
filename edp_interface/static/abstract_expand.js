@@ -172,7 +172,7 @@ $(".checkbox_categories_input").change(function() {
                   result_box = result_box + '<div class="card-body">';
                   //uuid and title
                   if(metadata_results[i][0] != null) {
-                      result_box = result_box + '<a class="card-title" style="color: #DE4624; font-size: 20px;" href="/discovery/'+metadata_results[i][0]+'" target="_blank">'+metadata_results[i][1]+'</a>';
+                      result_box = result_box + '<a class="card-title" style="color: #DF1B12; font-size: 20px;" href="/discovery/'+metadata_results[i][0]+'" target="_blank">'+metadata_results[i][1]+'</a>';
                   }
 
                   //abstract
@@ -220,7 +220,7 @@ $(".checkbox_categories_input").change(function() {
 
                       var bounds = L.latLngBounds(correct_bounds);
                       //var bounds = [[box[1],box[0]],[box[3],box[2]]];
-                      var rectangle = L.rectangle(bounds, {color: "#DE4624", weight: 2, fill: false});
+                      var rectangle = L.rectangle(bounds, {color: "#DF1B12", weight: 2, fill: false});
                       if (metadata_results[i][3] != null){
                           if(metadata_results[i][3] == "SOS") {
                               rectangle.addTo(map);

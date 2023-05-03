@@ -5,7 +5,7 @@
 <head>
 
   <title>Discovery - EDP</title>
-  <link rel="shortcut icon" href="/static/favicon.ico">
+  <link rel="shortcut icon" href="/static/apple-touch-icon.png">
   <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css"/>
@@ -81,10 +81,10 @@
           <div class="" style="float: left; width: 50%;">
             <div class="">
             <div class="row align-items-start" style="margin-top: 5px;">
-              <div class="" style="color: #DE4624; margin-right: 2px;">Begin: <input type="text" id="period_begin" style="border: 0.5px solid #DE4624; border-radius: 5px;"></div>
-              <div class="" style="color: #DE4624; margin-right: 10px;">End: <input type="text" id="period_end" style="border: 0.5px solid #DE4624; border-radius: 5px;"></div>
+              <div class="" style="color: #DF1B12; margin-right: 2px;">Begin: <input type="text" id="period_begin" style="border: 0.5px solid #DF1B12; border-radius: 5px;"></div>
+              <div class="" style="color: #DF1B12; margin-right: 10px;">End: <input type="text" id="period_end" style="border: 0.5px solid #DF1B12; border-radius: 5px;"></div>
               <div class="" style="display: inline-flex;">
-                <label style="color: #DE4624;">Categories: </label> 
+                <label style="color: #DF1B12;">Categories: </label> 
                 <div id="categories_div">                               
                 {% for category in category_list %}
                 <div class="checkbox_categories">
@@ -124,7 +124,7 @@
                   <!-- <img src="/static/no_image.png" class="card-img-top"> -->
                 {% endif %}
               <div class="card-body">
-              <a class="card-title" style="color: #DE4624; font-size: 20px;" href="/discovery/{{item.uuid}}" target="_blank">{{item.title}}</a>
+              <a class="card-title" style="color: #DF1B12; font-size: 20px;" href="/discovery/{{item.uuid}}" target="_blank">{{item.title}}</a>
               <div class="card-text abstract-results"><span class="abstract_par">{{item.abstract}}</span></div>
               <p class="card-text" style="font-weight: bold">{{item.category}}</p>
               <p class="card-text" style="font-size: 12px; font-style:italic;">{{item.keyword}}</p>
