@@ -261,15 +261,36 @@ def discovery(request):
             searchKeyword = request.GET.get('search')
             #print("KEYWORD " + searchKeyword)
 
-            if "all" not in where_clause_array:
-                final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom, period_begin, period_end FROM main_page_geonetworkmetadata mpg WHERE (title, abstract, category, keyword)::text ILIKE '%" + "%".join(searchKeyword.split(" ")) + "%' AND (" + " OR ".join(where_clause_array) + ") ORDER BY title ASC"
+            # if "all" not in where_clause_array:
+            #     final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom, period_begin, period_end FROM main_page_geonetworkmetadata mpg WHERE (title, abstract, category, keyword)::text ILIKE '%" + "%".join(searchKeyword.split(" ")) + "%' AND (" + " OR ".join(where_clause_array) + ") ORDER BY title ASC"
+            # else:
+            #     final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom, period_begin, period_end FROM main_page_geonetworkmetadata mpg WHERE (title, abstract, category, keyword)::text ILIKE '%" + "%".join(searchKeyword.split(" ")) + "%' ORDER BY title ASC"
+            #print(title_list)
+            if request.GET.get('json') == "no":
+                if "all" not in where_clause_array:
+                    final_query = "SELECT uuid FROM main_page_geonetworkmetadata mpg WHERE (title, abstract, category, keyword)::text ILIKE '%" + "%".join(searchKeyword.split(" ")) + "%' AND (" + " OR ".join(where_clause_array) + ") ORDER BY title ASC"
+                else:
+                    final_query = "SELECT uuid FROM main_page_geonetworkmetadata mpg WHERE (title, abstract, category, keyword)::text ILIKE '%" + "%".join(searchKeyword.split(" ")) + "%' ORDER BY title ASC"
+
+                cursor.execute(final_query)
+                #print(final_query)
+                results = cursor.fetchall()            
+                #print(uuids_list)
+                uuids_list = []
+                for r in results:
+                    uuids_list.append(r[0])
+                metadata_results = GeonetworkMetadata.objects.filter(uuid__in=uuids_list)
+                return render(request, 'discovery.html', {'metadata_results': metadata_results, 'title_list': title_list, 'category_list': category_list})
             else:
-                final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom, period_begin, period_end FROM main_page_geonetworkmetadata mpg WHERE (title, abstract, category, keyword)::text ILIKE '%" + "%".join(searchKeyword.split(" ")) + "%' ORDER BY title ASC"
-            cursor.execute(final_query)
-            print(final_query)
-            results = cursor.fetchall()
-            #print(results)
-            return JsonResponse({'metadata_results': results, 'title_list': title_list, 'category_list': category_list}, safe=False, status=200)
+                if "all" not in where_clause_array:
+                    final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom, period_begin, period_end FROM main_page_geonetworkmetadata mpg WHERE (title, abstract, category, keyword)::text ILIKE '%" + "%".join(searchKeyword.split(" ")) + "%' AND (" + " OR ".join(where_clause_array) + ") ORDER BY title ASC"
+                else:
+                    final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom, period_begin, period_end FROM main_page_geonetworkmetadata mpg WHERE (title, abstract, category, keyword)::text ILIKE '%" + "%".join(searchKeyword.split(" ")) + "%' ORDER BY title ASC"
+                cursor.execute(final_query)
+                #print(final_query)
+                results = cursor.fetchall() 
+                return JsonResponse({'metadata_results': results, 'title_list': title_list, 'category_list': category_list}, safe=False, status=200)
+            
         if request.GET.get('categories'):
             print("CATEGORY")
             cateogories_selected = request.GET.get('categories')
@@ -292,15 +313,15 @@ def discovery(request):
     except GeonetworkMetadata.DoesNotExist:
         raise Http404("GeonetworkMetadata does not exist")
     #finally:
-    #    metadata_list = GeonetworkMetadata.objects.all()    
-    #    return render(request, 'discovery.html', {'metadata_list': metadata_list, 'title_list': title_list})
+    #    metadata_results = GeonetworkMetadata.objects.all()    
+    #    return render(request, 'discovery.html', {'metadata_results': metadata_results, 'title_list': title_list})
     #print("finally")
     cursor.close()
     conn.close()
-    metadata_list = GeonetworkMetadata.objects.order_by('title')
+    metadata_results = GeonetworkMetadata.objects.order_by('title')
     #print(title_list)    
-    #print(metadata_list)
-    return render(request, 'discovery.html', {'metadata_list': metadata_list, 'title_list': title_list, 'category_list': category_list})
+    print(type(metadata_results))
+    return render(request, 'discovery.html', {'metadata_results': metadata_results, 'title_list': title_list, 'category_list': category_list})
     #return render(request, 'discovery.html', {}) 
     
 def jupyter_page(request):

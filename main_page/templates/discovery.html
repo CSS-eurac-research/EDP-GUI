@@ -110,11 +110,11 @@
       </div> -->
     <div class="" style="float: left; width: 50%; height: 83%;">
       <div class="" style="min-height: 88%;">
-        {% if metadata_list %}
-        <h5 id="number_results" style="margin: 5px;"><i class="fa fa-list" aria-hidden="true"></i> Results: <b>{{ metadata_list|length }}</b> items found</h5>
+        {% if metadata_results %}
+        <h5 id="number_results" style="margin: 5px;"><i class="fa fa-list" aria-hidden="true"></i> Results: <b>{{ metadata_results|length }}</b> items found</h5>
         <div id="metadata_results" style="min-height: 95.7%;">
           
-            {% for item in metadata_list %}
+            {% for item in metadata_results %}
 
               <div id="row-{{item.uuid}}" class="row">
               <div class="col"> <div class="card card_rem">

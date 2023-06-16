@@ -27,6 +27,12 @@ function dosearch() {
     var boundingbox = "";
     var url_params = [];
 
+    const queryString = window.location.search;
+    console.log(queryString);
+    const urlParams = new URLSearchParams(queryString);
+    const search_param = urlParams.get('search')
+    console.log("keyword: "+search_param);
+
     map.eachLayer(function(layer) {
         console.log(layer);
         if(layer.hasOwnProperty("layerID")){
@@ -73,13 +79,14 @@ function dosearch() {
     if (boundingbox!=""){
         url_params.push('box=' + boundingbox);
     } 
-    if (searchbar.value!=""){
+    if (searchbar.value!=""){      
         url_params.push('search=' + searchbar.value);
     } 
     if (period_begin!="" && period_end!="") {
         url_params.push('period_begin='+ period_begin + '&period_end=' + period_end);
     }
-    
+    url_params.push('json=yes')
+
     console.log(url_params);
     var final_url_params = url_params.join("&");
     url = url + final_url_params;
@@ -94,7 +101,7 @@ function dosearch() {
         //data: JSON.stringify(search_request),
         contentType: "application/json",
         success: function(response){
-            //console.log(response);
+            console.log(response);
             var metadata_results = response['metadata_results'];//JSON.parse(response['metadata_results']);
             var title_list = response['title_list'];
             $("#searchbar").autocomplete({
