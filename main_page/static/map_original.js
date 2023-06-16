@@ -130,7 +130,7 @@ map.on('draw:created', function (e) {
                     result_box = result_box + '<div class="col">';
                     result_box = result_box + '<div class="card-body">';
                     if(metadata_results[i]["geonet:info"].hasOwnProperty("uuid")) {
-                        result_box = result_box + '<a class="card-title" style="color: #DF1B12; font-size: 20px;" href="/discovery/'+metadata_results[i]["geonet:info"]["uuid"]+'" target="_blank">'+metadata_results[i]["title"]+'</a>';
+                        result_box = result_box + '<a class="card-title" style="color: #DF1B12; font-size: 20px;" href="/discovery/'+metadata_results[i]["geonet:info"]["uuid"]+'" target="_blank" rel="noopener noreferrer">'+metadata_results[i]["title"]+'</a>';
                     }
 
                     if(metadata_results[i].hasOwnProperty("abstract")) {

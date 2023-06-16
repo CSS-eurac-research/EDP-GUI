@@ -396,7 +396,7 @@ def get_metadata_details(request, uuid):
         results = requests.post(url, data=body, headers=headers)
         tmp = json.loads(results.text)
         metadataRecords = tmp['hits']['hits'][0]['_source']
-        print(results)
+        #print(metadataRecords)
 
         if 'contact' in metadataRecords:
             for contact in metadataRecords['contact']:
@@ -407,6 +407,9 @@ def get_metadata_details(request, uuid):
 
         if 'MD_LegalConstraintsOtherConstraintsObject' in metadataRecords:
             metadata_detail['legalConstraints'] = metadataRecords['MD_LegalConstraintsOtherConstraintsObject'][0]['default']
+        if 'MD_LegalConstraintsUseLimitationObject' in metadataRecords:
+            metadata_detail['legalConstraints'] = metadataRecords['MD_LegalConstraintsUseLimitationObject'][0]['default']
+
         
         if 'crsDetails' in metadataRecords:
             metadata_detail['crs'] = metadataRecords['crsDetails'][0]['name'] + " ("+metadataRecords['crsDetails'][0]['code']+":"+metadataRecords['crsDetails'][0]['codeSpace']+")"

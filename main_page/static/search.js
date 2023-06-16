@@ -135,7 +135,7 @@ function dosearch() {
                     result_box = result_box + '<div class="card-body">';
                     //uuid and title
                     if(metadata_results[i][0] != null) {
-                        result_box = result_box + '<a class="card-title" style="color: #DF1B12; font-size: 20px;" href="/discovery/'+metadata_results[i][0]+'" target="_blank">'+metadata_results[i][1]+'</a>';
+                        result_box = result_box + '<a class="card-title" style="color: #DF1B12; font-size: 20px;" href="/discovery/'+metadata_results[i][0]+'" target="_blank" rel="noopener noreferrer">'+metadata_results[i][1]+'</a>';
                     }
 
                     //abstract
