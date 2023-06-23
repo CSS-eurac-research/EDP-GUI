@@ -23,7 +23,9 @@ class DocsPageView(generic.ListView):
     #return render(request, 'docs.html', {})
 
 def main_page(request):
-    return render(request, 'main_page.html', {})
+    #return render(request, 'main_page.html', {})
+    return render(request, 'maintenance.html', {})
+
 
 def discovery(request):
     title_list = "no title found"

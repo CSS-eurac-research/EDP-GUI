@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+
+<head>
+
+  <title>Home - EDP</title>
+  <link rel="shortcut icon" href="/static/apple-touch-icon.png">
+
+</head>
+
+<div id="header">
+
+  <div style="height: 50px; margin-top: 10px;" class="row">
+      <div class="col">
+        <a href="{% url 'edp_portal:main_page' %}"><img src="/static/Eurac_Research_logo.png" id="logo"></a>
+      </div>
+      <div class="col-6">
+        <div style="width: 100%" class="center">
+          <h2 id="title">Environmental Data Platform</h2>
+        </div>      
+      </div>
+      <div class="col">
+        <img src="/static/fesr_dps4eslab_logo.png" id="fesr_logo">
+        <!-- <a id="admin_button" type="button" class="btn btn-outline-primary" href="{% url 'admin:index' %}" target="_blank" rel="noopener noreferrer" style="float: right;"><i class="fa fa-cogs" aria-hidden="true"></i> Settings</a> -->
+        <!-- <a id="admin_button" type="button" class="btn btn-outline-primary" href="http://10.8.244.240/admin/" target="_blank" rel="noopener noreferrer" style="float: right;"><i class="fa fa-cogs" aria-hidden="true"></i> Settings</a> -->
+      </div>
+    </div>
+    <hr>
+
+<div id="main_section">
+
+  <div class="container">
+
+  <div style="text-align: center;">
+    <br>
+    <img src="/static/crane.png" style="width: 10%;" id="fesr_logo">
+    <br>
+    <br>
+    <h3><b>EDP portal is currently down for maintenance​.</b></h3>
+  </div>
+
+  <div style="text-align: center;">
+    <br>
+    <br>
+    <h4>It will be back shortly, sorry for the inconvenience.</h4>
+    <br>
+    <h4>For any need please contact the CSS support team by SupportCSS@eurac.edu</h4>
+  </div>
+
+  </div>
+  </div>
+
+<div id="footer">
+  <hr>
+  <div style="height: 100px; margin-top: 10px; padding: 2px;" class="row">
+    <div class="col">
+        <h6>Info at</h6>
+            <a href="mailto:SupportCSS@eurac.edu​"><i class="fa fa-envelope" aria-hidden="true"></i> SupportCSS@eurac.edu</a><br>
+            <a href="http://www.eurac.edu/en/research/technologies/CenterforSensingSolutions/Pages/default.aspx" target="_blank" rel="noopener noreferrer"><i class="fa fa-external-link" aria-hidden="true"></i> CSS website</a><br>
+            <a href="https://cssportfolio.eurac.edu/" target="_blank" rel="noopener noreferrer" ><i class="fa fa-external-link" aria-hidden="true"></i> CSS portfolio</a><br>
+            <a href="https://www.eurac.edu/en/static/privacy-policy-website" target="_blank" rel="noopener noreferrer"><i class="fa fa-external-link" aria-hidden="true"></i> Privacy policy</a>
+    </div>
+    <div class="col"></div>
+  </div>
+
+</div>
+
+
+{% endblock %}
