@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+
+<head>
+
+  <title>Docs - EDP</title>
+  <link rel="shortcut icon" href="/static/apple-touch-icon.png">
+
+</head>
+
+<div style="height: 50px; margin-top: 10px;" class="row">
+  <div class="col">
+    <a href="{% url 'edp_portal:main_page' %}"><img src="/static/Eurac_Research_logo.png" id="logo"></a>
+  </div>
+  <div class="col-6">
+    <div style="width: 100%" class="center">
+      <h2 id="title">Environmental Data Platform</h2>
+    </div>      
+  </div>
+  <div class="col">
+    <img src="/static/fesr_dps4eslab_logo.png" id="fesr_logo">
+
+  </div>
+</div>
+<hr>
+
+<div class="container">
+  <h3>Terms and Conditions</h3>
+    <hr>
+    <div>
+    <h4>Imprint</h4>
+    <hr>
+    <p><strong>Eurac Research</strong></p>
+    <p><a href="https://www.eurac.edu/en/institutes-centers/center-for-sensing-solutions">Center for Sensing Solutions</a><br>
+      Via A. Volta 13/A<br>
+      39100 - Bolzano – Italy<br>
+      T +39 0471 055 930<br>
+    <a href="mailto:SupportCSS@eurac.edu">SupportCSS@eurac.edu</a></p>
+
+
+  </div><br>
+
+  <div>
+    <h4>Privacy</h4>
+    <hr>
+    <a href="https://www.eurac.edu/en/static/privacy-policy-website" target="_blank" rel="noopener noreferrer">Privacy policy on edp-portal.eurac.edu</a>
+  </div><br>
+
+  <!-- <div>
+    <h4>Licence</h4>
+    <hr>
+  </div><br> -->
+    <div>
+      <h4>Disclaimer and Liability</h4>
+      <hr>
+        <p>
+          Data from the EDP-portal is provided for information purposes only. This means that the information contained in the EDP are provided "as is" without warranty of any kind, either express or implied, including, but not limited to, any implied warranty against infringement of merchantability, integration, satisfactory quality and fitness for a particular purpose. 
+          In particular, nothing in these terms and conditions should be interpreted as a guarantee that the information contained will be free from errors or omissions, and that such errors or omissions can be rectified. In addition, changes to the data might occur frequently and without prior notice.
+        </p>
+        <p>
+          By using the EDP-portal information and data the user acknowledges that these conditions are applicable to him/her and that - to the full extent allowed by law - the user renounces to any claims for damages against the European Union and the providers of the data and information thereto. 
+          The scope of this waiver encompasses any dispute, including contracts and torts claims that might be filed in court, in arbitration or in any other form of dispute settlement.
+        </p>
+    </div>
+
+</div>
+
+{% endblock %}

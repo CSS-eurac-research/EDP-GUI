@@ -338,6 +338,9 @@ def pgadmin_page(request):
 def maps_page(request):
     return render(request, 'maps.html', {})
 
+def terms_conditions_page(request):
+    return render(request, 'terms_conditions.html', {})
+
 def result_detail(request, uuid):
     metadata_details = get_metadata_details(request, uuid)
     if ("error"  not in metadata_details):
