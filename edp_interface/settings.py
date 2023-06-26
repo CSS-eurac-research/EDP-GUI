@@ -93,22 +93,22 @@ DATABASES = {
 #        'NAME': BASE_DIR / 'db.sqlite3',
 #    }
 
-    #     'default': {
+        'default': {
 
-    #     #'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    #     'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        #'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
 
-    #     'NAME': 'edp_portal_gui',
+        'NAME': 'edp_portal_gui',
 
-    #     'USER': 'edp_gui_user',
+        'USER': 'edp_gui_user',
 
-    #     'PASSWORD': '73bd357832012a62357095bf6d9324f8',
+        'PASSWORD': '73bd357832012a62357095bf6d9324f8',
 
-    #     'HOST': '10.8.244.39',
+        'HOST': '10.8.244.39',
 
-    #     'PORT': '5432',
+        'PORT': '5432',
 
-    # }
+    }
 }
 
 
