@@ -16,4 +16,5 @@ urlpatterns = [
     path('terms-and-conditions/', views.terms_conditions_page, name='terms_conditions_page'),
     path('discovery/', views.discovery, name='discovery'),
     path('discovery/<slug:uuid>', views.result_detail, name='result_detail'),
+    path('discovery/linkset/<slug:uuid>', views.get_linkset, name='get_linkset'),
 ]
