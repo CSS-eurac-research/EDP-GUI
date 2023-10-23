@@ -14,6 +14,8 @@ CONTENT_TYPE = "application/json"
 EDP_DISCOVERY_URL = 'https://edp-portal.eurac.edu/discovery/'
 DOI_URL = 'https://doi.org/10.48784/'
 OPENEO_URL = 'https://openeo.eurac.edu/collections/'
+DATA_CITE_API = "https://api.datacite.org/dois/10.48784/"
+GEONETWORK_URL = "https://edp-portal.eurac.edu/geonetwork/srv/api/records/"
 
 class DocsPageView(generic.ListView):
     template_name = 'docs.html'
@@ -518,6 +520,11 @@ def get_total_number_metadata(request, url_geometry_part):
 
 def get_info_publication(uuid):
     #print(uuid)
+    authors = []
+    type = ""
+    rights = []
+    doi_exists = False
+
     url = "https://api.datacite.org/graphql"
     body = """query Publication {
                 publication(id: "10.48784/"""+uuid+"""") {
@@ -545,48 +552,68 @@ def get_info_publication(uuid):
     response = requests.post(url=url, json={"query":body})
 
     json_response = response.content.decode('utf-8')
-    publication = json.loads(json_response)["data"]["publication"]
+    if uuid in json_response:
+        doi_exists = True
+        publication = json.loads(json_response)["data"]["publication"]
+        authors = []
+        for a in publication["creators"]:
+            authors.append(dict(href = a["id"]))
+            #authors.append('{ "href": "'+a["id"]+'" }')
+
+        rights = []
+        for r in publication["rights"]:
+            rights.append(dict(href = r["rightsUri"]))
+            #rights.append('{ "href": "'+r["rightsUri"]+'" }') 
+        #print(authors)
+        type = publication["type"]
+    
+    return authors, type, rights, doi_exists
+
     #print(publication)
     
-    authors = []
-    for a in publication["creators"]:
-        authors.append(dict(href = a["id"]))
-        #authors.append('{ "href": "'+a["id"]+'" }')
+    
 
-    rights = []
-    for r in publication["rights"]:
-        rights.append(dict(href = r["rightsUri"]))
-        #rights.append('{ "href": "'+r["rightsUri"]+'" }') 
-    #print(authors)
-    return authors, publication["type"], rights
+def get_collection_id(uuid, category):
+    name_collection = GeonetworkMetadata.objects.filter(uuid=uuid, category=category).values("name_collection")
+    #print(tmp_category_list)
+    return name_collection[0]['name_collection']
 
-def get_collection_id(uuid):
-    tmp_category_list = GeonetworkMetadata.objects.filter(uuid=uuid, category="OpenEO").values("name_collection")
-    print(tmp_category_list)
+def get_category(uuid):
+        category = GeonetworkMetadata.objects.filter(uuid=uuid).values("category")
+        return category[0]['category']
 
 #Signposting linkset
 def get_linkset(request, uuid):
 
-    authors, type, rights = get_info_publication(uuid)
-    #category = get_collection_id(uuid)
-
-
-    id_collection = ""
-    describedby = []
-    describedby.append(dict(href =  OPENEO_URL + id_collection, type = "application/json"))
-    describedby.append(dict(href = "https://edp-portal.eurac.edu/geonetwork/srv/api/records/" + uuid + "/formatters/xml?approved=true", type = "application/rdf+xml"))  
-    describedby.append(dict(href = "https://api.datacite.org/dois/10.48784/" + uuid, type = "application/json"))
-
-    linkset_body = dict(anchor = EDP_DISCOVERY_URL + uuid,
-                   cite_as = dict(href = DOI_URL + uuid),
-                   type = [dict(href = "https://schema.org/" + type), dict(href = "https://schema.org/AboutPage")],
-                   author = authors,
-                   describedby = describedby,
-                   license = rights
-                   )
+    authors, type, rights, doi_exists = get_info_publication(uuid)
     
-    linkset_body["cite-as"] = linkset_body["cite_as"]
-    del linkset_body["cite_as"]
+    category = get_category(uuid)   
+
+    describedby = []
+
+    if category == 'OpenEO':
+        name_collection = get_collection_id(uuid, category)   
+        describedby.append(dict(href =  OPENEO_URL + name_collection, type = "application/json"))
+    #geonetowrk url
+    describedby.append(dict(href = GEONETWORK_URL + uuid + "/formatters/xml?approved=true", type = "application/rdf+xml"))  
+    #datacite api url
+    describedby.append(dict(href = DATA_CITE_API + uuid, type = "application/json"))
+
+    linkset_body = dict(anchor = EDP_DISCOVERY_URL + uuid,                   
+                    author = authors,
+                    describedby = describedby,
+                    license = rights
+                   )
+
+    if doi_exists == False and (category == 'Maps' or category == 'SOS' or category == 'PostgresDB' or category == 'InfluxDB'):
+        linkset_body["type"] = [dict(href = "https://schema.org/Dataset"), dict(href = "https://schema.org/AboutPage")]
+    else:
+        linkset_body["type"] = [dict(href = "https://schema.org/" + type), dict(href = "https://schema.org/AboutPage")]
+    
+    if doi_exists:
+        linkset_body["cite-as"] = dict(href = DOI_URL + uuid)
+        #linkset_body["cite-as"] = linkset_body["cite_as"]
+        #del linkset_body["cite_as"]
     
     linkset = dict(linkset = linkset_body)
     #print(linkset)
