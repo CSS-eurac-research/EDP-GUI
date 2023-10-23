@@ -389,7 +389,6 @@ def result_detail(request, uuid):
         response = render(request, 'result_detail.html', context)
         #Signposting HTTP HEAD Link <https://example.org/linkset/7507/lset> ; rel="linkset" ; type="application/linkset" , 
         response['Link'] = '<' + EDP_DISCOVERY_URL + "linkset/" + uuid + '> ; rel="linkset" ; type="application/linkset+json"'
-        response['identifier'] = uuid
         
         return response
     else:
@@ -599,8 +598,10 @@ def get_linkset(request, uuid):
         describedby.append(dict(href =  OPENEO_URL + name_collection, type = "application/json"))
     #geonetowrk url
     describedby.append(dict(href = GEONETWORK_URL + uuid + "/formatters/xml?approved=true", type = "application/rdf+xml"))  
-    #datacite api url
-    describedby.append(dict(href = DATA_CITE_API + uuid, type = "application/json"))
+
+    if doi_exists:
+        #datacite api url
+        describedby.append(dict(href = DATA_CITE_API + uuid, type = "application/json"))
 
     linkset_body = dict(anchor = EDP_DISCOVERY_URL + uuid,                   
                     author = authors,
@@ -620,27 +621,6 @@ def get_linkset(request, uuid):
     
     linkset = dict(linkset = linkset_body)
     #print(linkset)
-    
-    
-    # linkset_start = '{"linkset":[ { '
-    
-    # anchor= '"anchor": "'+ BASE_URL + uuid + '",'     
-    
-    # cite_as = '"cite-as": [ { "href": "' + DOI_URL + uuid + '" } ]'
-
-    # type = '"type": [ { "href": "https://schema.org/' + type + '" }, { "href": "https://schema.org/AboutPage" } ]'
-    
-    # author = '"author": [ '+(",").join(authors)+' ]'
-
-    # id_collection = ""
-
-    # describedby = '"describedby": [ { "href": "' + OPENEO_URL + id_collection + '", "type": "application/json" }, { "href": "https://edp-portal.eurac.edu/geonetwork/srv/api/records/'+uuid+'/formatters/xml?approved=true", "type": "application/rdf+xml" }, { "href": "https://api.datacite.org/dois/10.48784/'+uuid+'", "type": "application/vnd.datacite.datacite+json" }]'
-    
-    # license = '"license": [ '+(",").join(rights)+' ]'
-
-    # linkset_close = '}]}'
-
-    # linkset_json = linkset_start + anchor + "," + cite_as + "," + type + "," + author + "," + describedby + "," + license + linkset_close
 
     #print(linkset_json)
     return JsonResponse(linkset, safe=False, status=200)
