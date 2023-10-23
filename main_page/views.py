@@ -389,6 +389,8 @@ def result_detail(request, uuid):
         response = render(request, 'result_detail.html', context)
         #Signposting HTTP HEAD Link <https://example.org/linkset/7507/lset> ; rel="linkset" ; type="application/linkset" , 
         response['Link'] = '<' + EDP_DISCOVERY_URL + "linkset/" + uuid + '> ; rel="linkset" ; type="application/linkset+json"'
+        response['identifier'] = uuid
+        
         return response
     else:
         #print(metadata_details)
@@ -463,7 +465,7 @@ def get_metadata_details(request, uuid):
             metadata_detail['thumbnail'] = metadataRecords['overview'][0]['url']
 
         gn_cat = GeonetworkMetadata.objects.filter(uuid=uuid)
-        print(gn_cat[0].category)
+        #print(gn_cat[0].category)
         metadata_detail['category'] = gn_cat[0].category
 
         if gn_cat[0].doi:
@@ -482,7 +484,6 @@ def get_metadata_details(request, uuid):
         #    else:
         #        metadata_detail['category'] = 'Database'
         
-
         if 'tag' in metadataRecords:
             keywords = []
             for t in metadataRecords['tag']:        
@@ -493,8 +494,10 @@ def get_metadata_details(request, uuid):
             metadata_detail['lineage'] = metadataRecords['lineageObject']
 
         if 'resourceTemporalExtentDetails' in metadataRecords:
-            metadata_detail['tempExtentBegin'] = metadataRecords['resourceTemporalExtentDetails'][0]['start']['date']
-            metadata_detail['tempExtentEnd'] = metadataRecords['resourceTemporalExtentDetails'][0]['end']['date']
+            if 'date' in metadataRecords:
+                metadata_detail['tempExtentBegin'] = metadataRecords['resourceTemporalExtentDetails'][0]['start']['date']
+            if 'date' in metadataRecords:
+                metadata_detail['tempExtentEnd'] = metadataRecords['resourceTemporalExtentDetails'][0]['end']['date']
 
         if 'link' in metadataRecords:
             metadata_detail['name_collection'] = metadataRecords['link'][0]['name']
