@@ -11,7 +11,7 @@ from .models import DocSource, SnippetCode, GeonetworkMetadata
 
 ACCEPT_HTTP = "application/json"
 CONTENT_TYPE = "application/json"
-EDP_DISCOVERY_URL = 'http://10.8.244.240:8081/discovery/'
+EDP_DISCOVERY_URL = 'https://edp-portal.eurac.edu/discovery/'
 DOI_URL = 'https://doi.org/10.48784/'
 OPENEO_URL = 'https://openeo.eurac.edu/collections/'
 
