@@ -19,11 +19,24 @@
 
   <link rel="describedby" href="https://edp-portal.eurac.edu/geonetwork/srv/api/records/{{uuid}}/formatters/xml?approved=true" type="application/vnd.iso19139.metadata+xml">
   <link rel="describedby" href="https://api.datacite.org/dois/10.48784/{{uuid}}" type="application/json">
+  <link rel="describedby" href="https://doi.org/10.48784/{{uuid}}?format=metadata_datacite4" type="application/vnd.datacite.datacite+xml">
   <link rel="linkset" type="application/linkset" href="https://edp-portal.eurac.edu/discovery/linkset/{{uuid}}">
   <link rel="linkset" type="application/linkset+json" href="https://edp-portal.eurac.edu/discovery/linkset/{{uuid}}">
   <link rel="describedby" type="application/linkset" href="https://edp-portal.eurac.edu/discovery/linkset/{{uuid}}">
-  <link rel="describedby" type="application/linkset+json" href="https://edp-portal.eurac.edu/discovery/linkset/{{uuid}}">
+  <link rel="describedby" type="application/json" href="https://edp-portal.eurac.edu/discovery/linkset/{{uuid}}">
+  <link rel="describedby" type="application/ld+json" href="https://edp-portal.eurac.edu/discovery/jsonld/{{uuid}}">
   <link rel="cite-as" href="https://doi.org/10.48784/{{uuid}}">  
+
+  <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
+  <link rel="schema.DCTERMS" href="http://purl.org/dc/terms/">
+  <meta name="DCTERMS.license" scheme="DCTERMS.URI" content="https://creativecommons.org/licenses/by/4.0/">
+  <meta name="DC.identifier" content="https://doi.org/10.48784/{{uuid}}" scheme="DCTERMS.URI">
+  <meta name="DC.title" content="{{result_json.title}}">
+  <meta name="DC.publisher" content="{{publisher}}">
+  <meta name="DC.language" content="en" scheme="DCTERMS.RFC3066">
+  <meta name="DC.type" content="Dataset">
+  <meta name="DC.rights" scheme="DCTERMS.URI" content="info:eu-repo/semantics/restrictedAccess">
+  <!-- <meta name="DC.format" content="application/zip, 7 datasets"> -->
 
 </head>
 

@@ -380,6 +380,7 @@ def result_detail(request, uuid):
 
         context = {
             "uuid" : uuid,
+            "publisher" : "Eurac Research",
             #"result_json" : result_json["metadata"],
             "result_json" : metadata_details,
             "snippet_code_list" : snippet_code_list,
@@ -584,6 +585,10 @@ def get_category(uuid):
         category = GeonetworkMetadata.objects.filter(uuid=uuid).values("category")
         return category[0]['category']
 
+def get_name(uuid):
+        name = GeonetworkMetadata.objects.filter(uuid=uuid).values("title")
+        return name[0]['title']
+
 #Signposting linkset
 def get_linkset(request, uuid):
 
@@ -606,7 +611,8 @@ def get_linkset(request, uuid):
     linkset_body = dict(anchor = EDP_DISCOVERY_URL + uuid,                   
                     author = authors,
                     describedby = describedby,
-                    license = rights
+                    license = rights,
+                    name = get_name(uuid)
                    )
 
     if doi_exists == False and (category == 'Maps' or category == 'SOS' or category == 'PostgresDB' or category == 'InfluxDB'):
@@ -624,3 +630,124 @@ def get_linkset(request, uuid):
 
     #print(linkset_json)
     return JsonResponse(linkset, safe=False, status=200)
+
+
+#jsonld
+def get_jsonld(request, uuid):
+
+    jsonld = dict()
+    authors, type, rights, doi_exists = get_info_publication(uuid)
+    
+    category = get_category(uuid)   
+
+    describedby = []
+    reverse = dict()    
+    isPartOf = dict()
+    citation = dict()
+    if category == 'OpenEO':
+        name_collection = get_collection_id(uuid, category)   
+        describedby.append(dict(href =  OPENEO_URL + name_collection, type = "application/json"))
+    #geonetowrk url
+    describedby.append(dict(href = GEONETWORK_URL + uuid + "/formatters/xml?approved=true", type = "application/rdf+xml"))  
+
+    if doi_exists:
+        #datacite api url
+        describedby.append(dict(href = DATA_CITE_API + uuid, type = "application/json"))
+
+    jsonld["@context"] = "https://schema.org/"    
+
+    jsonld["creator"] = authors
+
+    jsonld["name"] = get_name(uuid)
+
+    jsonld["isAccessibleForFree"] = False
+    jsonld["license"] = rights
+    jsonld["conditionsOfAccess"] = "restricted"
+
+    if doi_exists == False and (category == 'Maps' or category == 'SOS' or category == 'PostgresDB' or category == 'InfluxDB'):
+        jsonld["@type"] = "Dataset"
+    else:
+        jsonld["@type"] = type
+    
+    if doi_exists:
+        jsonld["@id"] = DOI_URL + uuid
+        jsonld["identifier"] = DOI_URL + uuid
+        jsonld["url"] = EDP_DISCOVERY_URL + uuid
+    
+    
+    size = dict()
+    distribution = dict()
+    distribution["@type"] = "DataDownload"
+    if category == "Maps":
+        distribution["encodingFormat"] = "application/gzip"
+        distribution["contentUrl"] = DOI_URL + uuid
+        isPartOf["@type"] = "CreativeWork"
+        isPartOf["name"] = "Dataset"
+        reverse["@id"] = "https://doi.org/10.25504/FAIRsharing.8ee7f1"
+        reverse["identifier"] = "https://doi.org/10.25504/FAIRsharing.8ee7f1"
+        citation["@id"] = "https://doi.org/10.25504/FAIRsharing.8ee7f1"
+        citation["identifier"] = "https://doi.org/10.25504/FAIRsharing.8ee7f1"
+        citation["url"] = "https://doi.org/10.25504/FAIRsharing.8ee7f1"
+    if category == "OpenEO":
+        # it is not completely true because the URL is the endpoint of the API of openEO
+        distribution["encodingFormat"] = "application/json"
+        distribution["contentUrl"] = OPENEO_URL + name_collection
+        size["@type"] = "Timeseries"
+        isPartOf["@type"] = "CreativeWork"
+        isPartOf["name"] = "Dataset"
+        reverse["@id"] = "https://doi.org/10.25504/FAIRsharing.f9de28"
+        reverse["identifier"] = "https://doi.org/10.25504/FAIRsharing.f9de28"
+        citation["@id"] = "https://doi.org/10.25504/FAIRsharing.f9de28"
+        citation["identifier"] = "https://doi.org/10.25504/FAIRsharing.f9de28"
+        citation["url"] = "https://doi.org/10.25504/FAIRsharing.8ee7f1"
+    if category == "PostgresDB" or category == "InfluxDB":
+        size["@type"] = "Timeseries"
+        distribution["encodingFormat"] = "application/json"
+        distribution["contentUrl"] = "Custom API"
+    if category == "SOS":
+        distribution["encodingFormat"] = ""
+        distribution["contentUrl"] = DOI_URL + uuid
+    
+    jsonld["distribution"] = distribution   
+    
+    size["unitText"] = "datasets"
+    jsonld["size"] = size
+
+    
+
+    reverse["isPartOf"] = isPartOf
+    jsonld["@reverse"] = reverse
+
+    typecit = dict()
+    typecit["@type"] = '"CreativeWork", "Dataset"'
+    citation["@type"] = ["CreativeWork", "Dataset"]
+    
+    jsonld["citation"] = citation
+
+    # jsonld["citation"] = []
+
+    # publisher = dict()
+    # publisher["@type"] = "Organization"
+    # publisher["name"] = "Eurac Research"
+    # publisher["disambiguatingDescription"] = ""
+    # publisher["url"] = "https://www.eurac.edu/en"
+    # jsonld["publisher"] = publisher
+
+    # dataCatalog = dict()
+    # dataCatalog["@type"] = "DataCatalog"
+    # dataCatalog["name"] = "Eurac Research"
+    # dataCatalog["disambiguatingDescription"] = ""
+    # dataCatalog["url"] = "https://www.eurac.edu/en"
+    # jsonld["dataCatalog"] = dataCatalog
+
+    jsonld["inLanguage"] = "en"
+
+
+    print(jsonld)
+
+
+    #linkset = dict(linkset = jsonld)
+    #print(linkset)
+
+    #print(linkset_json)
+    return JsonResponse(jsonld, safe=False, status=200)
