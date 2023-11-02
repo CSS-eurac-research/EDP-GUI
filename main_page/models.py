@@ -53,6 +53,8 @@ class GeonetworkMetadata(models.Model):
     doi = models.CharField(max_length=500, null=True)
     citation = models.TextField(max_length=10000, null=True)
     name_collection = models.CharField(max_length=500, null=True)
+    cl_topic = models.CharField(max_length=500, null=True)
+    presentation_form = models.CharField(max_length=500, null=True)
     supplemental_information = models.TextField(max_length=10000, null=True)
 
     def __str__(self):

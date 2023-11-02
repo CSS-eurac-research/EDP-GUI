@@ -347,6 +347,11 @@ def terms_conditions_page(request):
 
 def result_detail(request, uuid):
     metadata_details = get_metadata_details(request, uuid)
+    creators, rights, type, publisher = get_info_publication_complete(uuid)
+    #print(creators)
+    #print(type)
+    metadata_details['creators'] = creators
+    metadata_details['rights'] = rights
     if ("error"  not in metadata_details):
         snippet_code_list = SnippetCode.objects.filter(snippet_category__icontains=metadata_details["category"])
         for i in snippet_code_list:
@@ -380,7 +385,8 @@ def result_detail(request, uuid):
 
         context = {
             "uuid" : uuid,
-            "publisher" : "Eurac Research",
+            "publisher" : publisher,
+            "type" : type,
             #"result_json" : result_json["metadata"],
             "result_json" : metadata_details,
             "snippet_code_list" : snippet_code_list,
@@ -405,7 +411,7 @@ def get_metadata_details(request, uuid):
         metadata_detail = {}
         #url = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&_draft=y+or+n+or+e&_isTemplate=y+or+n&fast=index&uuid="+uuid
         url = "https://edp-portal.eurac.edu/geonetwork/srv/api/search/records/_search"
-        print(url)
+        #print(url)
         body = "{\"query\":{\"bool\":{\"must\":[{\"multi_match\":{\"query\":\""+uuid+"\",\"fields\":[\"id\",\"uuid\"]}},{\"terms\":{\"isTemplate\":[\"n\",\"y\"]}},{\"terms\":{\"draft\":[\"n\",\"y\",\"e\"]}}]}}}"
         headers = {'ACCEPT': ACCEPT_HTTP, 'CONTENT-TYPE': CONTENT_TYPE}
         results = requests.post(url, data=body, headers=headers)
@@ -465,7 +471,7 @@ def get_metadata_details(request, uuid):
             metadata_detail['thumbnail'] = metadataRecords['overview'][0]['url']
 
         gn_cat = GeonetworkMetadata.objects.filter(uuid=uuid)
-        #print(gn_cat[0].category)
+        #print(gn_cat)
         metadata_detail['category'] = gn_cat[0].category
 
         if gn_cat[0].doi:
@@ -502,7 +508,14 @@ def get_metadata_details(request, uuid):
         if 'link' in metadataRecords:
             metadata_detail['name_collection'] = metadataRecords['link'][0]['name']
         
-        print(metadata_detail)
+        
+        if gn_cat[0].presentation_form:
+            metadata_detail['presentationForm'] = gn_cat[0].presentation_form
+        #print(gn_cat[0].cl_topic)
+        if gn_cat[0].cl_topic:
+            metadata_detail['cl_topic'] = gn_cat[0].cl_topic
+        
+        #print(metadata_detail)
         return metadata_detail
         
     except:
@@ -519,6 +532,55 @@ def get_total_number_metadata(request, url_geometry_part):
         return (summary_results[0]['@count'])
     else:
         return(0)
+
+
+def get_info_publication_complete(uuid):
+    #print(uuid)
+    creators = []
+    rights = []
+    type = "" 
+    publisher = ""
+    url = "https://api.datacite.org/graphql"
+    body = """query Publication {
+                publication(id: "10.48784/"""+uuid+"""") {
+                    schemaOrg
+                    type
+                    creators {
+                        familyName
+                        givenName
+                        id
+                        name
+                        type
+                    }
+                    doi
+                    rights {
+                        lang
+                        rights
+                        rightsIdentifier
+                        rightsIdentifierScheme
+                        rightsUri
+                        schemeUri
+                    }
+                    publisher
+            }   
+            }"""
+
+    response = requests.post(url=url, json={"query":body})
+
+    json_response = response.content.decode('utf-8')
+    if uuid in json_response:
+        publication = json.loads(json_response)["data"]["publication"]
+        #print(publication)
+        for a in publication["creators"]:
+            creators.append(dict(id = a["id"], name = a["name"], type = a["type"]))
+
+        rights = []
+        for r in publication["rights"]:
+            #print(r)
+            rights.append(dict(uri = r["rightsUri"], rights = r["rights"], rightsIdentifier = r['rightsIdentifier']))
+        type = publication["type"]
+        publisher = publication["publisher"]
+    return creators, rights, type, publisher
 
 
 def get_info_publication(uuid):
@@ -662,9 +724,11 @@ def get_jsonld(request, uuid):
 
     jsonld["isAccessibleForFree"] = False
     jsonld["license"] = rights
+    #Should be dynamic and not hardcoded here
     jsonld["conditionsOfAccess"] = "restricted"
 
     if doi_exists == False and (category == 'Maps' or category == 'SOS' or category == 'PostgresDB' or category == 'InfluxDB'):
+        #Should arrive from the database and not hardcoded here
         jsonld["@type"] = "Dataset"
     else:
         jsonld["@type"] = type
@@ -677,12 +741,14 @@ def get_jsonld(request, uuid):
     
     size = dict()
     distribution = dict()
+
+    #Should be dynamic and not hardcoded here
     distribution["@type"] = "DataDownload"
     if category == "Maps":
         distribution["encodingFormat"] = "application/gzip"
         distribution["contentUrl"] = DOI_URL + uuid
         isPartOf["@type"] = "CreativeWork"
-        isPartOf["name"] = "Dataset"
+        isPartOf["name"] = type
         reverse["@id"] = "https://doi.org/10.25504/FAIRsharing.8ee7f1"
         reverse["identifier"] = "https://doi.org/10.25504/FAIRsharing.8ee7f1"
         citation["@id"] = "https://doi.org/10.25504/FAIRsharing.8ee7f1"
@@ -691,36 +757,38 @@ def get_jsonld(request, uuid):
     if category == "OpenEO":
         # it is not completely true because the URL is the endpoint of the API of openEO
         distribution["encodingFormat"] = "application/json"
+        distribution["fileFormat"] = "application/json"
         distribution["contentUrl"] = OPENEO_URL + name_collection
         size["@type"] = "Timeseries"
         isPartOf["@type"] = "CreativeWork"
-        isPartOf["name"] = "Dataset"
+        isPartOf["name"] = type
         reverse["@id"] = "https://doi.org/10.25504/FAIRsharing.f9de28"
         reverse["identifier"] = "https://doi.org/10.25504/FAIRsharing.f9de28"
         citation["@id"] = "https://doi.org/10.25504/FAIRsharing.f9de28"
         citation["identifier"] = "https://doi.org/10.25504/FAIRsharing.f9de28"
         citation["url"] = "https://doi.org/10.25504/FAIRsharing.8ee7f1"
     if category == "PostgresDB" or category == "InfluxDB":
-        size["@type"] = "Timeseries"
+        size["@type"] = type
+        #Hardcoded but to modify
         distribution["encodingFormat"] = "application/json"
+        distribution["fileFormat"] = "application/json"
         distribution["contentUrl"] = "Custom API"
     if category == "SOS":
         distribution["encodingFormat"] = ""
+        distribution["fileFormat"] = ""
         distribution["contentUrl"] = DOI_URL + uuid
     
     jsonld["distribution"] = distribution   
     
-    size["unitText"] = "datasets"
+    size["unitText"] = type
     jsonld["size"] = size
-
-    
 
     reverse["isPartOf"] = isPartOf
     jsonld["@reverse"] = reverse
 
-    typecit = dict()
-    typecit["@type"] = '"CreativeWork", "Dataset"'
-    citation["@type"] = ["CreativeWork", "Dataset"]
+    # typecit = dict()
+    # typecit["@type"] = '"CreativeWork", "Dataset"'
+    citation["@type"] = ["CreativeWork", type]
     
     jsonld["citation"] = citation
 
@@ -743,7 +811,7 @@ def get_jsonld(request, uuid):
     jsonld["inLanguage"] = "en"
 
 
-    print(jsonld)
+    #print(jsonld)
 
 
     #linkset = dict(linkset = jsonld)

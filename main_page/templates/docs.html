@@ -38,10 +38,11 @@
         <th id="date_column_table" class="width_column_table-2">Date published</th>
         <th>Category</th>
       </tr>
+
       {% for source in latest_docs_sources_list %}
 
         <tr id="rows_table">
-          <td>{{ source.id }}</td>
+          <td>{{ forloop.counter }}</td>
           <td>{{ source.source_name }}</td>
           <td>{{ source.source_description }}</td>
           <td><a href="{{ source.source_link }}" target="_blank" rel="noopener noreferrer">Link</a></td>

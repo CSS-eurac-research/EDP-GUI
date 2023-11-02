@@ -329,6 +329,31 @@ td {
   top: 5px;
 }
 
+.linkset_ld {
+  text-decoration: none;
+  color: #007bff;
+  background-color: transparent;
+  background-image: none;
+  border: 1px solid #007bff;
+  border-radius: 15px;
+  padding: 4px;
+  position: relative;
+  top: 5px;
+  
+}
+
+.linkset_ld:hover {
+  text-decoration: none;
+  color: #007bff;
+  background-color: transparent;
+  background-image: none;
+  border: 1px solid #007bff;
+  border-radius: 15px;
+  padding: 4px;
+  position: relative;
+  top: 5px;
+}
+
 #geonetwork_link:hover {
   text-decoration: none;
   color: white;

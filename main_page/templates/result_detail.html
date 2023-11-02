@@ -34,10 +34,31 @@
   <meta name="DC.title" content="{{result_json.title}}">
   <meta name="DC.publisher" content="{{publisher}}">
   <meta name="DC.language" content="en" scheme="DCTERMS.RFC3066">
-  <meta name="DC.type" content="Dataset">
+  <meta name="DC.type" content={{type}}>
   <meta name="DC.rights" scheme="DCTERMS.URI" content="info:eu-repo/semantics/restrictedAccess">
-  <!-- <meta name="DC.format" content="application/zip, 7 datasets"> -->
+  <meta name="DC.relation" content="https://doi.org/10.48784/{{uuid}}">
 
+  <style>
+            .linkset_ld {
+          text-decoration: none;
+          color: #007bff;
+          background-color: transparent;
+          background-image: none;
+          border: 1px solid #007bff;
+          border-radius: 15px;
+          padding: 4px;
+          position: relative;
+          top: 5px;
+        }
+
+        .linkset_ld:hover {
+          text-decoration: none;
+          color: white;
+          background-color: #007bff;
+          background-image: none;
+          border: 1px solid #007bff;
+        }
+  </style>
 </head>
 
 <div style="height: 50px; margin-top: 10px; width: 100%;" class="row">
@@ -63,7 +84,11 @@
 <div style="width: 100%">
   <div  class="center">
     <h4 style="color: #DF1B12;"><b>{{ result_json.title }}</b> detail</h4>
-    <a id="geonetwork_link" href="http://edp-portal.eurac.edu/geonetwork/srv/eng/catalog.search#/metadata/{{uuid}}/formatters/xsl-view?root=div&view=advanced" target="_blank" rel="noopener noreferrer"><img src="/static/geonetwork_small.png" style="width: 15px; margin-top: -4px;"> Go to full metadata</a>
+    <div>
+      <a id="geonetwork_link" href="http://edp-portal.eurac.edu/geonetwork/srv/eng/catalog.search#/metadata/{{uuid}}/formatters/xsl-view?root=div&view=advanced" target="_blank" rel="noopener noreferrer"><img src="/static/geonetwork_small.png" style="width: 15px; margin-top: -4px;"> Go to full metadata</a>
+      <a class="linkset_ld" href="https://edp-portal.eurac.edu/discovery/linkset/{{uuid}}" target="_blank" rel="noreferrer"><i class="fa fa-file-o" aria-hidden="true"></i> Linkset {json}</a>
+      <a class="linkset_ld" href="https://edp-portal.eurac.edu/discovery/jsonld/{{uuid}}" target="_blank" rel="noreferrer"><i class="fa fa-file-o" aria-hidden="true"></i> Linked data {json}</a>
+    </div>
   </div>
   <br>
 <div style="width: 60%; margin: 0 auto;">
@@ -121,10 +146,21 @@
   {% endif %}
 
 
-
-  {% if result_json.legalConstraints %}
+  {% if result_json.rights %}
+    <div>
+      <label class="label_detail"><i class="fa fa-balance-scale" aria-hidden="true"></i> Legal constraints</label>
+      <p>
+        {% for r in result_json.rights %}  
+          <a href="{{ r.uri }}" target="_blank" rel="noreferrer" value="{{ r.rights }}"> {{ r.rights }}, {{ r.rightsIdentifier }}</a> 
+        {% endfor %}
+      </p>
+    </div>
+    {% else %}
+    <div></div>
+  {% endif %}
+  {% if result_json.legalConstraints and not result_json.rights%}
   <div>
-    <label class="label_detail"><i class="fa fa-balance-scale" aria-hidden="true"></i> Legal Constraints</label>
+    <label class="label_detail"><i class="fa fa-balance-scale" aria-hidden="true"></i> Legal constraints</label>
     <p>{{ result_json.legalConstraints }}</p>
   </div>
   {% else %}
@@ -152,6 +188,29 @@
           {{ result_json.contactResource.address }}
         </td>
       </tr>
+    </table>
+  </div>
+  {% else %}
+    <div></div>
+  {% endif %}
+
+  {% if result_json.creators %}
+  <div>
+    <label class="label_detail"><i class="fa fa-user-circle-o" aria-hidden="true"></i> Contact for resource</label>
+    <!-- <p>{{ result_json.contactResource }}</p> -->
+    <table>
+      <ul>
+      {% for c in result_json.creators %}      
+        <li>
+          {{ c.name }},         
+          {% if c.type == "Organization" %}
+            <a href="{{ c.id }}" target="_blank" rel="noreferrer">{{ c.id }}<img src="/static/ROR_logo.png" style="width: 25px; margin-left: 5px;"></i></a>
+          {% else %}
+            <a href="{{ c.id }}" target="_blank" rel="noreferrer">{{ c.id }}<img src="/static/ORCID_iD.png" style="width: 25px; margin-left: 5px;"></i></a>
+          {% endif %}
+        </li>
+      {% endfor %}
+      </ul>
     </table>
   </div>
   {% else %}
@@ -246,7 +305,44 @@
     {% else %}
       <div></div>
     {% endif %}
+
+    {% if result_json.presentationForm %}
+    <div>
+      <label class="label_detail"><i class="fa fa-wpforms" aria-hidden="true"></i> Presentation form</label>
+      <p>{{ result_json.presentationForm }}</p>
     </div>
+    {% else %}
+      <div></div>
+    {% endif %}
+
+    {% if result_json.cl_topic %}
+    <div>
+      <label class="label_detail"><i class="fa fa-hashtag" aria-hidden="true"></i> Topic category</label>
+      <p>{{ result_json.cl_topic }}</p>
+    </div>
+    {% else %}
+      <div></div>
+    {% endif %}
+
+    {% if type %}
+    <div>
+      <label class="label_detail"><i class="fa fa-fire" aria-hidden="true"></i> Type</label>
+      <p>{{ type }}</p>
+    </div>
+    {% else %}
+      <div></div>
+    {% endif %}
+
+    {% if publisher %}
+    <div>
+      <label class="label_detail"><i class="fa fa-university" aria-hidden="true"></i> Publisher</label>
+      <p>{{ publisher }}</p>
+    </div>
+    {% else %}
+      <div></div>
+    {% endif %}
+    </div>
+
   </div>
   </div>  
 
