@@ -4,7 +4,7 @@
 
 <head>
 
-  <title>Result details - EDP</title>
+  <title>{{ result_json.name_collection }} - EDP</title>
   <link rel="shortcut icon" href="/static/apple-touch-icon.png">
   <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
@@ -20,10 +20,7 @@
   <link rel="describedby" href="https://edp-portal.eurac.edu/geonetwork/srv/api/records/{{uuid}}/formatters/xml?approved=true" type="application/vnd.iso19139.metadata+xml">
   <link rel="describedby" href="https://api.datacite.org/dois/10.48784/{{uuid}}" type="application/json">
   <link rel="describedby" href="https://doi.org/10.48784/{{uuid}}?format=metadata_datacite4" type="application/vnd.datacite.datacite+xml">
-  <link rel="linkset" type="application/linkset" href="https://edp-portal.eurac.edu/discovery/linkset/{{uuid}}">
   <link rel="linkset" type="application/linkset+json" href="https://edp-portal.eurac.edu/discovery/linkset/{{uuid}}">
-  <link rel="describedby" type="application/linkset" href="https://edp-portal.eurac.edu/discovery/linkset/{{uuid}}">
-  <link rel="describedby" type="application/json" href="https://edp-portal.eurac.edu/discovery/linkset/{{uuid}}">
   <link rel="describedby" type="application/ld+json" href="https://edp-portal.eurac.edu/discovery/jsonld/{{uuid}}">
   <link rel="cite-as" href="https://doi.org/10.48784/{{uuid}}">  
 
@@ -67,11 +64,11 @@
   </div>
   <div class="col-6">
     <div style="width: 100%" class="center">
-      <h2 id="title">Environmental Data Platform</h2>
+      <h1 id="title"><b>E</b>nvironmental <b>D</b>ata <b>P</b>latform</h1>
     </div>      
   </div>
   <div class="col">
-    <img src="/static/fesr_dps4eslab_logo.png" id="fesr_logo">
+    <a href="https://www.eurac.edu/en/institutes-centers/center-for-sensing-solutions/projects/dps4eslab" target="_blank" rel="noopener noreferrer"><img src="/static/fesr_dps4eslab_logo.png" id="fesr_logo"></a>
 
   </div>
 </div>
@@ -83,7 +80,7 @@
 {% else %}
 <div style="width: 100%">
   <div  class="center">
-    <h4 style="color: #DF1B12;"><b>{{ result_json.title }}</b> detail</h4>
+    <h4 style="color: #666B6C;"><b>{{ result_json.title }}</b></h4>
     <div>
       <a id="geonetwork_link" href="http://edp-portal.eurac.edu/geonetwork/srv/eng/catalog.search#/metadata/{{uuid}}/formatters/xsl-view?root=div&view=advanced" target="_blank" rel="noopener noreferrer"><img src="/static/geonetwork_small.png" style="width: 15px; margin-top: -4px;"> Go to full metadata</a>
       <a class="linkset_ld" href="https://edp-portal.eurac.edu/discovery/linkset/{{uuid}}" target="_blank" rel="noreferrer"><i class="fa fa-file-o" aria-hidden="true"></i> Linkset {json}</a>
@@ -96,7 +93,7 @@
   <hr>
 
 
-<div class="container">
+<div class="container" style="color: #666B6C;">
   <div class="row align-items-start">
     <div class="col">
       {% if result_json.abstract %}
@@ -408,7 +405,7 @@
         <span class="copyTooltip_snippet" id="copyTooltip_{{ code.pk }}">Copy to clipboard</span>
       </div>
       <hr>
-      <pre><code class="snipped_code" id="snipped_code_{{ code.pk }}" style="color: black;">{{ code.snippet_code }}</code></pre>
+      <pre><code class="snipped_code" id="snipped_code_{{ code.pk }}" style="color: #666B6C;">{{ code.snippet_code }}</code></pre>
 
     </div>
     {% endfor %}
@@ -427,7 +424,7 @@
   <h5 style="color: #DF1B12;"><i class="fa fa-book" aria-hidden="true"></i> Related docs</h5>
 
   {% if docs_list %}
-    <table style="width:100%">
+    <table style="width:100%; color: #666B6C;">
       <tr id="header_table">
         <!-- <th>#</th> -->
         <th id="name_column_table" class="width_column_table-2">Name</th>
@@ -442,7 +439,7 @@
           <!-- <td>{{ source.id }}</td> -->
           <td>{{ source.source_name }}</td>
           <td>{{ source.source_description }}</td>
-          <td><a href="{{ source.source_link }}">Link</a></td>
+          <td><a href="{{ source.source_link }}" style="color: #666B6C;">Link</a></td>
           <td>{{ source.pub_date }}</td>
           <td>{{ source.source_category }}</td>
         </tr>
@@ -456,10 +453,26 @@
 
 </div>
 
-<hr>
 
 </div>
 {% endif %}
+
+<div id="footer">
+  <div style="margin: 50px;" class="row">
+
+        <!-- <h6>Info, Terms and Conditions</h6> -->
+        <div style="margin: 0 auto;">
+        <p style="color:#666B6C">© 2023 Eurac Research •
+          <a href="https://cssportfolio.eurac.edu/" target="_blank" rel="noopener noreferrer" style="color:#666B6C">Center for Sensing Solutions portfolio 
+          </a>•
+
+          <a href="{% url 'edp_portal:terms_conditions_page' %}" target="_blank" rel="noopener noreferrer" style="color:#666B6C">Contacts, Terms and Conditions</a>
+
+        </p>
+      </div>
+
+</div>
+</div>
 <script src="../static/dropdownmenu_prog_languages.js"></script> 
 
 {% endblock %}

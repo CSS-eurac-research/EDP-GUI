@@ -17,17 +17,17 @@
       </div>
       <div class="col-6">
         <div style="width: 100%" class="center">
-          <h2 id="title">Environmental Data Platform</h2>
+          <h1 id="title"><b>E</b>nvironmental <b>D</b>ata <b>P</b>latform</h1>
         </div>      
       </div>
       <div class="col">
-        <img src="/static/fesr_dps4eslab_logo.png" id="fesr_logo">
+        <a href="https://www.eurac.edu/en/institutes-centers/center-for-sensing-solutions/projects/dps4eslab" target="_blank" rel="noopener noreferrer"><img src="/static/fesr_dps4eslab_logo.png" id="fesr_logo"></a>
         <!-- <a id="admin_button" type="button" class="btn btn-outline-primary" href="{% url 'admin:index' %}" target="_blank" rel="noopener noreferrer" style="float: right;"><i class="fa fa-cogs" aria-hidden="true"></i> Settings</a> -->
         <!-- <a id="admin_button" type="button" class="btn btn-outline-primary" href="http://10.8.244.240/admin/" target="_blank" rel="noopener noreferrer" style="float: right;"><i class="fa fa-cogs" aria-hidden="true"></i> Settings</a> -->
       </div>
     </div>
     <hr>
-
+</div>
 <div id="main_section">
 
   <div class="container">
@@ -48,7 +48,7 @@
 </div> -->
   
 
-  <div style="height: 250px; margin-top: 10px; padding: 2px;" class="row">
+  <div style="height: 200px; padding: 2px;" class="row">
     <div class="col">
       <div class="center  main-button-row">
           <a id="discovery_button" type="button" class="btn btn-outline-primary main-button main_page_buttons" href="{% url 'edp_portal:discovery' %}"><i class="fa fa-search" aria-hidden="true"></i> Data discovery</a>      
@@ -64,7 +64,7 @@
 
   <hr>
 
-  <div style="text-align: center;">
+  <div style="text-align: center; color: #666B6C;">
     <h4>Processing and analysis web tools​</h4>
   </div>
 
@@ -76,7 +76,7 @@
       </div>
       <div class="col">
         <div class="center second-button-row">
-        <a id="openeo_button" type="button" class="btn btn-outline-primary second-button main_page_buttons" href="https://editor.openeo.org/?server=https://openeo.eurac.edu" target="_blank" rel="noopener noreferrer">openEO editor</a><div style="margin:10px"><img src="/static/doi_logo_icon.png" style="margin-right:5px; width: 30px; height: 30px;"><a href="https://doi.org/10.25504/FAIRsharing.f9de28" style="color:#DF1B12" target="_blank" rel="noopener noreferrer">10.25504/FAIRsharing.f9de28</a></div>
+        <a id="openeo_button" type="button" class="btn btn-outline-primary second-button main_page_buttons" href="https://editor.openeo.org/?server=https://openeo.eurac.edu" target="_blank" rel="noopener noreferrer">openEO editor</a><div style="margin:10px"><img src="/static/doi_logo_icon.png" style="margin-right:5px; width: 30px; height: 30px;"><a href="https://doi.org/10.25504/FAIRsharing.f9de28" style="color:#B2B5B5" target="_blank" rel="noopener noreferrer">10.25504/FAIRsharing.f9de28</a></div>
         </div>
       </div>
 <!--       <div class="col">
@@ -86,7 +86,7 @@
       </div> -->
       <div class="col">
         <div class="center second-button-row">
-        <a id="maps_button" type="button" class="btn btn-outline-primary second-button main_page_buttons" href="https://maps.eurac.edu/" target="_blank" rel="noopener noreferrer">Maps</a><div style="margin:10px"><img src="/static/doi_logo_icon.png" style="margin-right:5px; width: 30px; height: 30px;"><a href="https://doi.org/10.25504/FAIRsharing.8ee7f1" style="color:#DF1B12" target="_blank" rel="noopener noreferrer">10.25504/FAIRsharing.8ee7f1</a></div>
+        <a id="maps_button" type="button" class="btn btn-outline-primary second-button main_page_buttons" href="https://maps.eurac.edu/" target="_blank" rel="noopener noreferrer">Maps</a><div style="margin:10px"><img src="/static/doi_logo_icon.png" style="margin-right:5px; width: 30px; height: 30px;"><a href="https://doi.org/10.25504/FAIRsharing.8ee7f1" style="color:#B2B5B5" target="_blank" rel="noopener noreferrer">10.25504/FAIRsharing.8ee7f1</a></div>
         </div>
       </div>
     </div>
@@ -97,14 +97,29 @@
 <div id="footer">
   <hr>
   <div style="height: 100px; margin-top: 10px; padding: 2px;" class="row">
+    <div style="margin: 0 auto; color: #666B6C">
+        <h5 style="margin: 10px 200px 50px 200px; text-align: center;">
+          The EDP is a collaborative platform to support researchers and project partners to manage, process and share spatial datasets. It is composed by open-source solutions to provide web services and web tools fostering FAIR data principles.
+          The EDP was developed in the contest of DPS4ESLAB project and is managed by the Center for Sensing Solutions in collaboration with the Institute for Earth Observation.
+        
+        <!-- <div>To cite the EDP portal you can use this <img src="/static/doi_logo_icon.png" style="margin-right:5px; width: 30px; height: 30px;"><a href="https://doi.org/10.25504/FAIRsharing.e4268b" style="color:#DF1B12" target="_blank" rel="noopener noreferrer">10.25504/FAIRsharing.e4268b</a></div> -->
+          <br>
+          <br>
+          <b><img src="/static/doi_logo_icon.png" style="margin-right:5px; width: 30px; height: 30px;">How to cite EDP:</b>
+        <div style="margin: 10 auto; border: 1px solid #DF1B12; width: 40%;"><div style="margin:15px"> FAIRsharing.org: <span data-v-6c0612d4=""> EDP; </span>Environmental Data Platform, <!----><span data-v-6c0612d4=""><b data-v-6c0612d4=""> DOI: <a data-v-6c0612d4="" href="https://doi.org/10.25504/FAIRsharing.e4268b" style="color:#666B6C">10.25504/FAIRsharing.e4268b</a>, </b></span><b data-v-6c0612d4=""> Last Edited: Monday, October 9th 2023, 18:54, </b><!----><!----><b data-v-6c0612d4="">Last Accessed:</b><span data-v-6c0612d4="" class="mr-2"> Wednesday, November 29th 2023, 10:19 </span></div></div>
+        </h5>
+        </div>
+
         <!-- <h6>Info, Terms and Conditions</h6> -->
-        <p style="margin: 0 auto;">© 2023 Eurac Research •
-          <a href="https://cssportfolio.eurac.edu/" target="_blank" rel="noopener noreferrer" >Center for Sensing Solutions portfolio 
+        <div style="margin: 0 auto;">
+        <p style="color:#666B6C">© 2023 Eurac Research •
+          <a href="https://cssportfolio.eurac.edu/" target="_blank" rel="noopener noreferrer" style="color:#666B6C">Center for Sensing Solutions portfolio 
           </a>•
 
-          <a href="{% url 'edp_portal:terms_conditions_page' %}" target="_blank" rel="noopener noreferrer" >Contacts, Terms and Conditions</a>
+          <a href="{% url 'edp_portal:terms_conditions_page' %}" target="_blank" rel="noopener noreferrer" style="color:#666B6C">Contacts, Terms and Conditions</a>
 
         </p>
+      </div>
                     
             <!-- <a href="mailto:SupportCSS@eurac.edu​"><i class="fa fa-envelope" aria-hidden="true"></i> SupportCSS@eurac.edu</a><br>
             <a href="http://www.eurac.edu/en/research/technologies/CenterforSensingSolutions/Pages/default.aspx" target="_blank" rel="noopener noreferrer"><i class="fa fa-external-link" aria-hidden="true"></i> CSS website</a><br>

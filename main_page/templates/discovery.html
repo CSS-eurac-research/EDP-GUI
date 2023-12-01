@@ -25,11 +25,11 @@
   </div>
   <div class="col-6">
     <div style="width: 100%" class="center">
-      <h2 id="title">Environmental Data Platform</h2>
+      <h1 id="title"><b>E</b>nvironmental <b>D</b>ata <b>P</b>latform</h1>
     </div>      
   </div>
   <div class="col">
-    <img style="width: 360px;" src="/static/efre-fesr_logo.jpg" id="fesr_logo">
+    <a href="https://www.eurac.edu/en/institutes-centers/center-for-sensing-solutions/projects/dps4eslab" target="_blank" rel="noopener noreferrer"><img src="/static/fesr_dps4eslab_logo.png" id="fesr_logo"></a>
 
   </div>
 </div>
@@ -38,7 +38,7 @@
 
 <div id="discovery_main_section" class="" style="min-height: 90%;">
 
-  <div id="discovery_main_row" class="min-height: 90%;">
+  <div id="discovery_main_row" class="min-height: 90%;" style="color: #666B6C;">
     <div class="" style="padding: 5px;">    
       <div class="row">
         <script type="text/javascript">   
@@ -108,7 +108,7 @@
 <!--       <div style="padding: 0px;">
         <hr>
       </div> -->
-    <div class="" style="float: left; width: 50%; height: 83%;">
+    <div class="" style="float: left; width: 50%; height: 83%; color: #666B6C;">
       <div class="" style="min-height: 88%;">
         {% if metadata_results %}
         <h5 id="number_results" style="margin: 5px;"><i class="fa fa-list" aria-hidden="true"></i> Results: <b>{{ metadata_results|length }}</b> items found</h5>
@@ -149,6 +149,23 @@
         <div id="map" ></div>      
         <script src="../static/map.js"></script>   
     </div>
+
+  </div>
+</div>
+    <div id="footer">
+      <div style="margin: 50px;" class="row">
+    
+            <!-- <h6>Info, Terms and Conditions</h6> -->
+            <div style="margin: 0 auto;">
+            <p style="color:#666B6C">© 2023 Eurac Research •
+              <a href="https://cssportfolio.eurac.edu/" target="_blank" rel="noopener noreferrer" style="color:#666B6C">Center for Sensing Solutions portfolio 
+              </a>•
+    
+              <a href="{% url 'edp_portal:terms_conditions_page' %}" target="_blank" rel="noopener noreferrer" style="color:#666B6C">Contacts, Terms and Conditions</a>
+    
+            </p>
+          </div>
+
   </div>
 </div>
 

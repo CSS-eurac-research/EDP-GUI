@@ -22,8 +22,8 @@ class DocsPageView(generic.ListView):
     context_object_name = 'latest_docs_sources_list'
 
     def get_queryset(self):
-        """Return the last five published docs sources."""
-        return DocSource.objects.all()
+        """Return the docs sources."""
+        return DocSource.objects.all().order_by('-pub_date')
     #model = DocSource
     #return render(request, 'docs.html', {})
 
@@ -352,6 +352,7 @@ def result_detail(request, uuid):
     #print(type)
     metadata_details['creators'] = creators
     metadata_details['rights'] = rights
+    name_collection = metadata_details['name_collection']
     if ("error"  not in metadata_details):
         snippet_code_list = SnippetCode.objects.filter(snippet_category__icontains=metadata_details["category"])
         for i in snippet_code_list:
@@ -387,6 +388,7 @@ def result_detail(request, uuid):
             "uuid" : uuid,
             "publisher" : publisher,
             "type" : type,
+            "name_collection": name_collection,
             #"result_json" : result_json["metadata"],
             "result_json" : metadata_details,
             "snippet_code_list" : snippet_code_list,
@@ -395,7 +397,8 @@ def result_detail(request, uuid):
         }
         response = render(request, 'result_detail.html', context)
         #Signposting HTTP HEAD Link <https://example.org/linkset/7507/lset> ; rel="linkset" ; type="application/linkset" , 
-        response['Link'] = '<' + EDP_DISCOVERY_URL + "linkset/" + uuid + '> ; rel="linkset" ; type="application/linkset+json"'
+        response['Link'] = '<' + EDP_DISCOVERY_URL + "linkset/" + uuid + '> ; rel="linkset" ; type="application/linkset+json"' + ", " + '<' + EDP_DISCOVERY_URL + "jsonld/" + uuid + '> ; rel="describedby" ; type="application/ld+json"'
+        #response['Link'] = '<' + EDP_DISCOVERY_URL + "jsonld/" + uuid + '> ; rel="ld" ; type="application/ld+json"'
         
         return response
     else:
@@ -674,7 +677,7 @@ def get_linkset(request, uuid):
                     author = authors,
                     describedby = describedby,
                     license = rights,
-                    name = get_name(uuid)
+                    #name = get_name(uuid)
                    )
 
     if doi_exists == False and (category == 'Maps' or category == 'SOS' or category == 'PostgresDB' or category == 'InfluxDB'):
