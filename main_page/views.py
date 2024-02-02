@@ -11,6 +11,7 @@ from .models import DocSource, SnippetCode, GeonetworkMetadata
 
 ACCEPT_HTTP = "application/json"
 CONTENT_TYPE = "application/json"
+GEONETWORK_BASE_URL = "http://10.8.244.64:8080/geonetwork"#"https://edp-portal.eurac.edu/geonetwork"
 EDP_DISCOVERY_URL = 'https://edp-portal.eurac.edu/discovery/'
 DOI_URL = 'https://doi.org/10.48784/'
 OPENEO_URL = 'https://openeo.eurac.edu/collections/'
@@ -346,13 +347,17 @@ def terms_conditions_page(request):
     return render(request, 'terms_conditions.html', {})
 
 def result_detail(request, uuid):
+    #uuid = "51f8f326-7964-11ee-9a8e-47abc4958022"
     metadata_details = get_metadata_details(request, uuid)
+    #print(metadata_details)
     creators, rights, type, publisher = get_info_publication_complete(uuid)
     #print(creators)
     #print(type)
     metadata_details['creators'] = creators
     metadata_details['rights'] = rights
-    name_collection = metadata_details['name_collection']
+    name_collection = ""
+    if 'name_collection' in metadata_details:
+        name_collection = metadata_details['name_collection']
     if ("error"  not in metadata_details):
         snippet_code_list = SnippetCode.objects.filter(snippet_category__icontains=metadata_details["category"])
         for i in snippet_code_list:
@@ -410,24 +415,25 @@ def result_detail(request, uuid):
         return render(request, 'result_detail.html', context)
 
 def get_metadata_details(request, uuid):
-    try:
+    #try:
         metadata_detail = {}
         #url = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&_draft=y+or+n+or+e&_isTemplate=y+or+n&fast=index&uuid="+uuid
-        url = "https://edp-portal.eurac.edu/geonetwork/srv/api/search/records/_search"
-        #print(url)
+        url = GEONETWORK_BASE_URL + "/srv/api/search/records/_search"
+        print(url)
         body = "{\"query\":{\"bool\":{\"must\":[{\"multi_match\":{\"query\":\""+uuid+"\",\"fields\":[\"id\",\"uuid\"]}},{\"terms\":{\"isTemplate\":[\"n\",\"y\"]}},{\"terms\":{\"draft\":[\"n\",\"y\",\"e\"]}}]}}}"
         headers = {'ACCEPT': ACCEPT_HTTP, 'CONTENT-TYPE': CONTENT_TYPE}
         results = requests.post(url, data=body, headers=headers)
         tmp = json.loads(results.text)
+        #print(tmp)
         metadataRecords = tmp['hits']['hits'][0]['_source']
-        #print(metadataRecords)
+        print(metadataRecords)
 
         if 'contact' in metadataRecords:
             for contact in metadataRecords['contact']:
                 if 'pointOfContact' in contact['role']:
-                    metadata_detail['contactMetadata'] = { 'contactName' : contact['organisation'], 'email' : contact['email'], 'address' : contact['address'] }
+                    metadata_detail['contactMetadata'] = { 'contactName' : contact['organisationObject']['default'], 'email' : contact['email'], 'address' : contact['address'] }
                 if 'author' in contact['role']:
-                    metadata_detail['contactResource'] = { 'contactName' : contact['organisation'], 'email' : contact['email'], 'address': contact['address'] }
+                    metadata_detail['contactResource'] = { 'contactName' : contact['organisationObject']['default'], 'email' : contact['email'], 'address': contact['address'] }
 
         if 'MD_LegalConstraintsOtherConstraintsObject' in metadataRecords:
             metadata_detail['legalConstraints'] = metadataRecords['MD_LegalConstraintsOtherConstraintsObject'][0]['default']
@@ -474,24 +480,23 @@ def get_metadata_details(request, uuid):
             metadata_detail['thumbnail'] = metadataRecords['overview'][0]['url']
 
         gn_cat = GeonetworkMetadata.objects.filter(uuid=uuid)
-        #print(gn_cat)
-        metadata_detail['category'] = gn_cat[0].category
+        print(gn_cat)
+        if gn_cat:
+            if gn_cat[0].category:
+                metadata_detail['category'] = gn_cat[0].category
 
-        if gn_cat[0].doi:
-            metadata_detail['doi'] = gn_cat[0].doi
-        if gn_cat[0].citation:
-            metadata_detail['citation'] = gn_cat[0].citation
-        if gn_cat[0].supplemental_information:
-            metadata_detail['supplemental_information'] = gn_cat[0].supplemental_information
-        #if 'cat' in metadataRecords:
-        #    if metadataRecords['cat'] == 'OpenEO':
-        #        metadata_detail['category'] = 'OpenEO'
-        #    elif metadataRecords['cat'] == 'SOS':
-        #        metadata_detail['category'] = 'SOS'
-        #    elif metadataRecords['cat'] == 'maps':
-        #        metadata_detail['category'] = 'Maps'
-        #    else:
-        #        metadata_detail['category'] = 'Database'
+            if gn_cat[0].doi:
+                metadata_detail['doi'] = gn_cat[0].doi
+            if gn_cat[0].citation:
+                metadata_detail['citation'] = gn_cat[0].citation
+            if gn_cat[0].supplemental_information:
+                metadata_detail['supplemental_information'] = gn_cat[0].supplemental_information
+            if gn_cat[0].presentation_form:
+                metadata_detail['presentationForm'] = gn_cat[0].presentation_form
+            #print(gn_cat[0].cl_topic)
+            if gn_cat[0].cl_topic:
+                metadata_detail['cl_topic'] = gn_cat[0].cl_topic
+
         
         if 'tag' in metadataRecords:
             keywords = []
@@ -508,26 +513,46 @@ def get_metadata_details(request, uuid):
             if 'date' in metadataRecords:
                 metadata_detail['tempExtentEnd'] = metadataRecords['resourceTemporalExtentDetails'][0]['end']['date']
 
+        #if gn_cat[0].category == 'openEO':
         if 'link' in metadataRecords:
-            metadata_detail['name_collection'] = metadataRecords['link'][0]['name']
-        
-        
-        if gn_cat[0].presentation_form:
-            metadata_detail['presentationForm'] = gn_cat[0].presentation_form
-        #print(gn_cat[0].cl_topic)
-        if gn_cat[0].cl_topic:
-            metadata_detail['cl_topic'] = gn_cat[0].cl_topic
-        
+            #print(metadataRecords['link'][0])
+            if 'nameObject' in metadataRecords['link'][0]:
+                metadata_detail['name_collection'] = metadataRecords['link'][0]['nameObject']['default']
+            # if 'urlObject' in metadataRecords['link'][0]:
+            #     metadata_detail['url_object'] = metadataRecords['link'][0]['urlObject']['default']
+        if 'linkUrlProtocolWWWDOWNLOAD10httpdownload' in metadataRecords:
+            url_objects = []
+            #print(type(metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload']))
+            if type(metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload']) is list:
+                #print(len(metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload']))
+                for l in metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload']:
+                    link_splitted = l.split("&")
+                    #print(link_splitted)
+                    if 'outputFormat' in l or 'format' in l:
+                        for e in link_splitted:       
+                            if 'outputFormat' in e:                     
+                                #print(e)
+                                url_objects.append(dict(l=l,file_type=e[13:]))
+                            if 'format' in e:
+                                url_objects.append(dict(l=l,file_type=e[7:]))
+                    else:
+                        url_objects.append(dict(l=l,file_type=""))
+            if type(metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload']) is str:
+                url_objects.append(dict(l=metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload'],file_type=""))
+                #metadata_detail['url_objects'] = metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload']
+            metadata_detail['url_objects'] = url_objects
+        #print(len(metadata_detail['url_objects']))
         #print(metadata_detail)
         return metadata_detail
         
-    except:
-        error = {}
-        error['error'] = "Some errors occurred: no metadata found or problems in parsing metadata."
-        return error
+    # except:
+    #     error = {}
+    #     error['error'] = "Some errors occurred: no metadata found or problems in parsing metadata."
+    #     return error
 
 def get_total_number_metadata(request, url_geometry_part):
-    url = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&summaryOnly=1&"+url_geometry_part
+    url = GEONETWORK_BASE_URL + "/srv/eng/q?_content_type=json&summaryOnly=1&"+url_geometry_part
+    print(url)
     results = requests.get(url)
     summary_results = ast.literal_eval(JsonResponse(results.json(), safe=False).content.decode("utf-8"))
     #print(summary_results)

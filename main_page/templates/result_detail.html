@@ -199,11 +199,15 @@
       <ul>
       {% for c in result_json.creators %}      
         <li>
-          {{ c.name }},         
+          {{ c.name }},                   
           {% if c.type == "Organization" %}
-            <a href="{{ c.id }}" target="_blank" rel="noreferrer">{{ c.id }}<img src="/static/ROR_logo.png" style="width: 25px; margin-left: 5px;"></i></a>
+            {% if c.id != None %}
+              <a href="{{ c.id }}" target="_blank" rel="noreferrer">{{ c.id }}<img src="/static/ROR_logo.png" style="width: 25px; margin-left: 5px;"></i></a>
+            {% endif %}
           {% else %}
-            <a href="{{ c.id }}" target="_blank" rel="noreferrer">{{ c.id }}<img src="/static/ORCID_iD.png" style="width: 25px; margin-left: 5px;"></i></a>
+            {% if c.id != None %}
+              <a href="{{ c.id }}" target="_blank" rel="noreferrer">{{ c.id }}<img src="/static/ORCID_iD.png" style="width: 25px; margin-left: 5px;"></i></a>
+            {% endif %}
           {% endif %}
         </li>
       {% endfor %}
@@ -234,6 +238,27 @@
         </td>
       </tr>
     </table>
+  </div>
+  {% else %}
+    <div></div>
+  {% endif %}
+
+  {% if result_json.url_objects %}
+  <div>
+    <label class="label_detail"><i class="fa fa-download" aria-hidden="true"></i> Download online resources</label>
+    <table>
+      <ul>
+    {% for l in result_json.url_objects %}      
+    <li>
+        {% if l.file_type == "" %}
+          <a href="{{l.l}}" target="_blank" rel="noreferrer"">{{ l.l|slice:"0:40" }}...</a>
+        {% else %}
+          <a href="{{l.l}}" target="_blank" rel="noreferrer">{{ result_json.title }} {{l.file_type}}</a>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+</table>
   </div>
   {% else %}
     <div></div>
