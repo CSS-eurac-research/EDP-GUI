@@ -515,7 +515,7 @@ def get_metadata_details(request, uuid):
 
         #if gn_cat[0].category == 'openEO':
         if 'link' in metadataRecords:
-            #print(metadataRecords['link'][0])
+            #print(metadataRecords['link'][0])            
             if 'nameObject' in metadataRecords['link'][0]:
                 metadata_detail['name_collection'] = metadataRecords['link'][0]['nameObject']['default']
             # if 'urlObject' in metadataRecords['link'][0]:
