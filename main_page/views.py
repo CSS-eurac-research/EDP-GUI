@@ -37,7 +37,7 @@ def discovery(request):
     #category_list = "no category found"
     category_list = ["no category found"]
     try:
-        print(request.GET)
+        #print(request.GET)
         conn = psycopg2.connect(
                 database="edp_portal_gui", user='edp_gui_user', password='73bd357832012a62357095bf6d9324f8', host='10.8.244.39', port='5432'
             )
@@ -327,7 +327,7 @@ def discovery(request):
     conn.close()
     metadata_results = GeonetworkMetadata.objects.order_by('title')
     #print(title_list)    
-    print(type(metadata_results))
+    #print(type(metadata_results))
     return render(request, 'discovery.html', {'metadata_results': metadata_results, 'title_list': title_list, 'category_list': category_list})
     #return render(request, 'discovery.html', {}) 
     
@@ -598,9 +598,11 @@ def get_info_publication_complete(uuid):
     json_response = response.content.decode('utf-8')
     if uuid in json_response:
         publication = json.loads(json_response)["data"]["publication"]
+        #print("------------------------------------------------")
         #print(publication)
-        for a in publication["creators"]:
-            creators.append(dict(id = a["id"], name = a["name"], type = a["type"]))
+        if publication["creators"]:
+            for a in publication["creators"]:
+                creators.append(dict(id = a["id"], name = a["name"], type = a["type"]))
 
         rights = []
         for r in publication["rights"]:
