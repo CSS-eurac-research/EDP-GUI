@@ -253,7 +253,7 @@
         {% if l.file_type == "" %}
           <a href="{{l.l}}" target="_blank" rel="noreferrer" title="{{l.l}}">{{ l.l|slice:"0:60" }}...</a>
         {% else %}
-          <a href="{{l.l}}" target="_blank" rel="noreferrer" title="{{l.l}}">{{ result_json.title }} {{l.file_type}}</a>
+          <a href="{{l.l}}" target="_blank" rel="noreferrer" title="{{l.l}}">{{l.file_type}} &#183; {{ result_json.title }}</a>
         {% endif %}
       </li>
     {% endfor %}

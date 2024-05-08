@@ -419,7 +419,7 @@ def get_metadata_details(request, uuid):
         metadata_detail = {}
         #url = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&_draft=y+or+n+or+e&_isTemplate=y+or+n&fast=index&uuid="+uuid
         url = GEONETWORK_BASE_URL + "/srv/api/search/records/_search"
-        print(url)
+        #print(url)
         body = "{\"query\":{\"bool\":{\"must\":[{\"multi_match\":{\"query\":\""+uuid+"\",\"fields\":[\"id\",\"uuid\"]}},{\"terms\":{\"isTemplate\":[\"n\",\"y\"]}},{\"terms\":{\"draft\":[\"n\",\"y\",\"e\"]}}]}}}"
         headers = {'ACCEPT': ACCEPT_HTTP, 'CONTENT-TYPE': CONTENT_TYPE}
         results = requests.post(url, data=body, headers=headers)
@@ -507,11 +507,18 @@ def get_metadata_details(request, uuid):
         if 'lineage' in metadataRecords:
             metadata_detail['lineage'] = metadataRecords['lineageObject']
 
+        # period_begin = ""
+        # period_end = ""
         if 'resourceTemporalExtentDetails' in metadataRecords:
-            if 'date' in metadataRecords:
+            if 'date' in metadataRecords['resourceTemporalExtentDetails'][0]['start']:
                 metadata_detail['tempExtentBegin'] = metadataRecords['resourceTemporalExtentDetails'][0]['start']['date']
-            if 'date' in metadataRecords:
+            if 'date' in metadataRecords['resourceTemporalExtentDetails'][0]['end']:    
                 metadata_detail['tempExtentEnd'] = metadataRecords['resourceTemporalExtentDetails'][0]['end']['date']
+        # if 'resourceTemporalExtentDetails' in metadataRecords:
+        #     if 'date' in metadataRecords:
+        #         metadata_detail['tempExtentBegin'] = metadataRecords['resourceTemporalExtentDetails'][0]['start']['date']
+        #     if 'date' in metadataRecords:
+        #         metadata_detail['tempExtentEnd'] = metadataRecords['resourceTemporalExtentDetails'][0]['end']['date']
 
         #if gn_cat[0].category == 'openEO':
         if 'link' in metadataRecords:
@@ -522,9 +529,10 @@ def get_metadata_details(request, uuid):
             #     metadata_detail['url_object'] = metadataRecords['link'][0]['urlObject']['default']
 
         caption_category = gn_cat[0].category
+        #print(caption_category)
         if 'linkUrlProtocolWWWDOWNLOAD10httpdownload' in metadataRecords:
             url_objects = []
-            print(metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload'])
+            #print(metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload'])
             if type(metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload']) is list:
                 #print(len(metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload']))
                 for l in metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload']:
@@ -534,20 +542,93 @@ def get_metadata_details(request, uuid):
                         for e in link_splitted:       
                             if 'outputFormat' in e:                     
                                 #print(e)
-                                url_objects.append(dict(l=l,file_type=e[13:]))
+                                if caption_category == "Maps":
+                                    if "https://maps.eurac.edu/" in l:
+                                        if "https://maps.eurac.edu/uploaded/thumbs" in l:
+                                            print("Do nothing")
+                                        if "https://maps.eurac.edu/download/" in l:
+                                            print("Do nothing")
+                                        else:
+                                            #print(l)
+                                            tmp = l.replace("https://maps.eurac.edu/", "").split("?")
+                                            #print(tmp)
+                                            for k in tmp[1].split('&'):
+                                                #tmpk = k.split("&")
+                                                if "outputFormat" in k:
+                                                    url_objects.append(dict(l=l,file_type=k.replace("outputFormat=", "").replace("%2F", " ")
+                                                                            .replace("%3A", " ")
+                                                                            .replace("%3B", " ")
+                                                                            .replace("%3D", " ")))
+                                                    #print(k)
+                                else:
+                                    url_objects.append(dict(l=l,file_type=e[13:]))
+                            if 'format_options' in e:
+                                if caption_category == "Maps":
+                                    if "https://maps.eurac.edu/" in l:
+                                        if "https://maps.eurac.edu/uploaded/thumbs" in l:
+                                            print("Do nothing")
+                                        if "https://maps.eurac.edu/download/" in l:
+                                            print("Do nothing")
+                                        else:
+                                            #print(l)
+                                            tmp = l.replace("https://maps.eurac.edu/", "").split("?")
+                                            #print(tmp)
+                                            for k in tmp[1].split('&'):
+                                                #tmpk = k.split("&")
+                                                if "format_options" in k:
+                                                    url_objects.append(dict(l=l,file_type=k.replace("format_options=", "").replace("%2F", " ")
+                                                                            .replace("%3A", " ")
+                                                                            .replace("%3B", " ")
+                                                                            .replace("%3D", " ")))
+                                                    #print(k)
                             if 'format' in e:
-                                url_objects.append(dict(l=l,file_type=e[7:]))
+                                if caption_category == "Maps":
+                                    if "https://maps.eurac.edu/" in l:
+                                        if "https://maps.eurac.edu/uploaded/thumbs" in l:
+                                            print("Do nothing")
+                                        if "https://maps.eurac.edu/download/" in l:
+                                            print("Do nothing")
+                                        else:
+                                            #print(l)
+                                            tmp = l.replace("https://maps.eurac.edu/", "").split("?")
+                                            #print(tmp)
+                                            for k in tmp[1].split('&'):
+                                                #tmpk = k.split("&")
+                                                if "format" in k:
+                                                    url_objects.append(dict(l=l,file_type=k.replace("format=", "").replace("%2F", " ")
+                                                                            .replace("%3A", " ")
+                                                                            .replace("%3B", " ")
+                                                                            .replace("%3D", " ")))
+                                                    #print(k)
+                                        
+                                else:
+                                    print("Do nothing")
+                                    #url_objects.append(dict(l=l,file_type=e[13:]))
                     else:
                         if caption_category == "STAC":
-
-                            url_objects.append(dict(l=l,file_type=l[40:43]))
-                        else:
-                            url_objects.append(dict(l=l,file_type=""))
+                            if "https://stac.eurac.edu:8080/collections/" in l:
+                                tmp = l.replace("https://stac.eurac.edu:8080/collections/", "").split("?")
+                                #print(tmp)
+                                url_objects.append(dict(l=l,file_type=tmp[0]))
+                            elif "scientificnet-my.sharepoint.com" in l:
+                                url_objects.append(dict(l=l,file_type="Sharepoint"))
+                            else:
+                                url_objects.append(dict(l=l,file_type=""))
+                        # else:
+                        #     print(l)
+                        #     url_objects.append(dict(l=l,file_type=""))
             if type(metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload']) is str:
-                url_objects.append(dict(l=metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload'],file_type=""))
+                #url_objects.append(dict(l=metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload'],file_type=""))
+                if caption_category == "Other":
+                    if "github" in metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload']:
+                        tmp = metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload'].split("/")
+                        #print(tmp)
+                        url_objects.append(dict(l=metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload'],file_type=tmp[-1]))
+                else:
+                    url_objects.append(dict(l=metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload'],file_type=""))
                 #metadata_detail['url_objects'] = metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload']
-            print(url_objects)
-            metadata_detail['url_objects'] = newlist = sorted(url_objects, key=lambda d: d['l'])
+            #print(url_objects)
+            metadata_detail['url_objects'] = sorted(url_objects, key=lambda d: d['l'])
         #print(len(metadata_detail['url_objects']))
         #print(metadata_detail)
         return metadata_detail
@@ -559,7 +640,7 @@ def get_metadata_details(request, uuid):
 
 def get_total_number_metadata(request, url_geometry_part):
     url = GEONETWORK_BASE_URL + "/srv/eng/q?_content_type=json&summaryOnly=1&"+url_geometry_part
-    print(url)
+    #print(url)
     results = requests.get(url)
     summary_results = ast.literal_eval(JsonResponse(results.json(), safe=False).content.decode("utf-8"))
     #print(summary_results)
