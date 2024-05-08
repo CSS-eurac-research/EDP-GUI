@@ -426,7 +426,7 @@ def get_metadata_details(request, uuid):
         tmp = json.loads(results.text)
         #print(tmp)
         metadataRecords = tmp['hits']['hits'][0]['_source']
-        print(metadataRecords)
+        #print(metadataRecords)
 
         if 'contact' in metadataRecords:
             for contact in metadataRecords['contact']:
@@ -480,7 +480,7 @@ def get_metadata_details(request, uuid):
             metadata_detail['thumbnail'] = metadataRecords['overview'][0]['url']
 
         gn_cat = GeonetworkMetadata.objects.filter(uuid=uuid)
-        print(gn_cat)
+        #print(gn_cat)
         if gn_cat:
             if gn_cat[0].category:
                 metadata_detail['category'] = gn_cat[0].category
@@ -520,9 +520,11 @@ def get_metadata_details(request, uuid):
                 metadata_detail['name_collection'] = metadataRecords['link'][0]['nameObject']['default']
             # if 'urlObject' in metadataRecords['link'][0]:
             #     metadata_detail['url_object'] = metadataRecords['link'][0]['urlObject']['default']
+
+        caption_category = gn_cat[0].category
         if 'linkUrlProtocolWWWDOWNLOAD10httpdownload' in metadataRecords:
             url_objects = []
-            #print(type(metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload']))
+            print(metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload'])
             if type(metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload']) is list:
                 #print(len(metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload']))
                 for l in metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload']:
@@ -536,11 +538,16 @@ def get_metadata_details(request, uuid):
                             if 'format' in e:
                                 url_objects.append(dict(l=l,file_type=e[7:]))
                     else:
-                        url_objects.append(dict(l=l,file_type=""))
+                        if caption_category == "STAC":
+
+                            url_objects.append(dict(l=l,file_type=l[40:43]))
+                        else:
+                            url_objects.append(dict(l=l,file_type=""))
             if type(metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload']) is str:
                 url_objects.append(dict(l=metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload'],file_type=""))
                 #metadata_detail['url_objects'] = metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload']
-            metadata_detail['url_objects'] = url_objects
+            print(url_objects)
+            metadata_detail['url_objects'] = newlist = sorted(url_objects, key=lambda d: d['l'])
         #print(len(metadata_detail['url_objects']))
         #print(metadata_detail)
         return metadata_detail

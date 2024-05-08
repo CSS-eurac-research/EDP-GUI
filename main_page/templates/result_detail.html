@@ -251,9 +251,9 @@
     {% for l in result_json.url_objects %}      
     <li>
         {% if l.file_type == "" %}
-          <a href="{{l.l}}" target="_blank" rel="noreferrer"">{{ l.l|slice:"0:40" }}...</a>
+          <a href="{{l.l}}" target="_blank" rel="noreferrer" title="{{l.l}}">{{ l.l|slice:"0:60" }}...</a>
         {% else %}
-          <a href="{{l.l}}" target="_blank" rel="noreferrer">{{ result_json.title }} {{l.file_type}}</a>
+          <a href="{{l.l}}" target="_blank" rel="noreferrer" title="{{l.l}}">{{ result_json.title }} {{l.file_type}}</a>
         {% endif %}
       </li>
     {% endfor %}
