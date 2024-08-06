@@ -13,7 +13,13 @@ html {
     font-family: 'Inter', sans-serif; 
    }
 
+   .table-clickable tbody tr {
+    cursor: pointer;
+}
 
+#rows_table:hover {
+    background-color: #cccdcc;
+}
    /* Tooltip container */
 .tooltip {
   position: relative;

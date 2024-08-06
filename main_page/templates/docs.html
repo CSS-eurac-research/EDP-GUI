@@ -7,6 +7,7 @@
   <title>Docs - EDP</title>
   <link rel="shortcut icon" href="/static/apple-touch-icon.png">
 
+
 </head>
 
 <div style="height: 50px; margin-top: 10px;" class="row">
@@ -29,33 +30,36 @@
   <h3>Documentations list</h3>
 
   {% if latest_docs_sources_list %}
-    <table style="width:100%; color: #666B6C;">
+    <table class="table-clickable" style="width:100%; color: #666B6C;">
+      <thead>
       <tr id="header_table">
         <th>#</th>
         <th id="name_column_table" class="width_column_table-2">Name</th>
         <th id="desc_column_table" class="width_column_table-1">Description</th>
-        <th>Link</th>
+        <!-- <th>Link</th> -->
         <th id="date_column_table" class="width_column_table-2">Date published</th>
         <th>Category</th>
       </tr>
-
+    </thead>
       {% for source in latest_docs_sources_list %}
-
-        <tr id="rows_table">
+      <tbody>
+        <tr id="rows_table" data-href="{{ source.source_link }}">
           <td>{{ forloop.counter }}</td>
           <td>{{ source.source_name }}</td>
           <td>{{ source.source_description }}</td>
-          <td><a href="{{ source.source_link }}" target="_blank" rel="noopener noreferrer" style="color: #666B6C;">Link</a></td>
+          <!-- <td><a href="{{ source.source_link }}" target="_blank" rel="noopener noreferrer" style="color: #666B6C;">Link</a></td> -->
           <td>{{ source.pub_date }}</td>
           <td>{{ source.source_category }}</td>
         </tr>
           <!-- <li><a href="/polls/{{ question.id }}/">{{ question.question_text }}</a></li> -->
+      </tbody>
       {% endfor %}
+    </table>
     {% else %}
         <p>No docs sources are available.</p>
   {% endif %}
 
-</table>
+
 
 
 </div>
@@ -64,7 +68,7 @@
 
         <!-- <h6>Info, Terms and Conditions</h6> -->
         <div style="margin: 0 auto;">
-        <p style="color:#666B6C">© 2023 Eurac Research •
+        <p style="color:#666B6C">© 2024 Eurac Research •
           <a href="https://cssportfolio.eurac.edu/" target="_blank" rel="noopener noreferrer" style="color:#666B6C">Center for Sensing Solutions portfolio 
           </a>•
 
@@ -75,4 +79,18 @@
 
 </div>
 </div>
+
+
+<script>
+  const tableRows = document.querySelectorAll(".table-clickable tbody tr");
+
+  for (const tableRow of tableRows) {
+    tableRow.addEventListener("click", function () {
+      //window.open(this.dataset.href, "_blank");
+      //console.log(this.dataset.href);
+      //window.location.href = this.dataset.href;
+      window.open(this.dataset.href,'_blank','noopener', 'noreferrer');
+    });
+  }
+</script>
 {% endblock %}
