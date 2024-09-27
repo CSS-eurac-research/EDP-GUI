@@ -88,14 +88,14 @@
     </div>
   </div>
   <br>
-<div style="width: 60%; margin: 0 auto;">
+<div style="width: 80%; margin: 0 auto;">
 
   <hr>
 
 
 <div class="container" style="color: #666B6C;">
   <div class="row align-items-start">
-    <div class="col">
+    <div class="col" style="margin-right: 20px;">
       {% if result_json.abstract %}
       <div>
         <label class="label_detail"><i class="fa fa-book" aria-hidden="true"></i> Abstract</label>
@@ -138,6 +138,15 @@
     <label class="label_detail"><i class="fa fa-key" aria-hidden="true"></i> Keywords</label>
     <p>{{ result_json.keyword }}</p>
   </div>
+  {% else %}
+    <div></div>
+  {% endif %}
+
+  {% if result_json.swhid %}
+  <div>
+    <label class="label_detail"><img src="/static/sh_logo.png" style="filter: grayscale(1); width: 25px;"> SoftWare Hash IDentifier (SWHID)</label>
+    <p><code><a href="https://archive.softwareheritage.org/swh:1:dir:386d9454b0b6b07067746ff52604a14fc6fbd904" style='color: #666B6C; font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;'>swh:1:dir:386d9454b0b6b07067746ff52604a14fc6fbd904</a></code></p>
+  </div> 
   {% else %}
     <div></div>
   {% endif %}
