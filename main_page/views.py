@@ -476,6 +476,14 @@ def get_metadata_details(request, uuid):
         if 'resourceAbstractObject' in metadataRecords:
             metadata_detail['abstract'] = metadataRecords['resourceAbstractObject']['default']
 
+        if 'resourceIdentifier' in metadataRecords: 
+            #print(metadataRecords['resourceIdentifier'][0]['codeSpace'])
+            swhid_link = json.loads(requests.get(metadataRecords['resourceIdentifier'][0]['codeSpace']).text)
+            #print(swhid_link['links'])
+            for e in swhid_link['links']:
+                if e['title'] == "SWHID":
+                    metadata_detail['swhid'] = e['href']
+
         if 'overview' in metadataRecords:
             metadata_detail['thumbnail'] = metadataRecords['overview'][0]['url']
 
@@ -769,12 +777,35 @@ def get_name(uuid):
         name = GeonetworkMetadata.objects.filter(uuid=uuid).values("title")
         return name[0]['title']
 
+def get_swhid(uuid):
+    url = GEONETWORK_BASE_URL + "/srv/api/search/records/_search"
+    swhid = ""
+    #print(url)
+    body = "{\"query\":{\"bool\":{\"must\":[{\"multi_match\":{\"query\":\""+uuid+"\",\"fields\":[\"id\",\"uuid\"]}},{\"terms\":{\"isTemplate\":[\"n\",\"y\"]}},{\"terms\":{\"draft\":[\"n\",\"y\",\"e\"]}}]}}}"
+    headers = {'ACCEPT': ACCEPT_HTTP, 'CONTENT-TYPE': CONTENT_TYPE}
+    results = requests.post(url, data=body, headers=headers)
+    tmp = json.loads(results.text)
+    #print(tmp)
+    metadataRecords = tmp['hits']['hits'][0]['_source']
+    if 'resourceIdentifier' in metadataRecords: 
+            #print(metadataRecords['resourceIdentifier'][0]['codeSpace'])
+            swhid_link = json.loads(requests.get(metadataRecords['resourceIdentifier'][0]['codeSpace']).text)
+            #print(swhid_link['links'])
+            for e in swhid_link['links']:
+                if e['title'] == "SWHID":
+                    swhid = e['href']
+    return swhid
+
 #Signposting linkset
 def get_linkset(request, uuid):
 
     authors, type, rights, doi_exists = get_info_publication(uuid)
     
     category = get_category(uuid)   
+
+    swhid = get_swhid(uuid)
+    #print("Ciao")
+    #print(swhid)
 
     describedby = []
 
@@ -792,6 +823,7 @@ def get_linkset(request, uuid):
                     author = authors,
                     describedby = describedby,
                     license = rights,
+                    link = "https://archive.softwareheritage.org/"+swhid,
                     #name = get_name(uuid)
                    )
 
@@ -928,6 +960,15 @@ def get_jsonld(request, uuid):
 
     jsonld["inLanguage"] = "en"
 
+
+    #     {
+    #   "rel": "via",
+    #   "href": "swh:1:rel:4e6df8da183c7aebde92b4303b79e0b28b40dd9f",
+    #   "title": "SWHID"
+    # }
+    swhid = get_swhid(uuid)
+    swhid_dict = dict(rel = "via", href = "https://archive.softwareheritage.org/"+swhid, title = "SWHID")
+    jsonld["link"] = swhid_dict
 
     #print(jsonld)
 

@@ -20,6 +20,7 @@
   <link rel="describedby" href="https://edp-portal.eurac.edu/geonetwork/srv/api/records/{{uuid}}/formatters/xml?approved=true" type="application/vnd.iso19139.metadata+xml">
   <link rel="describedby" href="https://api.datacite.org/dois/10.48784/{{uuid}}" type="application/json">
   <link rel="describedby" href="https://doi.org/10.48784/{{uuid}}?format=metadata_datacite4" type="application/vnd.datacite.datacite+xml">
+  <link rel="describedby" href="https://archive.softwareheritage.org/{{result_json.swhid}}" type="application/json">
   <link rel="linkset" type="application/linkset+json" href="https://edp-portal.eurac.edu/discovery/linkset/{{uuid}}">
   <link rel="describedby" type="application/ld+json" href="https://edp-portal.eurac.edu/discovery/jsonld/{{uuid}}">
   <link rel="cite-as" href="https://doi.org/10.48784/{{uuid}}">  
@@ -34,6 +35,8 @@
   <meta name="DC.type" content={{type}}>
   <meta name="DC.rights" scheme="DCTERMS.URI" content="info:eu-repo/semantics/restrictedAccess">
   <meta name="DC.relation" content="https://doi.org/10.48784/{{uuid}}">
+  <meta name="DC.relation" content="https://archive.softwareheritage.org/{{result_json.swhid}}">
+
 
   <style>
             .linkset_ld {
@@ -145,7 +148,7 @@
   {% if result_json.swhid %}
   <div>
     <label class="label_detail"><img src="/static/sh_logo.png" style="filter: grayscale(1); width: 25px;"> SoftWare Hash IDentifier (SWHID)</label>
-    <p><code><a href="https://archive.softwareheritage.org/swh:1:dir:386d9454b0b6b07067746ff52604a14fc6fbd904" style='color: #666B6C; font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;'>swh:1:dir:386d9454b0b6b07067746ff52604a14fc6fbd904</a></code></p>
+    <p><code><a href="https://archive.softwareheritage.org/{{result_json.swhid}}" style='color: #666B6C; font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;'>{{result_json.swhid}}</a></code></p>
   </div> 
   {% else %}
     <div></div>
