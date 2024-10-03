@@ -477,12 +477,13 @@ def get_metadata_details(request, uuid):
             metadata_detail['abstract'] = metadataRecords['resourceAbstractObject']['default']
 
         if 'resourceIdentifier' in metadataRecords: 
-            #print(metadataRecords['resourceIdentifier'][0]['codeSpace'])
-            swhid_link = json.loads(requests.get(metadataRecords['resourceIdentifier'][0]['codeSpace']).text)
-            #print(swhid_link['links'])
-            for e in swhid_link['links']:
-                if e['title'] == "SWHID":
-                    metadata_detail['swhid'] = e['href']
+            
+            if "http" in metadataRecords['resourceIdentifier'][0]['codeSpace']:
+                swhid_link = json.loads(requests.get(metadataRecords['resourceIdentifier'][0]['codeSpace']).text)
+                #print(swhid_link['links'])
+                for e in swhid_link['links']:
+                    if e['title'] == "SWHID":
+                        metadata_detail['swhid'] = e['href']
 
         if 'overview' in metadataRecords:
             metadata_detail['thumbnail'] = metadataRecords['overview'][0]['url']
