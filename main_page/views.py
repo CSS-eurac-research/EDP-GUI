@@ -749,7 +749,9 @@ def get_info_publication(uuid):
         publication = json.loads(json_response)["data"]["publication"]
         authors = []
         for a in publication["creators"]:
-            authors.append(dict(href = a["id"]))
+            if a["id"]:
+                authors.append(dict(href = a["id"]))
+                #print(a["id"])
             #authors.append('{ "href": "'+a["id"]+'" }')
 
         rights = []
@@ -781,25 +783,28 @@ def get_name(uuid):
 def get_swhid(uuid):
     url = GEONETWORK_BASE_URL + "/srv/api/search/records/_search"
     swhid = ""
-    #print(url)
+    print(url)
     body = "{\"query\":{\"bool\":{\"must\":[{\"multi_match\":{\"query\":\""+uuid+"\",\"fields\":[\"id\",\"uuid\"]}},{\"terms\":{\"isTemplate\":[\"n\",\"y\"]}},{\"terms\":{\"draft\":[\"n\",\"y\",\"e\"]}}]}}}"
     headers = {'ACCEPT': ACCEPT_HTTP, 'CONTENT-TYPE': CONTENT_TYPE}
     results = requests.post(url, data=body, headers=headers)
     tmp = json.loads(results.text)
     #print(tmp)
     metadataRecords = tmp['hits']['hits'][0]['_source']
+    #print(metadataRecords)
     if 'resourceIdentifier' in metadataRecords: 
-            #print(metadataRecords['resourceIdentifier'][0]['codeSpace'])
-            swhid_link = json.loads(requests.get(metadataRecords['resourceIdentifier'][0]['codeSpace']).text)
-            #print(swhid_link['links'])
-            for e in swhid_link['links']:
-                if e['title'] == "SWHID":
-                    swhid = e['href']
+        #print(metadataRecords['resourceIdentifier'][0]['codeSpace'])
+        swhid_link = json.loads(requests.get(metadataRecords['resourceIdentifier'][0]['codeSpace']).text)
+        #print(swhid_link)        
+        #print(swhid_link['links'])
+        for e in swhid_link['links']:
+            if e['title'] == "SWHID":
+                swhid = e['href']
     return swhid
 
 #Signposting linkset
 def get_linkset(request, uuid):
-
+    linkset_body = dict()
+    
     authors, type, rights, doi_exists = get_info_publication(uuid)
     
     category = get_category(uuid)   
@@ -820,13 +825,17 @@ def get_linkset(request, uuid):
         #datacite api url
         describedby.append(dict(href = DATA_CITE_API + uuid, type = "application/json"))
 
-    linkset_body = dict(anchor = EDP_DISCOVERY_URL + uuid,                   
-                    author = authors,
-                    describedby = describedby,
-                    license = rights,
-                    link = "https://archive.softwareheritage.org/"+swhid,
-                    #name = get_name(uuid)
-                   )
+    if authors:
+        linkset_body["author"] = authors
+    if rights:
+        linkset_body["license"] = rights
+
+    #print(swhid)
+    if swhid:
+        linkset_body["http://www.w3.org/ns/prov#WasGeneratedBy"] = dict(href="https://archive.softwareheritage.org/"+ swhid,type = "text/html")
+
+    linkset_body["anchor"] = EDP_DISCOVERY_URL + uuid    
+    linkset_body["describedby"] = describedby
 
     if doi_exists == False and (category == 'Maps' or category == 'SOS' or category == 'PostgresDB' or category == 'InfluxDB'):
         linkset_body["type"] = [dict(href = "https://schema.org/Dataset"), dict(href = "https://schema.org/AboutPage")]
@@ -869,12 +878,14 @@ def get_jsonld(request, uuid):
 
     jsonld["@context"] = "https://schema.org/"    
 
-    jsonld["creator"] = authors
+    if authors:
+        jsonld["creator"] = authors
 
     jsonld["name"] = get_name(uuid)
 
     jsonld["isAccessibleForFree"] = False
-    jsonld["license"] = rights
+    if rights:
+        jsonld["license"] = rights
     #Should be dynamic and not hardcoded here
     jsonld["conditionsOfAccess"] = "restricted"
 
@@ -882,7 +893,8 @@ def get_jsonld(request, uuid):
         #Should arrive from the database and not hardcoded here
         jsonld["@type"] = "Dataset"
     else:
-        jsonld["@type"] = type
+        if type:
+            jsonld["@type"] = type
     
     if doi_exists:
         jsonld["@id"] = DOI_URL + uuid
@@ -899,7 +911,8 @@ def get_jsonld(request, uuid):
         distribution["encodingFormat"] = "application/gzip"
         distribution["contentUrl"] = DOI_URL + uuid
         isPartOf["@type"] = "CreativeWork"
-        isPartOf["name"] = type
+        if type:
+            isPartOf["name"] = type
         reverse["@id"] = "https://doi.org/10.25504/FAIRsharing.8ee7f1"
         reverse["identifier"] = "https://doi.org/10.25504/FAIRsharing.8ee7f1"
         citation["@id"] = "https://doi.org/10.25504/FAIRsharing.8ee7f1"
@@ -912,14 +925,16 @@ def get_jsonld(request, uuid):
         distribution["contentUrl"] = OPENEO_URL + name_collection
         size["@type"] = "Timeseries"
         isPartOf["@type"] = "CreativeWork"
-        isPartOf["name"] = type
+        if type:
+            isPartOf["name"] = type
         reverse["@id"] = "https://doi.org/10.25504/FAIRsharing.f9de28"
         reverse["identifier"] = "https://doi.org/10.25504/FAIRsharing.f9de28"
         citation["@id"] = "https://doi.org/10.25504/FAIRsharing.f9de28"
         citation["identifier"] = "https://doi.org/10.25504/FAIRsharing.f9de28"
         citation["url"] = "https://doi.org/10.25504/FAIRsharing.8ee7f1"
     if category == "PostgresDB" or category == "InfluxDB":
-        size["@type"] = type
+        if type:
+            size["@type"] = type
         #Hardcoded but to modify
         distribution["encodingFormat"] = "application/json"
         distribution["fileFormat"] = "application/json"
@@ -929,19 +944,24 @@ def get_jsonld(request, uuid):
         distribution["fileFormat"] = ""
         distribution["contentUrl"] = DOI_URL + uuid
     
-    jsonld["distribution"] = distribution   
+    if distribution:
+        jsonld["distribution"] = distribution   
     
-    size["unitText"] = type
-    jsonld["size"] = size
+    if type:
+        size["unitText"] = type
+        citation["@type"] = ["CreativeWork", type]
+        jsonld["citation"] = citation
 
-    reverse["isPartOf"] = isPartOf
-    jsonld["@reverse"] = reverse
+    if size:
+        jsonld["size"] = size
+
+    if isPartOf:
+        reverse["isPartOf"] = isPartOf
+        jsonld["@reverse"] = reverse
 
     # typecit = dict()
     # typecit["@type"] = '"CreativeWork", "Dataset"'
-    citation["@type"] = ["CreativeWork", type]
-    
-    jsonld["citation"] = citation
+      
 
     # jsonld["citation"] = []
 
@@ -960,22 +980,19 @@ def get_jsonld(request, uuid):
     # jsonld["dataCatalog"] = dataCatalog
 
     jsonld["inLanguage"] = "en"
-
-
     #     {
     #   "rel": "via",
     #   "href": "swh:1:rel:4e6df8da183c7aebde92b4303b79e0b28b40dd9f",
     #   "title": "SWHID"
     # }
     swhid = get_swhid(uuid)
-    swhid_dict = dict(rel = "via", href = "https://archive.softwareheritage.org/"+swhid, title = "SWHID")
-    jsonld["link"] = swhid_dict
+    #print(swhid)
+    if swhid:
+        swhid_dict = dict(href = "https://archive.softwareheritage.org/"+swhid, type = "text/html")#title = "SWHID")
+        jsonld["http://www.w3.org/ns/prov#WasGeneratedBy"] = swhid_dict
 
     #print(jsonld)
-
-
     #linkset = dict(linkset = jsonld)
     #print(linkset)
-
     #print(linkset_json)
     return JsonResponse(jsonld, safe=False, status=200)
