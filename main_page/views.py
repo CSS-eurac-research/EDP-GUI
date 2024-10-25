@@ -798,7 +798,8 @@ def get_swhid(uuid):
         #print(swhid_link['links'])
         for e in swhid_link['links']:
             if e['title'] == "SWHID":
-                swhid = e['href']
+                if "swh" in e['href']:
+                    swhid = e['href']
     return swhid
 
 #Signposting linkset
@@ -832,7 +833,7 @@ def get_linkset(request, uuid):
 
     #print(swhid)
     if swhid:
-        linkset_body["http://www.w3.org/ns/prov#WasGeneratedBy"] = dict(href="https://archive.softwareheritage.org/"+ swhid,type = "text/html")
+        linkset_body["http://www.w3.org/ns/prov#wasAttributedTo"] = dict(href="https://archive.softwareheritage.org/"+ swhid,type = "text/html")
 
     linkset_body["anchor"] = EDP_DISCOVERY_URL + uuid    
     linkset_body["describedby"] = describedby
@@ -989,7 +990,7 @@ def get_jsonld(request, uuid):
     #print(swhid)
     if swhid:
         swhid_dict = dict(href = "https://archive.softwareheritage.org/"+swhid, type = "text/html")#title = "SWHID")
-        jsonld["http://www.w3.org/ns/prov#WasGeneratedBy"] = swhid_dict
+        jsonld["http://www.w3.org/ns/prov#wasAttributedTo"] = swhid_dict
 
     #print(jsonld)
     #linkset = dict(linkset = jsonld)
