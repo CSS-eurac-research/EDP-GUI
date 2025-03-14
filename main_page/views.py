@@ -211,30 +211,7 @@ def discovery(request):
             cursor.execute(final_query)
             results = cursor.fetchall()
             return JsonResponse({'metadata_results': results, 'title_list': title_list, 'category_list': category_list}, safe=False, status=200)
-        # if request.GET.get('box'):            
-        #     boundingbox = request.GET.get('box')
-        #     boundingbox = boundingbox.split(",")
-        #     #print(boundingbox)
-        #     polygon = ""
-        #     for i in range(len(boundingbox)):
-        #         if i == 0:
-        #             polygon = polygon + boundingbox[i]
-        #         else:
-        #             if i % 2 == 0:
-        #                 polygon = polygon + "," + boundingbox[i]
-        #             elif i%2 != 0:
-        #                 polygon = polygon + " " + boundingbox[i]
-        #     #print(polygon)
-        #     polygon = "POLYGON((" + polygon + "))"      
-        #     if "all" not in where_clause_array:
-        #         final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom, period_begin, period_end FROM main_page_geonetworkmetadata mpg WHERE ST_CONTAINS(ST_GEOMFROMTEXT('" + polygon + "', 4326), mpg.geom) AND (" + " OR ".join(where_clause_array) + ") ORDER BY title ASC"
-        #     else:
-        #         final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom, period_begin, period_end FROM main_page_geonetworkmetadata mpg WHERE ST_CONTAINS(ST_GEOMFROMTEXT('" + polygon + "', 4326), mpg.geom) ORDER BY title ASC"
-        #     print(final_query)
-        #     cursor.execute(final_query)
-        #     #print(conn.commit())
-        #     results = cursor.fetchall()
-        #     return JsonResponse({'metadata_results': results, 'title_list': title_list, 'category_list': category_list}, safe=False, status=200)
+
         if request.GET.get('box'):
             print("BOX")            
             boundingbox = request.GET.get('box')
@@ -266,13 +243,7 @@ def discovery(request):
         if request.GET.get('search'):
             print("SEARCH")
             searchKeyword = request.GET.get('search')
-            #print("KEYWORD " + searchKeyword)
-
-            # if "all" not in where_clause_array:
-            #     final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom, period_begin, period_end FROM main_page_geonetworkmetadata mpg WHERE (title, abstract, category, keyword)::text ILIKE '%" + "%".join(searchKeyword.split(" ")) + "%' AND (" + " OR ".join(where_clause_array) + ") ORDER BY title ASC"
-            # else:
-            #     final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom, period_begin, period_end FROM main_page_geonetworkmetadata mpg WHERE (title, abstract, category, keyword)::text ILIKE '%" + "%".join(searchKeyword.split(" ")) + "%' ORDER BY title ASC"
-            #print(title_list)
+            
             if request.GET.get('json') == "no":
                 if "all" not in where_clause_array:
                     final_query = "SELECT uuid FROM main_page_geonetworkmetadata mpg WHERE (title, abstract, category, keyword)::text ILIKE '%" + "%".join(searchKeyword.split(" ")) + "%' AND (" + " OR ".join(where_clause_array) + ") ORDER BY title ASC"
@@ -319,10 +290,7 @@ def discovery(request):
 
     except GeonetworkMetadata.DoesNotExist:
         raise Http404("GeonetworkMetadata does not exist")
-    #finally:
-    #    metadata_results = GeonetworkMetadata.objects.all()    
-    #    return render(request, 'discovery.html', {'metadata_results': metadata_results, 'title_list': title_list})
-    #print("finally")
+    
     cursor.close()
     conn.close()
     metadata_results = GeonetworkMetadata.objects.order_by('title')
@@ -479,11 +447,16 @@ def get_metadata_details(request, uuid):
         if 'resourceIdentifier' in metadataRecords: 
             
             if "http" in metadataRecords['resourceIdentifier'][0]['codeSpace']:
-                swhid_link = json.loads(requests.get(metadataRecords['resourceIdentifier'][0]['codeSpace']).text)
+                print(metadataRecords['resourceIdentifier'][0]['codeSpace'])
+                try:
+                    swhid_link = json.loads(requests.get(metadataRecords['resourceIdentifier'][0]['codeSpace']).text)
                 #print(swhid_link['links'])
-                for e in swhid_link['links']:
-                    if e['title'] == "SWHID":
-                        metadata_detail['swhid'] = e['href']
+                    for e in swhid_link['links']:
+                        if e['title'] == "SWHID":
+                            metadata_detail['swhid'] = e['href']
+                except:
+                    print("swhid_link is not a json")
+                
 
         if 'overview' in metadataRecords:
             metadata_detail['thumbnail'] = metadataRecords['overview'][0]['url']
@@ -523,13 +496,7 @@ def get_metadata_details(request, uuid):
                 metadata_detail['tempExtentBegin'] = metadataRecords['resourceTemporalExtentDetails'][0]['start']['date']
             if 'date' in metadataRecords['resourceTemporalExtentDetails'][0]['end']:    
                 metadata_detail['tempExtentEnd'] = metadataRecords['resourceTemporalExtentDetails'][0]['end']['date']
-        # if 'resourceTemporalExtentDetails' in metadataRecords:
-        #     if 'date' in metadataRecords:
-        #         metadata_detail['tempExtentBegin'] = metadataRecords['resourceTemporalExtentDetails'][0]['start']['date']
-        #     if 'date' in metadataRecords:
-        #         metadata_detail['tempExtentEnd'] = metadataRecords['resourceTemporalExtentDetails'][0]['end']['date']
 
-        #if gn_cat[0].category == 'openEO':
         if 'link' in metadataRecords:
             #print(metadataRecords['link'][0])            
             if 'nameObject' in metadataRecords['link'][0]:
@@ -641,11 +608,7 @@ def get_metadata_details(request, uuid):
         #print(len(metadata_detail['url_objects']))
         #print(metadata_detail)
         return metadata_detail
-        
-    # except:
-    #     error = {}
-    #     error['error'] = "Some errors occurred: no metadata found or problems in parsing metadata."
-    #     return error
+     
 
 def get_total_number_metadata(request, url_geometry_part):
     url = GEONETWORK_BASE_URL + "/srv/eng/q?_content_type=json&summaryOnly=1&"+url_geometry_part
@@ -811,7 +774,6 @@ def get_linkset(request, uuid):
     category = get_category(uuid)   
 
     swhid = get_swhid(uuid)
-    #print("Ciao")
     #print(swhid)
 
     describedby = []
@@ -959,33 +921,9 @@ def get_jsonld(request, uuid):
     if isPartOf:
         reverse["isPartOf"] = isPartOf
         jsonld["@reverse"] = reverse
-
-    # typecit = dict()
-    # typecit["@type"] = '"CreativeWork", "Dataset"'
-      
-
-    # jsonld["citation"] = []
-
-    # publisher = dict()
-    # publisher["@type"] = "Organization"
-    # publisher["name"] = "Eurac Research"
-    # publisher["disambiguatingDescription"] = ""
-    # publisher["url"] = "https://www.eurac.edu/en"
-    # jsonld["publisher"] = publisher
-
-    # dataCatalog = dict()
-    # dataCatalog["@type"] = "DataCatalog"
-    # dataCatalog["name"] = "Eurac Research"
-    # dataCatalog["disambiguatingDescription"] = ""
-    # dataCatalog["url"] = "https://www.eurac.edu/en"
-    # jsonld["dataCatalog"] = dataCatalog
-
+    
     jsonld["inLanguage"] = "en"
-    #     {
-    #   "rel": "via",
-    #   "href": "swh:1:rel:4e6df8da183c7aebde92b4303b79e0b28b40dd9f",
-    #   "title": "SWHID"
-    # }
+
     swhid = get_swhid(uuid)
     #print(swhid)
     if swhid:
