@@ -317,7 +317,7 @@ def terms_conditions_page(request):
 def CheckDataciteURL(url):
     print("")
     try:
-        #print(DATA_CITE_API+uuid)
+        #print(url)
         response = requests.head(url)
         print(response)
         return response.status_code == 200
@@ -327,7 +327,7 @@ def CheckDataciteURL(url):
 
 def CheckDOIURL(url):
     try:
-        #print(DOI_URL+uuid)
+        #print(url)
         response = requests.head(url)
         print(response)
         return response.status_code == 200
@@ -736,18 +736,24 @@ def get_info_publication(uuid):
         doi_exists = True
         publication = json.loads(json_response)["data"]["publication"]
         authors = []
-        for a in publication["creators"]:
-            if a["id"]:
-                authors.append(dict(href = a["id"]))
-                #print(a["id"])
-            #authors.append('{ "href": "'+a["id"]+'" }')
+        
+        if publication["creators"]:
+            for a in publication["creators"]:
+                print(a)
+                if a["id"]:
+                    authors.append(dict(href = a["id"]))
+                    #print(a["id"])
+                #authors.append('{ "href": "'+a["id"]+'" }')
 
         rights = []
-        for r in publication["rights"]:
-            rights.append(dict(href = r["rightsUri"]))
-            #rights.append('{ "href": "'+r["rightsUri"]+'" }') 
-        #print(authors)
-        type = publication["type"]
+        if publication["rights"]:
+            for r in publication["rights"]:
+                rights.append(dict(href = r["rightsUri"]))
+                #rights.append('{ "href": "'+r["rightsUri"]+'" }') 
+            #print(authors)
+        
+        if publication["type"]:
+            type = publication["type"]
     
     return authors, type, rights, doi_exists
 
@@ -768,6 +774,16 @@ def get_name(uuid):
         name = GeonetworkMetadata.objects.filter(uuid=uuid).values("title")
         return name[0]['title']
 
+def CheckSWHIDURL(url):
+    try:
+        print(url)
+        response = requests.head(url)
+        print(response)
+        return response.status_code == 200
+    except requests.RequestException:
+        print(requests.RequestException)
+        return False
+
 def get_swhid(uuid):
     url = GEONETWORK_BASE_URL + "/srv/api/search/records/_search"
     swhid = ""
@@ -780,14 +796,17 @@ def get_swhid(uuid):
     metadataRecords = tmp['hits']['hits'][0]['_source']
     #print(metadataRecords)
     if 'resourceIdentifier' in metadataRecords: 
-        #print(metadataRecords['resourceIdentifier'][0]['codeSpace'])
-        swhid_link = json.loads(requests.get(metadataRecords['resourceIdentifier'][0]['codeSpace']).text)
-        #print(swhid_link)        
-        #print(swhid_link['links'])
-        for e in swhid_link['links']:
-            if e['title'] == "SWHID":
-                if "swh" in e['href']:
-                    swhid = e['href']
+        print(metadataRecords['resourceIdentifier'][0]['codeSpace'])
+        if CheckSWHIDURL(metadataRecords['resourceIdentifier'][0]['codeSpace']):
+            swhid_link = json.loads(requests.get(metadataRecords['resourceIdentifier'][0]['codeSpace']).text)
+            #print(swhid_link)        
+            #print(swhid_link['links'])
+            for e in swhid_link['links']:
+                if e['title'] == "SWHID":
+                    if "swh" in e['href']:
+                        swhid = e['href']
+        else:
+            print("url invalid")
     return swhid
 
 #Signposting linkset
@@ -799,7 +818,7 @@ def get_linkset(request, uuid):
     category = get_category(uuid)   
 
     swhid = get_swhid(uuid)
-    #print(swhid)
+    print(swhid)
 
     describedby = []
 
