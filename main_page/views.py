@@ -314,6 +314,27 @@ def maps_page(request):
 def terms_conditions_page(request):
     return render(request, 'terms_conditions.html', {})
 
+def CheckDataciteURL(url):
+    print("")
+    try:
+        #print(DATA_CITE_API+uuid)
+        response = requests.head(url)
+        print(response)
+        return response.status_code == 200
+    except requests.RequestException:
+        print(requests.RequestException)
+        return False
+
+def CheckDOIURL(url):
+    try:
+        #print(DOI_URL+uuid)
+        response = requests.head(url)
+        print(response)
+        return response.status_code == 200
+    except requests.RequestException:
+        print(requests.RequestException)
+        return False
+
 def result_detail(request, uuid):
     #uuid = "51f8f326-7964-11ee-9a8e-47abc4958022"
     metadata_details = get_metadata_details(request, uuid)
@@ -321,6 +342,7 @@ def result_detail(request, uuid):
     creators, rights, type, publisher = get_info_publication_complete(uuid)
     #print(creators)
     #print(type)
+
     metadata_details['creators'] = creators
     metadata_details['rights'] = rights
     name_collection = ""
@@ -466,9 +488,12 @@ def get_metadata_details(request, uuid):
         if gn_cat:
             if gn_cat[0].category:
                 metadata_detail['category'] = gn_cat[0].category
-
-            if gn_cat[0].doi:
-                metadata_detail['doi'] = gn_cat[0].doi
+            if gn_cat[0].doi:                    
+                print(gn_cat[0].doi)
+                if CheckDOIURL(gn_cat[0].doi) or CheckDataciteURL(DATA_CITE_API+uuid):
+                    metadata_detail['doi'] = gn_cat[0].doi
+                else:
+                    print("url invalid, no doi")
             if gn_cat[0].citation:
                 metadata_detail['citation'] = gn_cat[0].citation
             if gn_cat[0].supplemental_information:
