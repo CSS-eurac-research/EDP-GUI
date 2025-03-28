@@ -19,8 +19,8 @@ var drawControl = new L.Control.Draw({
 });
 map.addControl(drawControl);
 map.addLayer(drawnItems);
-$("#searchbutton").prop("disabled",false);
-$("#searchbar").prop("disabled",false);
+$("#searchbutton").prop("disabled", false);
+$("#searchbar").prop("disabled", false);
 
 map.on('draw:created', function (e) {
 
@@ -28,14 +28,14 @@ map.on('draw:created', function (e) {
     $('#metadata_results').prepend("<div class='loader'></div>");
 
 
-    map.eachLayer(function(layer) {
-        if(layer instanceof L.Rectangle) {
+    map.eachLayer(function (layer) {
+        if (layer instanceof L.Rectangle) {
             // console.log(layer);
             if (layer.layerID != "boundingbox") {
                 map.removeLayer(layer);
             }
         }
-        if(layer instanceof L.Marker) {
+        if (layer instanceof L.Marker) {
             //console.log(layer);
             map.removeLayer(layer);
         }
@@ -48,7 +48,7 @@ map.on('draw:created', function (e) {
     map.fitBounds(coords);
     //console.log(coords[0][1]);
     var overlayMaps = {
-        layerName: "boundingbox",    
+        layerName: "boundingbox",
     };
     layer.layerID = "boundingbox";
     //console.log(layer.layerID);
@@ -67,11 +67,11 @@ map.on('draw:created', function (e) {
     function csrfSafeMethod(method) {
         // these HTTP methods do not require CSRF protection
         return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-    } 
+    }
 
     $.ajaxSetup({
         crossDomain: false, // obviates need for sameOrigin test
-        beforeSend: function(xhr, settings) {
+        beforeSend: function (xhr, settings) {
             if (!csrfSafeMethod(settings.type)) {
                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
             }
@@ -94,33 +94,33 @@ map.on('draw:created', function (e) {
     // }
 
     var categories_selected = [];
-    $.each($("input[name='category']:checked"), function(){            
-      categories_selected.push($(this).val());
+    $.each($("input[name='category']:checked"), function () {
+        categories_selected.push($(this).val());
     });
-    $.each($("input[name='category']:not(:checked)"), function(){  
-      var index = categories_selected.indexOf($(this).val()); 
+    $.each($("input[name='category']:not(:checked)"), function () {
+        var index = categories_selected.indexOf($(this).val());
     });
 
-    if (categories_selected.length==0) {
-      categories_selected.push("all");
+    if (categories_selected.length == 0) {
+        categories_selected.push("all");
     }
 
-    url_params.push('categories='+categories_selected.join(","));
+    url_params.push('categories=' + categories_selected.join(","));
 
     //Date picker 2013-01-01   
     var period_begin = document.getElementById('period_begin').value
     var period_end = document.getElementById('period_end').value
 
-    if (boundingbox!=""){
+    if (boundingbox != "") {
         url_params.push('box=' + boundingbox);
-    } 
-    if (searchbar.value!=""){
-        url_params.push('search=' + searchbar.value);
-    } 
-    if (period_begin!="" && period_end!="") {
-        url_params.push('period_begin='+ period_begin + '&period_end=' + period_end);
     }
-    
+    if (searchbar.value != "") {
+        url_params.push('search=' + searchbar.value);
+    }
+    if (period_begin != "" && period_end != "") {
+        url_params.push('period_begin=' + period_begin + '&period_end=' + period_end);
+    }
+
     console.log(url_params);
     var final_url_params = url_params.join("&");
     url = url + final_url_params;
@@ -147,9 +147,9 @@ map.on('draw:created', function (e) {
 
     $.ajax({
         url: url,
-        type: 'GET',        
+        type: 'GET',
         contentType: "application/json",
-        success: function(response){
+        success: function (response) {
             //console.log(response['metadata_results']);
             var metadata_results = response['metadata_results'];//JSON.parse(response['metadata_results']);
             var title_list = response['title_list'];
@@ -157,74 +157,76 @@ map.on('draw:created', function (e) {
                 source: title_list.split(","),
                 minLength: 2,
                 max: 10,
-                scroll: true              
+                scroll: true
             });
 
             //console.log(metadata_results);
-            if(metadata_results != "no results") {
+            if (metadata_results != "no results") {
                 $('#number_results').html('<i class="fa fa-list" aria-hidden="true"></i> Results: <b>' + metadata_results.length.toString() + '</b> items found');
                 $('#metadata_results').empty();
                 //console.log(metadata_results.length);
                 var col = 0;
                 var row = 0;
                 var key = 0;
-                for (i=metadata_results.length-1; i>-1; i--) {
-                    if (col == 0){
+                for (i = metadata_results.length - 1; i > -1; i--) {
+                    if (col == 0) {
                         $('#metadata_results').prepend(`<div id="row-${row}" class="row">`);
                     }
                     var result_box = "";
-                    result_box = result_box + '<div class="col"> <div class="card" style="width: 55rem;">';
-                    
+                    result_box = result_box + '<div class="col"> <div class="card card_rem" style="align-items: inherit;">';
+
                     //image
-                    if(metadata_results[i][5] != null) {
-                        result_box = result_box + '<img src="'+metadata_results[i][5]+'" class="card-img-top">';
-                    } 
-                    // result_box = result_box + '</div>';
+                    if (metadata_results[i][5] != null) {
+                        result_box = result_box + '<div style="min-height: 8vw !important; min-width: 15vw; overflow: hidden; position: relative;">'
+                        result_box = result_box + '<img src="' + metadata_results[i][5] +
+                            '" class="card-img-top" style = "position: absolute; max-height: 100%; max-width: 100%; height: auto; width: auto; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"> ';
+                    }
+                    result_box = result_box + '</div>';
                     // result_box = result_box + '<div class="col">';
                     result_box = result_box + '<div class="card-body">';
                     //uuid and title
-                    if(metadata_results[i][0] != null) {
-                        result_box = result_box + '<a class="card-title" style="color: #DF1B12; font-size: 20px;" href="/discovery/'+metadata_results[i][0]+'" target="_blank" rel="noopener noreferrer">'+metadata_results[i][1]+'</a>';
+                    if (metadata_results[i][0] != null) {
+                        result_box = result_box + '<a class="card-title" style="color: #DF1B12; font-size: 20px;" href="/discovery/' + metadata_results[i][0] + '" target="_blank" rel="noopener noreferrer">' + metadata_results[i][1] + '</a>';
                     }
 
                     //abstract
-                    if(metadata_results[i][2] != null) {
-                        result_box = result_box + '<div class="card-text abstract-results">'+metadata_results[i][2]+'</div>';
-                    } 
+                    if (metadata_results[i][2] != null) {
+                        result_box = result_box + '<div class="card-text abstract-results">' + metadata_results[i][2] + '</div>';
+                    }
 
                     //category
-                    if(metadata_results[i][3] != null) {
-                        result_box = result_box + '<p class="card-text" style="font-weight: bold">'+metadata_results[i][3]+'</p>';
-                    } 
+                    if (metadata_results[i][3] != null) {
+                        result_box = result_box + '<p class="card-text" style="font-weight: bold">' + metadata_results[i][3] + '</p>';
+                    }
 
                     //keyword
-                    if(metadata_results[i][4] != null) {
+                    if (metadata_results[i][4] != null) {
                         key = key + 1;
-                        result_box = result_box + '<p class="card-text" style="font-size: 12px; font-style:italic;">'+metadata_results[i][4]+'</p>';
-                    } 
+                        result_box = result_box + '<p class="card-text" style="font-size: 12px; font-style:italic;">' + metadata_results[i][4] + '</p>';
+                    }
                     result_box = result_box + '</div> </div> </div>';
 
-                    $('#row-'+row.toString()).prepend(result_box);
+                    $('#row-' + row.toString()).prepend(result_box);
 
                     col = col + 1;
                     if (col == 3) {
-                        $('#row-'+row.toString()).prepend(`</div>`);
+                        $('#row-' + row.toString()).prepend(`</div>`);
                         col = 0;
                         row = row + 1;
-                    } else if (i == metadata_results.length-1) {
-                        $('#row-'+row.toString()).prepend(`</div>`);
-                    } 
-                
+                    } else if (i == metadata_results.length - 1) {
+                        $('#row-' + row.toString()).prepend(`</div>`);
+                    }
+
                 }
 
                 //geometry
-                for (i=0; i<metadata_results.length; i++) {
-                    if(metadata_results[i][6] != null) {
-                        
+                for (i = 0; i < metadata_results.length; i++) {
+                    if (metadata_results[i][6] != null) {
+
                         var box = JSON.parse(metadata_results[i][6])['coordinates'][0];
                         correct_bounds = [];
 
-                        for (k=0; k<box.length; k++) {
+                        for (k = 0; k < box.length; k++) {
                             correct_bounds[k] = [box[k][1], box[k][0]];
                         }
                         box
@@ -232,17 +234,17 @@ map.on('draw:created', function (e) {
 
                         var bounds = L.latLngBounds(correct_bounds);
                         //var bounds = [[box[1],box[0]],[box[3],box[2]]];
-                        var rectangle = L.rectangle(bounds, {color: "#DF1B12", weight: 2, fill: false});
-                        if (metadata_results[i][3] != null){
-                            if(metadata_results[i][3] == "SOS") {
+                        var rectangle = L.rectangle(bounds, { color: "#DF1B12", weight: 2, fill: false });
+                        if (metadata_results[i][3] != null) {
+                            if (metadata_results[i][3] == "SOS") {
                                 rectangle.addTo(map);
                                 var center_coords = rectangle.getCenter();
                                 L.marker(center_coords).bindTooltip(metadata_results[i][1]).openTooltip().addTo(map);
-                            } else {                        
+                            } else {
                                 rectangle.bindTooltip(metadata_results[i][1]).openTooltip().addTo(map);
-                        }   
-                    }                
-                        
+                            }
+                        }
+
                     } else {
                         console.log("defined");
                     }
@@ -250,6 +252,6 @@ map.on('draw:created', function (e) {
             } else {
                 $('#number_results').html('<i class="fa fa-list" aria-hidden="true"></i> Results: <b>no item was found with this bounding box</b>');
             }
-            },
-        });
+        },
+    });
 });

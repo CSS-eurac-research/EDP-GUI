@@ -127,8 +127,7 @@
         <div id="row-{{item.uuid}}" class="row">
           <div class="col">
             <div class="card card_rem" style="align-items: inherit;">
-              <div
-                style="min-height: 8vw !important; min-width: 16vw; overflow: hidden; position: relative;">
+              <div style="min-height: 8vw !important; min-width: 15vw; overflow: hidden; position: relative;">
                 {% if item.thumbnail != None %}
                 <img src="{{item.thumbnail}}" class="card-img-top"
                   style="position: absolute; max-height: 100%; max-width: 100%; height: auto; width: auto; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
@@ -140,11 +139,12 @@
                 <a class="card-title" style="color: #DF1B12; font-size: 20px;" href="/discovery/{{item.uuid}}"
                   target="_blank" rel="noopener noreferrer">{{item.title}}</a>
                 <div class="card-text abstract-results"><span class="abstract_par">{{item.abstract}}</span></div>
-                <p class="card-text" style="font-weight: bold; margin-top: 0.5rem; margin-bottom: 0.3rem">{{item.category}}</p>
+                <p class="card-text" style="font-weight: bold; margin-top: 0.5rem; margin-bottom: 0.3rem">
+                  {{item.category}}</p>
                 <p class="card-text" style="font-size: 12px; font-style:italic;">{{item.keyword}}</p>
                 {% if item.period_begin %}
-                <p style="margin-bottom: 0rem"><i class="fa fa-clock-o" aria-hidden="true"></i> {{ item.period_begin }} <img
-                    src="/static/right-arrow.png" style="width: 20px;"> {{ item.period_end }}</p>
+                <p style="margin-bottom: 0rem"><i class="fa fa-clock-o" aria-hidden="true"></i> {{ item.period_begin }}
+                  <img src="/static/right-arrow.png" style="width: 20px;"> {{ item.period_end }}</p>
                 {% endif %}
               </div>
             </div>
