@@ -118,8 +118,8 @@
   <div class="" style="float: left; width: 50%; height: 83%; color: #666B6C;">
     <div class="" style="min-height: 88%;">
       {% if metadata_results %}
-      <h5 id="number_results" style="margin: 5px;"><i class="fa fa-list" aria-hidden="true"></i> Results: <b>{{
-          metadata_results|length }}</b> items found</h5>
+      <h5 id="number_results" style="margin: 5px;"><i class="fa fa-list" aria-hidden="true"></i> Results:
+        <b>{{metadata_results | length }}</b> items found</h5>
       <div id="metadata_results" style="min-height: 95.7%;">
 
         {% for item in metadata_results %}
@@ -144,7 +144,8 @@
                 <p class="card-text" style="font-size: 12px; font-style:italic;">{{item.keyword}}</p>
                 {% if item.period_begin %}
                 <p style="margin-bottom: 0rem"><i class="fa fa-clock-o" aria-hidden="true"></i> {{ item.period_begin }}
-                  <img src="/static/right-arrow.png" style="width: 20px;"> {{ item.period_end }}</p>
+                  <img src="/static/right-arrow.png" style="width: 20px;"> {{ item.period_end }}
+                </p>
                 {% endif %}
               </div>
             </div>
