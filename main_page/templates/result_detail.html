@@ -4,7 +4,7 @@
 
 <head>
 
-  <title>{{ result_json.title }} - EDP</title>
+  <title id="title_sheet">{{ result_json.title }} - EDP</title>
   <link rel="shortcut icon" href="/static/apple-touch-icon.png">
   <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
@@ -96,11 +96,11 @@
 {% else %}
 <div style="width: 100%">
   <div  class="center">
-    <h4 style="color: #666B6C;"><b>{{ result_json.title }}</b></h4>
+    <h4 id="title" style="color: #666B6C;"><b>{{ result_json.title }}</b></h4>
     <div>
       <a id="geonetwork_link" href="http://edp-portal.eurac.edu/geonetwork/srv/eng/catalog.search#/metadata/{{uuid}}/formatters/xsl-view?root=div&view=advanced" target="_blank" rel="noopener noreferrer"><img src="/static/geonetwork_small.png" style="width: 15px; margin-top: -4px;"> Go to full metadata</a>
-      <a class="linkset_ld" href="https://edp-portal.eurac.edu/discovery/linkset/{{uuid}}" target="_blank" rel="noreferrer"><i class="fa fa-file-o" aria-hidden="true"></i> Linkset {json}</a>
-      <a class="linkset_ld" href="https://edp-portal.eurac.edu/discovery/jsonld/{{uuid}}" target="_blank" rel="noreferrer"><i class="fa fa-file-o" aria-hidden="true"></i> Linked data {json}</a>
+      <a id="linkset" class="linkset_ld" href="https://edp-portal.eurac.edu/discovery/linkset/{{uuid}}" target="_blank" rel="noreferrer"><i class="fa fa-file-o" aria-hidden="true"></i> Linkset {json}</a>
+      <a id="jsonld" class="linkset_ld" href="https://edp-portal.eurac.edu/discovery/jsonld/{{uuid}}" target="_blank" rel="noreferrer"><i class="fa fa-file-o" aria-hidden="true"></i> Linked data {json}</a>
     </div>
   </div>
   <br>
@@ -115,7 +115,7 @@
       {% if result_json.abstract %}
       <div>
         <label class="label_detail"><i class="fa fa-book" aria-hidden="true"></i> Abstract</label>
-        <p>{{result_json.abstract}}</p>
+        <p id="abstract">{{result_json.abstract}}</p>
       </div>
       {% else %}
         <div></div>
@@ -124,7 +124,7 @@
       {% if result_json.doi %}
       <div>
         <label class="label_detail"><i class="fa fa-id-card" aria-hidden="true"></i> Digital Object Identifier (DOI)</label>
-        <p><a href="{{result_json.doi}}" target="_blank" rel="noreferrer">{{result_json.doi}}</a></p>        
+        <p id="doi"><a href="{{result_json.doi}}" target="_blank" rel="noreferrer">{{result_json.doi}}</a></p>        
       </div>
       {% else %}
         <div></div>
@@ -133,7 +133,7 @@
       {% if result_json.citation %}
       <div>
         <label class="label_detail"><i class="fa fa-retweet" aria-hidden="true"></i> Citation</label>
-        <p>{{result_json.citation}}</p>
+        <p id="citation">{{result_json.citation}}</p>
       </div>
       {% else %}
         <div></div>
@@ -142,7 +142,7 @@
       {% if result_json.supplemental_information %}
       <div>
         <label class="label_detail"><i class="fa fa-plus-square" aria-hidden="true"></i> Supplemental information</label>
-        <p>{{result_json.supplemental_information}}</p>
+        <p id="supplemental_information">{{result_json.supplemental_information}}</p>
       </div>
       {% else %}
         <div></div>
@@ -152,7 +152,7 @@
   {% if result_json.keyword %}
   <div>
     <label class="label_detail"><i class="fa fa-key" aria-hidden="true"></i> Keywords</label>
-    <p>{{ result_json.keyword }}</p>
+    <p id="keyword">{{ result_json.keyword }}</p>
   </div>
   {% else %}
     <div></div>
@@ -161,7 +161,7 @@
   {% if result_json.swhid %}
   <div>
     <label class="label_detail"><img src="/static/sh_logo.png" style="filter: grayscale(1); width: 25px;"> SoftWare Hash IDentifier (SWHID)</label>
-    <p><code><a href="https://archive.softwareheritage.org/{{result_json.swhid}}" style='color: #666B6C; font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;'>{{result_json.swhid}}</a></code></p>
+    <p id="swhid"><code><a href="https://archive.softwareheritage.org/{{result_json.swhid}}" style='color: #666B6C; font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;'>{{result_json.swhid}}</a></code></p>
   </div> 
   {% else %}
     <div></div>
@@ -171,7 +171,7 @@
   {% if result_json.rights %}
     <div>
       <label class="label_detail"><i class="fa fa-balance-scale" aria-hidden="true"></i> Legal constraints</label>
-      <p>
+      <p id="rights">
         {% for r in result_json.rights %}  
           <a href="{{ r.uri }}" target="_blank" rel="noreferrer" value="{{ r.rights }}"> {{ r.rights }}, {{ r.rightsIdentifier }}</a> 
         {% endfor %}
@@ -183,7 +183,7 @@
   {% if result_json.legalConstraints and not result_json.rights%}
   <div>
     <label class="label_detail"><i class="fa fa-balance-scale" aria-hidden="true"></i> Legal constraints</label>
-    <p>{{ result_json.legalConstraints }}</p>
+    <p id="legalConstraints">{{ result_json.legalConstraints }}</p>
   </div>
   {% else %}
     <div></div>
@@ -193,7 +193,7 @@
   <div>
     <label class="label_detail"><i class="fa fa-user-circle-o" aria-hidden="true"></i> Contact for resource</label>
     <!-- <p>{{ result_json.contactResource }}</p> -->
-    <table>
+    <table id="contactResource">
       <tr>
         <td>
           {{ result_json.contactResource.contactName }} 
@@ -220,7 +220,7 @@
   <div>
     <label class="label_detail"><i class="fa fa-user-circle-o" aria-hidden="true"></i> Contact for resource</label>
     <!-- <p>{{ result_json.contactResource }}</p> -->
-    <table>
+    <table id="creators">
       <ul>
       {% for c in result_json.creators %}      
         <li>
@@ -246,7 +246,7 @@
   {% if result_json.contactMetadata %}
   <div>
     <label class="label_detail"><i class="fa fa-user-circle-o" aria-hidden="true"></i> Contact for metadata</label>
-    <table>
+    <table id="contactMetadata">
       <tr>
         <td>
           {{ result_json.contactMetadata.contactName }}
@@ -271,7 +271,7 @@
   {% if result_json.url_objects %}
   <div>
     <label class="label_detail"><i class="fa fa-download" aria-hidden="true"></i> Download online resources</label>
-    <table>
+    <table id="url_objects">
       <ul>
     {% for l in result_json.url_objects %}      
     <li>
@@ -292,7 +292,7 @@
   {% if result_json.lineage %}
   <div>
     <label class="label_detail"><i class="fa fa-file" aria-hidden="true"></i> Lineage</label>
-    <p>{{ result_json.lineage }}</p>
+    <p id="lineage">{{ result_json.lineage }}</p>
   </div>
   {% else %}
     <div></div>
@@ -304,7 +304,7 @@
       {% if result_json.thumbnail %}
       <div>
         <!-- <label class="label_detail"><i class="fa fa-clock-o" aria-hidden="true"></i> Period</label> -->
-        <img src="{{ result_json.thumbnail }}" style="width: 50%;">
+        <img id="thumbnail" src="{{ result_json.thumbnail }}" style="width: 50%;">
       </div>
       {% else %}
         <div></div>
@@ -317,7 +317,7 @@
           <label class="label_detail"><i class="fa fa-square" aria-hidden="true"></i> Bounding box</label>
           <div>
               <!-- <img src="https://edp-portal.eurac.edu/geonetwork/srv/api/regions/geom.png?geomsrs=EPSG:4326&geom=POLYGON(({{result_json.minLon}} {{result_json.minLat}}+100,{{result_json.minLon}} {{result_json.maxLat}},{{result_json.maxLon}} {{result_json.maxLat}},{{result_json.maxLon}} {{result_json.minLat}},{{result_json.minLon}} {{result_json.minLat}}))"> -->
-              <img src="https://edp-portal.eurac.edu/geonetwork/srv/api/records/{{uuid}}/extents.png">
+              <img id="bounding_box" src="https://edp-portal.eurac.edu/geonetwork/srv/api/records/{{uuid}}/extents.png">
             </div>
         </div>
         {% else %}
@@ -329,7 +329,7 @@
     {% if result_json.tempExtentBegin %}
     <div>
       <label class="label_detail"><i class="fa fa-clock-o" aria-hidden="true"></i> Period</label>
-      <p>{{ result_json.tempExtentBegin }} <img src="/static/right-arrow.png" style="width: 20px;"> {{ result_json.tempExtentEnd }}</p>
+      <p id="tempExtent">{{ result_json.tempExtentBegin }} <img src="/static/right-arrow.png" style="width: 20px;"> {{ result_json.tempExtentEnd }}</p>
     </div>
     {% else %}
       <div></div>
@@ -338,7 +338,7 @@
     {% if result_json.crs %}
     <div>
       <label class="label_detail"><i class="fa fa-globe" aria-hidden="true"></i> Coordinate reference system</label>
-      <p>{{ result_json.crs }}</p>
+      <p id="crs">{{ result_json.crs }}</p>
     </div>
     {% else %}
       <div></div>
@@ -347,7 +347,7 @@
     {% if result_json.refSys %}
     <div>
       <label class="label_detail"><i class="fa fa-pencil" aria-hidden="true"></i> Spatial representation</label>
-      <p>{{ result_json.refSys }}</p>
+      <p id="refSys">{{ result_json.refSys }}</p>
     </div>
     {% else %}
       <div></div>
@@ -356,7 +356,7 @@
     {% if result_json.presentationForm %}
     <div>
       <label class="label_detail"><i class="fa fa-wpforms" aria-hidden="true"></i> Presentation form</label>
-      <p>{{ result_json.presentationForm }}</p>
+      <p id="presentationForm">{{ result_json.presentationForm }}</p>
     </div>
     {% else %}
       <div></div>
@@ -365,7 +365,7 @@
     {% if result_json.cl_topic %}
     <div>
       <label class="label_detail"><i class="fa fa-hashtag" aria-hidden="true"></i> Topic category</label>
-      <p>{{ result_json.cl_topic }}</p>
+      <p id="cl_topic">{{ result_json.cl_topic }}</p>
     </div>
     {% else %}
       <div></div>
@@ -374,7 +374,7 @@
     {% if type %}
     <div>
       <label class="label_detail"><i class="fa fa-fire" aria-hidden="true"></i> Type</label>
-      <p>{{ type }}</p>
+      <p id="type">{{ type }}</p>
     </div>
     {% else %}
       <div></div>
@@ -383,7 +383,7 @@
     {% if publisher %}
     <div>
       <label class="label_detail"><i class="fa fa-university" aria-hidden="true"></i> Publisher</label>
-      <p>{{ publisher }}</p>
+      <p id="publisher">{{ publisher }}</p>
     </div>
     {% else %}
       <div></div>
@@ -400,7 +400,7 @@
 {% if snippet_code_list %}
 <hr style="width: 90%;">
 
-<div style="width: 60%; margin: 0 auto;">
+<div id="snippet_code" style="width: 60%; margin: 0 auto;">
   <h5 style="color: #DF1B12;"><i class="fa fa-code" aria-hidden="true"></i> Snippet code</h5>
 
   <script>
@@ -474,7 +474,7 @@
   <h5 style="color: #DF1B12;"><i class="fa fa-book" aria-hidden="true"></i> Related docs</h5>
 
   {% if docs_list %}
-    <table style="width:100%; color: #666B6C;">
+    <table id="docs_list" style="width:100%; color: #666B6C;">
       <tr id="header_table">
         <!-- <th>#</th> -->
         <th id="name_column_table" class="width_column_table-2">Name</th>
@@ -512,7 +512,7 @@
 
         <!-- <h6>Info, Terms and Conditions</h6> -->
         <div style="margin: 0 auto;">
-        <p style="color:#666B6C">© 2024 Eurac Research •
+        <p style="color:#666B6C">© 2025 Eurac Research •
           <a href="https://cssportfolio.eurac.edu/" target="_blank" rel="noopener noreferrer" style="color:#666B6C">Center for Sensing Solutions portfolio 
           </a>•
 
