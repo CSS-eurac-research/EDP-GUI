@@ -99,8 +99,13 @@
     <h4 id="title" style="color: #666B6C;"><b>{{ result_json.title }}</b></h4>
     <div>
       <a id="geonetwork_link" href="http://edp-portal.eurac.edu/geonetwork/srv/eng/catalog.search#/metadata/{{uuid}}/formatters/xsl-view?root=div&view=advanced" target="_blank" rel="noopener noreferrer"><img src="/static/geonetwork_small.png" style="width: 15px; margin-top: -4px;"> Go to full metadata</a>
-      <a id="linkset" class="linkset_ld" href="https://edp-portal.eurac.edu/discovery/linkset/{{uuid}}" target="_blank" rel="noreferrer"><i class="fa fa-file-o" aria-hidden="true"></i> Linkset {json}</a>
-      <a id="jsonld" class="linkset_ld" href="https://edp-portal.eurac.edu/discovery/jsonld/{{uuid}}" target="_blank" rel="noreferrer"><i class="fa fa-file-o" aria-hidden="true"></i> Linked data {json}</a>
+      {% if result_json.url_repository %}
+        <a id="go_to_repository" href="{{result_json.url_repository}}" target="_blank" rel="noopener noreferrer"><i class="fa fa-database" aria-hidden="true"></i> Go to repository: <b>{{result_json.category}}</b></a>
+      {% else %}
+        <a id="go_to_repository_no_clickable"><i class="fa fa-database" aria-hidden="true"></i> Repository: <b>{{result_json.category}}</b></a>
+      {% endif %}
+      <!-- <a id="linkset" class="linkset_ld" href="https://edp-portal.eurac.edu/discovery/linkset/{{uuid}}" target="_blank" rel="noreferrer"><i class="fa fa-file-o" aria-hidden="true"></i> Linkset {json}</a>
+      <a id="jsonld" class="linkset_ld" href="https://edp-portal.eurac.edu/discovery/jsonld/{{uuid}}" target="_blank" rel="noreferrer"><i class="fa fa-file-o" aria-hidden="true"></i> Linked data {json}</a> -->
     </div>
   </div>
   <br>

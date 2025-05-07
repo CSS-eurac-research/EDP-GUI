@@ -398,7 +398,25 @@ td {
   top: 5px;
 }
 
+#go_to_repository {
+  text-decoration: none;
+  color: #007bff;
+  background-color: transparent;
+  background-image: none;
+  border: 1px solid #007bff;
+  border-radius: 15px;
+  padding: 4px;
+  position: relative;
+  top: 5px;
+}
 
+#go_to_repository:hover {
+  text-decoration: none;
+  color: white;
+  background-color: #007bff;
+  background-image: none;
+  border: 1px solid #007bff;
+}
 
 #geonetwork_link:hover {
   text-decoration: none;

@@ -319,7 +319,7 @@ def CheckDataciteURL(url):
     try:
         #print(url)
         response = requests.head(url)
-        print(response)
+        print("CheckDataciteURL "+response)
         return response.status_code == 200
     except requests.RequestException:
         print(requests.RequestException)
@@ -329,7 +329,7 @@ def CheckDOIURL(url):
     try:
         #print(url)
         response = requests.head(url)
-        print(response)
+        print("CheckDOIURL "+response)
         return response.status_code == 200
     except requests.RequestException:
         print(requests.RequestException)
@@ -379,6 +379,8 @@ def result_detail(request, uuid):
 
         docs_list = DocSource.objects.filter(source_category__icontains=metadata_details["category"])
 
+        url_repository = ""
+
         context = {
             "uuid" : uuid,
             "publisher" : publisher,
@@ -387,7 +389,8 @@ def result_detail(request, uuid):
             #"result_json" : result_json["metadata"],
             "result_json" : metadata_details,
             "snippet_code_list" : snippet_code_list,
-            "docs_list" : docs_list
+            "docs_list" : docs_list,
+            "url_repository": url_repository
             #'title': result_json["metadata"]["title"],
         }
         response = render(request, 'result_detail.html', context)
@@ -469,7 +472,9 @@ def get_metadata_details(request, uuid):
         if 'resourceIdentifier' in metadataRecords: 
             
             if "http" in metadataRecords['resourceIdentifier'][0]['codeSpace']:
-                print(metadataRecords['resourceIdentifier'][0]['codeSpace'])
+                #print("get openeo URL repository "+metadataRecords['resourceIdentifier'][0]['codeSpace'])
+                if "https://openeo.eurac.edu/collections" in metadataRecords['resourceIdentifier'][0]['codeSpace']:
+                    metadata_detail['url_repository'] = metadataRecords['resourceIdentifier'][0]['codeSpace']
                 try:
                     swhid_link = json.loads(requests.get(metadataRecords['resourceIdentifier'][0]['codeSpace']).text)
                 #print(swhid_link['links'])
@@ -539,6 +544,12 @@ def get_metadata_details(request, uuid):
                 for l in metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload']:
                     link_splitted = l.split("&")
                     #print(link_splitted)
+                    if "https://maps.eurac.edu/download/" in l:
+                        #print(l)    
+                        id_collection = l.split("/")[-1]
+                        if id_collection:                                        
+                            metadata_detail['url_repository'] = "https://maps.eurac.edu/catalogue/#/dataset/"+id_collection
+                        #print("https://maps.eurac.edu/catalogue/#/dataset/"+id_collection)
                     if 'outputFormat' in l or 'format' in l:
                         for e in link_splitted:       
                             if 'outputFormat' in e:                     
@@ -548,7 +559,9 @@ def get_metadata_details(request, uuid):
                                         if "https://maps.eurac.edu/uploaded/thumbs" in l:
                                             print("Do nothing")
                                         if "https://maps.eurac.edu/download/" in l:
-                                            print("Do nothing")
+                                            #print("Do nothing")    
+                                            id_collection = l.split("/")[-1]                                        
+                                            metadata_detail['url_repository'] = "https://maps.eurac.edu/catalogue/#/dataset/"+id_collection
                                         else:
                                             #print(l)
                                             tmp = l.replace("https://maps.eurac.edu/", "").split("?")
@@ -569,7 +582,9 @@ def get_metadata_details(request, uuid):
                                         if "https://maps.eurac.edu/uploaded/thumbs" in l:
                                             print("Do nothing")
                                         if "https://maps.eurac.edu/download/" in l:
-                                            print("Do nothing")
+                                            #print("Do nothing")
+                                            id_collection = l.split("/")[-1]                                        
+                                            metadata_detail['url_repository'] = "https://maps.eurac.edu/catalogue/#/dataset/"+id_collection
                                         else:
                                             #print(l)
                                             tmp = l.replace("https://maps.eurac.edu/", "").split("?")
@@ -588,7 +603,9 @@ def get_metadata_details(request, uuid):
                                         if "https://maps.eurac.edu/uploaded/thumbs" in l:
                                             print("Do nothing")
                                         if "https://maps.eurac.edu/download/" in l:
-                                            print("Do nothing")
+                                            #print("Do nothing")
+                                            id_collection = l.split("/")[-1]                                        
+                                            metadata_detail['url_repository'] = "https://maps.eurac.edu/catalogue/#/dataset/"+id_collection
                                         else:
                                             #print(l)
                                             tmp = l.replace("https://maps.eurac.edu/", "").split("?")
@@ -608,9 +625,13 @@ def get_metadata_details(request, uuid):
                     else:
                         if caption_category == "STAC":
                             if "https://stac.eurac.edu:8080/collections/" in l:
-                                tmp = l.replace("https://stac.eurac.edu:8080/collections/", "").split("?")
-                                #print(tmp)
-                                url_objects.append(dict(l=l,file_type=tmp[0]))
+                                id_collection = l.replace("https://stac.eurac.edu:8080/collections/", "").split("?")
+                                metadata_detail['url_repository'] = l
+                                url_objects.append(dict(l=l,file_type=id_collection[0]))
+                            if "https://stac.eurac.edu/browser/#/collections/" in l:
+                                id_collection = l.replace("https://stac.eurac.edu/browser/#/collections/", "").split("?")                                   
+                                metadata_detail['url_repository'] = l
+                                url_objects.append(dict(l=l,file_type=id_collection[0]))
                             elif "scientificnet-my.sharepoint.com" in l:
                                 url_objects.append(dict(l=l,file_type="Sharepoint"))
                             else:
@@ -739,7 +760,7 @@ def get_info_publication(uuid):
         
         if publication["creators"]:
             for a in publication["creators"]:
-                print(a)
+                print("publication "+a)
                 if a["id"]:
                     authors.append(dict(href = a["id"]))
                     #print(a["id"])
@@ -776,7 +797,7 @@ def get_name(uuid):
 
 def CheckSWHIDURL(url):
     try:
-        print(url)
+        print("CheckSWHIDURL"+url)
         response = requests.head(url)
         print(response)
         return response.status_code == 200
@@ -787,7 +808,7 @@ def CheckSWHIDURL(url):
 def get_swhid(uuid):
     url = GEONETWORK_BASE_URL + "/srv/api/search/records/_search"
     swhid = ""
-    print(url)
+    print("get_swhid2"+url)
     body = "{\"query\":{\"bool\":{\"must\":[{\"multi_match\":{\"query\":\""+uuid+"\",\"fields\":[\"id\",\"uuid\"]}},{\"terms\":{\"isTemplate\":[\"n\",\"y\"]}},{\"terms\":{\"draft\":[\"n\",\"y\",\"e\"]}}]}}}"
     headers = {'ACCEPT': ACCEPT_HTTP, 'CONTENT-TYPE': CONTENT_TYPE}
     results = requests.post(url, data=body, headers=headers)
@@ -796,7 +817,7 @@ def get_swhid(uuid):
     metadataRecords = tmp['hits']['hits'][0]['_source']
     #print(metadataRecords)
     if 'resourceIdentifier' in metadataRecords: 
-        print(metadataRecords['resourceIdentifier'][0]['codeSpace'])
+        print("resourceIdentifier "+metadataRecords['resourceIdentifier'][0]['codeSpace'])
         if CheckSWHIDURL(metadataRecords['resourceIdentifier'][0]['codeSpace']):
             swhid_link = json.loads(requests.get(metadataRecords['resourceIdentifier'][0]['codeSpace']).text)
             #print(swhid_link)        
@@ -818,7 +839,7 @@ def get_linkset(request, uuid):
     category = get_category(uuid)   
 
     swhid = get_swhid(uuid)
-    print(swhid)
+    print("get_linkset "+swhid)
 
     describedby = []
 
