@@ -229,8 +229,6 @@ def discovery(request):
             #print(polygon)
             polygon = "POLYGON((" + polygon + "))"
 
-            print('where_clause_array')
-            print(where_clause_array)
             if "all" not in where_clause_array:
                 final_query = "SELECT uuid, title, abstract, category, keyword, thumbnail, ST_AsGeoJSON(geom) as geom, period_begin, period_end FROM main_page_geonetworkmetadata mpg WHERE ST_Intersects(ST_GEOMFROMTEXT('" + polygon + "', 4326), mpg.geom) AND (" + " OR ".join(where_clause_array) + ") ORDER BY title ASC"
             else:            
@@ -319,7 +317,7 @@ def CheckDataciteURL(url):
     try:
         #print(url)
         response = requests.head(url)
-        print("CheckDataciteURL "+response)
+        #print("CheckDataciteURL "+response)
         return response.status_code == 200
     except requests.RequestException:
         print(requests.RequestException)
@@ -329,7 +327,7 @@ def CheckDOIURL(url):
     try:
         #print(url)
         response = requests.head(url)
-        print("CheckDOIURL "+response)
+        #print("CheckDOIURL "+response)
         return response.status_code == 200
     except requests.RequestException:
         print(requests.RequestException)
@@ -760,7 +758,7 @@ def get_info_publication(uuid):
         
         if publication["creators"]:
             for a in publication["creators"]:
-                print("publication "+a)
+                #print("publication "+a)
                 if a["id"]:
                     authors.append(dict(href = a["id"]))
                     #print(a["id"])
@@ -797,7 +795,7 @@ def get_name(uuid):
 
 def CheckSWHIDURL(url):
     try:
-        print("CheckSWHIDURL"+url)
+        #("CheckSWHIDURL"+url)
         response = requests.head(url)
         print(response)
         return response.status_code == 200
@@ -808,7 +806,7 @@ def CheckSWHIDURL(url):
 def get_swhid(uuid):
     url = GEONETWORK_BASE_URL + "/srv/api/search/records/_search"
     swhid = ""
-    print("get_swhid2"+url)
+    #print("get_swhid2"+url)
     body = "{\"query\":{\"bool\":{\"must\":[{\"multi_match\":{\"query\":\""+uuid+"\",\"fields\":[\"id\",\"uuid\"]}},{\"terms\":{\"isTemplate\":[\"n\",\"y\"]}},{\"terms\":{\"draft\":[\"n\",\"y\",\"e\"]}}]}}}"
     headers = {'ACCEPT': ACCEPT_HTTP, 'CONTENT-TYPE': CONTENT_TYPE}
     results = requests.post(url, data=body, headers=headers)
@@ -817,7 +815,7 @@ def get_swhid(uuid):
     metadataRecords = tmp['hits']['hits'][0]['_source']
     #print(metadataRecords)
     if 'resourceIdentifier' in metadataRecords: 
-        print("resourceIdentifier "+metadataRecords['resourceIdentifier'][0]['codeSpace'])
+        #print("resourceIdentifier "+metadataRecords['resourceIdentifier'][0]['codeSpace'])
         if CheckSWHIDURL(metadataRecords['resourceIdentifier'][0]['codeSpace']):
             swhid_link = json.loads(requests.get(metadataRecords['resourceIdentifier'][0]['codeSpace']).text)
             #print(swhid_link)        
@@ -839,7 +837,7 @@ def get_linkset(request, uuid):
     category = get_category(uuid)   
 
     swhid = get_swhid(uuid)
-    print("get_linkset "+swhid)
+    #print("get_linkset "+swhid)
 
     describedby = []
 
