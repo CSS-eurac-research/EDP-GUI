@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views import generic
 from django.http import JsonResponse
+from django.conf import settings
 import requests
 import json 
 import ast, re
@@ -11,12 +12,23 @@ from .models import DocSource, SnippetCode, GeonetworkMetadata
 
 ACCEPT_HTTP = "application/json"
 CONTENT_TYPE = "application/json"
-GEONETWORK_BASE_URL = "http://10.8.244.64:8080/geonetwork"#"https://edp-portal.eurac.edu/geonetwork"
-EDP_DISCOVERY_URL = 'https://edp-portal.eurac.edu/discovery/'
-DOI_URL = 'https://doi.org/10.48784/'
-OPENEO_URL = 'https://openeo.eurac.edu/collections/'
-DATA_CITE_API = "https://api.datacite.org/dois/10.48784/"
-GEONETWORK_URL = "https://edp-portal.eurac.edu/geonetwork/srv/api/records/"
+GEONETWORK_BASE_URL = settings.GEONETWORK_BASE_URL
+EDP_DISCOVERY_URL = settings.EDP_DISCOVERY_URL
+DOI_URL = settings.DOI_URL
+OPENEO_URL = settings.OPENEO_URL
+DATA_CITE_API = settings.DATA_CITE_API
+GEONETWORK_URL = settings.GEONETWORK_URL
+
+
+def _get_db_connection():
+    db = settings.DATABASES["default"]
+    return psycopg2.connect(
+        database=db["NAME"],
+        user=db["USER"],
+        password=db["PASSWORD"],
+        host=db["HOST"],
+        port=db["PORT"],
+    )
 
 class DocsPageView(generic.ListView):
     template_name = 'docs.html'
@@ -38,9 +50,7 @@ def discovery(request):
     category_list = ["no category found"]
     try:
         #print(request.GET)
-        conn = psycopg2.connect(
-                database="edp_portal_gui", user='edp_gui_user', password='73bd357832012a62357095bf6d9324f8', host='10.8.244.39', port='5432'
-            )
+        conn = _get_db_connection()
         cursor = conn.cursor()
         tmp_category_list = GeonetworkMetadata.objects.values_list('category', flat=True)
         category_list = []

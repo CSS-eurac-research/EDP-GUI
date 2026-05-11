@@ -1,20 +1,30 @@
 from django.contrib import admin
+from django.conf import settings
 from .models import DocSource, SnippetCode, GeonetworkMetadata
 import psycopg2
 import requests
 from datetime import datetime
 from django.contrib.admin import AdminSite
 
+
+def _get_db_connection():
+    db = settings.DATABASES["default"]
+    return psycopg2.connect(
+       database=db["NAME"],
+       user=db["USER"],
+       password=db["PASSWORD"],
+       host=db["HOST"],
+       port=db["PORT"]
+    )
+
+
 #@admin.action(description='Download all the metadata from the Geonetwork catalaog')
 def download_all_metadata(modelAdmin, request, queryset):
-    conn = psycopg2.connect(
-       database="edp_portal_gui", user='edp_gui_user', password='73bd357832012a62357095bf6d9324f8', host='10.8.244.39',
-       port='5432'
-    )
+    conn = _get_db_connection()
     try:
         step = 1
         current_collection = []
-        results = requests.get("http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&summaryOnly=1")
+        results = requests.get(settings.GEONETWORK_HARVEST_URL)
         # print(results.json())
         summary_results = results.json()
         # print(summary_results)
@@ -26,7 +36,7 @@ def download_all_metadata(modelAdmin, request, queryset):
         step = step + 1
         if int(total_number_metadata) % 100 > 0:
             for k in range(number_loop + 1):
-                url_first_part = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&bucket=s101&facet.q=&fast=index&from=" + str(
+                url_first_part = settings.GEONETWORK_HARVEST_URL.replace("&summaryOnly=1", "") + "&bucket=s101&facet.q=&fast=index&from=" + str(
                     (100 * k) + 1)
                 url_end_part = "&resultType=details&sortBy=title&sortOrder=reverse&to=" + str((k + 1) * 100)
                 final_url = url_first_part + url_end_part
