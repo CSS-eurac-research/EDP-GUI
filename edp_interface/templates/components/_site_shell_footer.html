@@ -1,0 +1,10 @@
+{% load static %}
+{# Minimal footer strip; extend with logos/links as in Figma HomeA footer when migrating pages. #}
+<footer class="edp-site-footer" role="contentinfo">
+  <div class="edp-site-footer__inner">
+    <span>&copy; Eurac Research</span>
+    <span>
+      <a href="{% url 'edp_portal:terms_conditions_page' %}" target="_blank" rel="noopener noreferrer">Contacts, Terms and Conditions</a>
+    </span>
+  </div>
+</footer>

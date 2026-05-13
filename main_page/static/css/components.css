@@ -1,0 +1,181 @@
+/**
+ * Reusable UI components (Figma-aligned).
+ */
+
+/* ----- Site shell header (Data_discovery.html bar) ----- */
+.edp-site-header {
+  background-color: var(--color-surface-dark);
+  color: var(--color-text-on-dark);
+  padding: var(--space-4) var(--layout-page-padding-x);
+  position: relative;
+  z-index: var(--z-header);
+}
+
+.edp-site-header__inner {
+  max-width: var(--layout-max-width);
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding-top: var(--space-4);
+  padding-bottom: var(--space-4);
+}
+
+.edp-site-header__brand {
+  font-size: clamp(1.25rem, 2.5vw, 2rem);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-snug);
+  color: inherit;
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+
+.edp-site-header__brand:hover {
+  color: inherit;
+  text-decoration: none;
+  opacity: 0.92;
+}
+
+.edp-site-header__nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-4);
+}
+
+/* Pill CTA (Figma: fill red, rounded 30px) */
+.edp-btn-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-6);
+  min-height: 2.25rem;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-pill);
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+
+.edp-btn-pill--primary {
+  background-color: var(--color-brand-red);
+  color: var(--color-text-on-dark);
+  border-color: var(--color-brand-red);
+}
+
+.edp-btn-pill--primary:hover {
+  opacity: 0.92;
+  color: var(--color-text-on-dark);
+  text-decoration: none;
+}
+
+.edp-btn-pill--primary.is-disabled,
+.edp-btn-pill--primary[aria-disabled="true"] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.edp-btn-pill--ghost {
+  background-color: var(--color-surface-dark);
+  color: var(--color-text-on-dark);
+  border-color: var(--color-surface-dark);
+}
+
+.edp-btn-pill--ghost:hover {
+  opacity: 0.9;
+  color: var(--color-text-on-dark);
+  text-decoration: none;
+}
+
+/* Font Awesome icons inside header pills (Figma u:search / u:info-circle) */
+.edp-site-header .edp-btn-pill .edp-btn-pill__fa {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  width: 1em;
+  line-height: 1;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .edp-site-header .edp-btn-pill .edp-btn-pill__fa {
+    font-size: 0.875rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .edp-site-header .edp-btn-pill .edp-btn-pill__fa {
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 1400px) {
+  .edp-site-header .edp-btn-pill .edp-btn-pill__fa {
+    font-size: 1.5rem;
+  }
+}
+
+/* ----- Page chrome ----- */
+.edp-page-wrap {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.edp-page-content {
+  flex: 1 1 auto;
+  width: 100%;
+}
+
+/* ----- Site footer (light strip) ----- */
+.edp-site-footer {
+  background-color: var(--color-surface-muted);
+  color: var(--color-text-primary);
+  padding: var(--space-10) var(--layout-page-padding-x);
+  margin-top: auto;
+}
+
+.edp-site-footer__inner {
+  max-width: var(--layout-max-width);
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  font-size: var(--font-size-sm);
+}
+
+.edp-site-footer a {
+  color: var(--color-text-muted);
+}
+
+/* ----- Cards / panels (HomeA tool cards) ----- */
+.edp-card {
+  background: var(--color-white);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-5);
+}
+
+.edp-card__title {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.015em;
+  margin: 0 0 var(--space-3);
+}
+
+.edp-card__body {
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  margin: 0;
+}
