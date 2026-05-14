@@ -1,135 +1,136 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block title %}Home - EDP{% endblock %}
+
+{% block body_class %}edp-page--home{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/pages/home.css' %}">
+{% endblock %}
 
 {% block page_content %}
+  <section class="home-hero" aria-labelledby="home-hero-title">
+    <div class="home-hero__inner">
+      <h1 id="home-hero-title" class="home-hero__title">Environmental<br>Data Platform</h1>
 
-<head>
+      <p class="home-hero__byline">
+        by <strong>eurac</strong> research
+      </p>
 
-  <title>Home - EDP</title>
-  <link rel="shortcut icon" href="/static/apple-touch-icon.png">
-
-</head>
-
-<div id="header">
-
-  <div style="height: 50px; margin-top: 10px;" class="row">
-      <div class="col">
-        <a href="{% url 'edp_portal:main_page' %}"><img src="/static/Eurac_Research_logo.png" id="logo"></a>
+      <div class="home-hero__doi">
+        <a href="https://doi.org/10.25504/FAIRsharing.e4268b" target="_blank" rel="noopener noreferrer" class="home-hero__doi-link" title="FAIRsharing record">
+          <img src="{% static 'doi_logo_icon.png' %}" alt="DOI" width="40" height="40">
+        </a>
       </div>
-      <div class="col-6">
-        <div style="width: 100%" class="center">
-          <h1 id="title"><b>E</b>nvironmental <b>D</b>ata <b>P</b>latform</h1>
-        </div>      
-      </div>
-      <div class="col">
-        <a href="https://www.eurac.edu/en/institutes-centers/center-for-sensing-solutions/projects/dps4eslab" target="_blank" rel="noopener noreferrer"><img src="/static/fesr_dps4eslab_logo.png" id="fesr_logo"></a>
-        <!-- <a id="admin_button" type="button" class="btn btn-outline-primary" href="{% url 'admin:index' %}" target="_blank" rel="noopener noreferrer" style="float: right;"><i class="fa fa-cogs" aria-hidden="true"></i> Settings</a> -->
-        <!-- <a id="admin_button" type="button" class="btn btn-outline-primary" href="http://10.8.244.240/admin/" target="_blank" rel="noopener noreferrer" style="float: right;"><i class="fa fa-cogs" aria-hidden="true"></i> Settings</a> -->
-      </div>
-    </div>
-    <hr>
-</div>
-<div id="main_section">
 
-  <div class="container">
+      <p class="home-hero__intro">
+        The Environmental Data Platform (EDP) is a collaborative platform that supports researchers, companies, research institutes, and project partners in managing, processing, and sharing spatial datasets. Composed of open-source solutions, it provides web services and tools that foster FAIR data principles.
+      </p>
 
-  
-<!-- <div style="height: 100px; margin-top: 10px;" class="row">
-  <div class="col">
-    <img src="static/Eurac_Research_logo.png" id="logo">
-  </div>
-  <div class="col-6">
-    <div style="width: 100%" class="center">
-      <h2 id="title">Environmental Data Platform</h2>
-    </div>      
-  </div>
-  <div class="col">
-    
-  </div>
-</div> -->
-  
-
-  <div style="height: 200px; padding: 2px;" class="row">
-    <div class="col">
-      <div class="center  main-button-row">
-          <a id="discovery_button" type="button" class="btn btn-outline-primary main-button main_page_buttons" href="{% url 'edp_portal:discovery' %}"><i class="fa fa-search" aria-hidden="true"></i> Data discovery</a>      
-      </div>
-      
-    </div>
-    <div class="col">
-        <div class="center  main-button-row">
-        <a id="docs_button" type="button" class="btn btn-outline-primary main-button main_page_buttons" href="{% url 'edp_portal:docs_page' %}"><i class="fa fa-book" aria-hidden="true"></i> Documentation</a>
+      <div class="home-hero__actions">
+        <a class="edp-btn-pill edp-btn-pill--primary" href="{% url 'edp_portal:discovery' %}">
+          <i class="fa fa-search edp-btn-pill__fa" aria-hidden="true"></i>
+          <span>Data discovery</span>
+        </a>
+        <a class="edp-btn-pill edp-btn-pill--primary" href="{% url 'edp_portal:docs_page' %}">
+          <i class="fa fa-file-text-o edp-btn-pill__fa" aria-hidden="true"></i>
+          <span>Documentations list</span>
+        </a>
       </div>
     </div>
-  </div>
+  </section>
 
-  <hr>
+  <section class="home-tools" aria-labelledby="home-tools-heading">
+    <div class="home-tools__inner">
+      <div class="home-tools__grid">
+        <a class="home-tool-card" href="http://10.8.244.36:8000/" target="_blank" rel="noopener noreferrer">
+          <div class="home-tool-card__head">
+            <div class="home-tool-card__icon-wrap" aria-hidden="true">
+              <i class="fa fa-users"></i>
+            </div>
+            <span class="home-tool-card__label">tools</span>
+          </div>
+          <h3 class="home-tool-card__title">Jupyter hub</h3>
+          <p class="home-tool-card__body">Jupyter-hub allows Eurac Research users to organize and run python notebook on the cloud.</p>
+          <div class="home-tool-card__foot">
+            <span class="home-tool-card__note">ScientificNet connection required</span>
+          </div>
+        </a>
 
-  <div style="text-align: center; color: #666B6C;">
-    <h4>Processing and analysis web tools​</h4>
-  </div>
+        <a class="home-tool-card" href="https://editor.openeo.org/?server=https://openeo.eurac.edu" target="_blank" rel="noopener noreferrer">
+          <div class="home-tool-card__head">
+            <div class="home-tool-card__icon-wrap" aria-hidden="true">
+              <i class="fa fa-pencil-square-o"></i>
+            </div>
+            <span class="home-tool-card__label">tools</span>
+          </div>
+          <h3 class="home-tool-card__title">openEO editor</h3>
+          <p class="home-tool-card__body">OpenEO Editor allows users to create and run processing pipelines for the OpenEO API via a graphical user interface and save them in JSON format.</p>
+          <div class="home-tool-card__foot">
+            <img class="home-tool-card__doi-img" src="{% static 'doi_logo_icon.png' %}" alt="DOI 10.25504/FAIRsharing.f9de28">
+          </div>
+        </a>
 
-    <div style="height: 150px; margin-top: 10px; padding: 2px;" class="row">
-      <div class="col">
-        <div class="center second-button-row">
-          <a id="jupiter_button" type="button" class="btn btn-outline-primary second-button main_page_buttons" href="http://10.8.244.36:8000/" target="_blank" rel="noopener noreferrer">Jupyter hub</a><div style="margin:10px"><a style="color:#666B6C; text-decoration: underline #DF1B12;" target="_blank" rel="noopener noreferrer">ScientificNet connection required</a></div>
-        </div>       
-	<div>
-	</div>													  
-      </div>
-      <div class="col">
-        <div class="center second-button-row">
-        <a id="openeo_button" type="button" class="btn btn-outline-primary second-button main_page_buttons" href="https://editor.openeo.org/?server=https://openeo.eurac.edu" target="_blank" rel="noopener noreferrer">openEO editor</a><div style="margin:10px"><img src="/static/doi_logo_icon.png" style="margin-right:5px; width: 30px; height: 30px;"><a href="https://doi.org/10.25504/FAIRsharing.f9de28" style="color:#B2B5B5" target="_blank" rel="noopener noreferrer">10.25504/FAIRsharing.f9de28</a></div>
-        </div>
-      </div>
-<!--       <div class="col">
-        <div class="center second-button-row">
-        <a id="pgadmin_button" type="button" class="btn btn-outline-primary second-button main_page_buttons" href="http://10.8.244.139/phpPgAdmin/"  target="_blank" rel="noopener noreferrer">PHP PgAdmin</a>
-        </div>
-      </div> -->
-      <div class="col">
-        <div class="center second-button-row">
-        <a id="maps_button" type="button" class="btn btn-outline-primary second-button main_page_buttons" href="https://maps.eurac.edu/" target="_blank" rel="noopener noreferrer">Maps</a><div style="margin:10px"><img src="/static/doi_logo_icon.png" style="margin-right:5px; width: 30px; height: 30px;"><a href="https://doi.org/10.25504/FAIRsharing.8ee7f1" style="color:#B2B5B5" target="_blank" rel="noopener noreferrer">10.25504/FAIRsharing.8ee7f1</a></div>
-        </div>
+        <a class="home-tool-card" href="https://maps.eurac.edu/" target="_blank" rel="noopener noreferrer">
+          <div class="home-tool-card__head">
+            <div class="home-tool-card__icon-wrap" aria-hidden="true">
+              <i class="fa fa-th"></i>
+            </div>
+            <span class="home-tool-card__label">tools</span>
+          </div>
+          <h3 class="home-tool-card__title">Maps</h3>
+          <p class="home-tool-card__body">MAPS is a portal for managing and sharing spatial datasets, such as vector and raster files. It provides metadata, authorisation management and map creation via a simple user interface.</p>
+          <div class="home-tool-card__foot">
+            <img class="home-tool-card__doi-img" src="{% static 'doi_logo_icon.png' %}" alt="DOI 10.25504/FAIRsharing.8ee7f1">
+          </div>
+        </a>
       </div>
     </div>
+  </section>
 
-  </div>
-  </div>
-
-<div id="footer">
-  <hr>
-  <div style="height: 100px; margin-top: 10px; padding: 2px;" class="row">
-    <div style="margin: 0 auto; color: #666B6C">
-        <h5 style="margin: 10px 200px 50px 200px; text-align: center;">
-          The EDP is a collaborative platform to support researchers and project partners to manage, process and share spatial datasets. It is composed by open-source solutions to provide web services and web tools fostering FAIR data principles.
-          The EDP was developed in the contest of DPS4ESLAB project and is managed by the Center for Sensing Solutions in collaboration with the Institute for Earth Observation.
-        
-        <!-- <div>To cite the EDP portal you can use this <img src="/static/doi_logo_icon.png" style="margin-right:5px; width: 30px; height: 30px;"><a href="https://doi.org/10.25504/FAIRsharing.e4268b" style="color:#DF1B12" target="_blank" rel="noopener noreferrer">10.25504/FAIRsharing.e4268b</a></div> -->
-          <br>
-          <br>
-          <b><img src="/static/doi_logo_icon.png" style="margin-right:5px; width: 30px; height: 30px;">How to cite EDP:</b>
-        <div style="margin: 10 auto; border: 1px solid #DF1B12; width: 40%;"><div style="margin:15px"> FAIRsharing.org: <span data-v-6c0612d4=""> EDP; </span>Environmental Data Platform, <!----><span data-v-6c0612d4=""><b data-v-6c0612d4=""> DOI: <a data-v-6c0612d4="" href="https://doi.org/10.25504/FAIRsharing.e4268b" style="color:#666B6C">10.25504/FAIRsharing.e4268b</a>, </b></span><b data-v-6c0612d4=""> Last Edited: Monday, October 9th 2023, 18:54, </b><!----><!----><b data-v-6c0612d4="">Last Accessed:</b><span data-v-6c0612d4="" class="mr-2"> Wednesday, November 29th 2023, 10:19 </span></div></div>
-        </h5>
-        </div>
-
-        <!-- <h6>Info, Terms and Conditions</h6> -->
-        <div style="margin: 0 auto;">
-        <p style="color:#666B6C">© 2025 Eurac Research •
-          <a href="https://cssportfolio.eurac.edu/" target="_blank" rel="noopener noreferrer" style="color:#666B6C">Center for Sensing Solutions portfolio 
-          </a>•
-
-          <a href="{% url 'edp_portal:terms_conditions_page' %}" target="_blank" rel="noopener noreferrer" style="color:#666B6C">Contacts, Terms and Conditions</a>
-
+  <section class="home-about" aria-labelledby="home-about-heading">
+    <div class="home-about__inner">
+      <div class="home-about__text">
+        <h2 id="home-about-heading" class="home-about__heading">Who is behind the Environmental Data Platform?</h2>
+        <p class="home-about__body">
+          The EDP is developed and managed by the <strong>Center for Sensing Solutions</strong>. At Eurac Research’s Center for Sensing Solutions, we create smart solutions based on novel sensor and sensing technologies for real-world applications. Our areas of expertise include agrifood, the environment, and craftsmanship, as well as other sectors such as mountain safety and natural hazards monitoring. Our data-driven approach respects the FAIR principles and relies on open-source technologies and scientific knowledge. We help companies to identify, collect, analyse and use data to solve their specific problems.
+        </p>
+        <p class="home-about__body">
+          The EDP was developed as part of the FESR DPS4ESLAB project, in collaboration with the <strong>Institute for Earth Observation</strong>.
         </p>
       </div>
-                    
-            <!-- <a href="mailto:SupportCSS@eurac.edu​"><i class="fa fa-envelope" aria-hidden="true"></i> SupportCSS@eurac.edu</a><br>
-            <a href="http://www.eurac.edu/en/research/technologies/CenterforSensingSolutions/Pages/default.aspx" target="_blank" rel="noopener noreferrer"><i class="fa fa-external-link" aria-hidden="true"></i> CSS website</a><br>
-            <a href="https://cssportfolio.eurac.edu/" target="_blank" rel="noopener noreferrer" ><i class="fa fa-external-link" aria-hidden="true"></i> CSS portfolio</a><br>
-            <a href="https://www.eurac.edu/en/static/privacy-policy-website" target="_blank" rel="noopener noreferrer"><i class="fa fa-external-link" aria-hidden="true"></i> Privacy policy</a> -->
-  </div>
+      <div class="home-about__panels">
+        <a class="home-about__panel" href="https://www.eurac.edu/en/institutes-centers/center-for-sensing-solutions/" target="_blank" rel="noopener noreferrer">
+          <img class="home-about__panel-img" src="{% static 'img/center.jpg' %}" alt="">
+          <span class="home-about__panel-cta">Center <i class="fa fa-external-link" aria-hidden="true"></i></span>
+        </a>
+        <a class="home-about__panel" href="https://www.eurac.edu/en/institutes-centers/institute-for-earth-observation/" target="_blank" rel="noopener noreferrer">
+          <img class="home-about__panel-img" src="{% static 'img/institute_for_earth_observation.jpg' %}" alt="">
+          <span class="home-about__panel-cta">Institute <i class="fa fa-external-link" aria-hidden="true"></i></span>
+        </a>
+        <a class="home-about__panel" href="https://www.eurac.edu/en/institutes-centers/center-for-climate-change-and-transformation/" target="_blank" rel="noopener noreferrer">
+          <img class="home-about__panel-img" src="{% static 'img/ccc.png' %}" alt="">
+          <span class="home-about__panel-cta">C.C.T<i class="fa fa-external-link" aria-hidden="true"></i></span>
+        </a>
+      </div>
+    </div>
+  </section>
+{% endblock %}
 
-</div>
+{% block site_footer %}
+  {% include "components/_home_page_footer.html" %}
+{% endblock %}
 
-
+{% block extra_scripts %}
+  <script>
+    (function () {
+      var btn = document.querySelector(".home-footer__back-top");
+      if (btn) {
+        btn.addEventListener("click", function () {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+      }
+    })();
+  </script>
 {% endblock %}

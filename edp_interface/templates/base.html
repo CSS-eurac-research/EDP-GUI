@@ -25,7 +25,7 @@
 
   {% block extra_head %}{% endblock %}
 </head>
-<body class="edp-body edp-page-wrap">
+<body class="edp-body edp-page-wrap {% block body_class %}{% endblock %}">
   <a class="edp-skip-link" href="#edp-main-content">Skip to content</a>
 
   {% include "components/_site_shell_header.html" %}
@@ -35,7 +35,9 @@
     {% endblock %}
   </main>
 
-  {% include "components/_site_shell_footer.html" %}
+  {% block site_footer %}
+    {% include "components/_site_shell_footer.html" %}
+  {% endblock %}
 
   {% block extra_scripts %}{% endblock %}
 </body>

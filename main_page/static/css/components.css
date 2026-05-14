@@ -2,15 +2,57 @@
  * Reusable UI components (Figma-aligned).
  */
 
-/* ----- Site shell header (Data_discovery.html bar) ----- */
+/* ----- Site shell header ----- */
 .edp-site-header {
-  background-color: var(--color-surface-dark);
-  color: var(--color-text-on-dark);
-  padding: var(--space-4) var(--layout-page-padding-x);
   position: relative;
   z-index: var(--z-header);
 }
 
+/* Home: bar is only #404649 (no title / nav) */
+.edp-site-header--home-stripe {
+  flex: none;
+  align-self: stretch;
+  width: 100%;
+  min-height: 0;
+  height: 12px;
+  padding: 50px;
+  margin: 0;
+  background-color: #404649;
+  box-sizing: border-box;
+}
+
+/* Frame 4268 — discovery & other non-home routes */
+.edp-site-header--framed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 16px clamp(1rem, 3.1vw, 50px);
+  min-height: 98px;
+  box-sizing: border-box;
+  flex: none;
+  align-self: stretch;
+  background-color: #404649;
+  color: var(--color-text-on-dark);
+}
+
+.edp-site-header__inner--framed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  width: 100%;
+  max-width: 1920px;
+  margin: 0;
+  padding: 0;
+}
+
+.edp-site-header__nav--framed {
+  justify-content: center;
+}
+
+/* Legacy inner (unused by current header templates; kept for older pages) */
 .edp-site-header__inner {
   max-width: var(--layout-max-width);
   margin: 0 auto;
