@@ -8,10 +8,9 @@
   <title>{% block title %}Environmental Data Platform{% endblock %}</title>
   <link rel="shortcut icon" href="{% static 'apple-touch-icon.png' %}">
 
-  {# Tokenized + component CSS (palette from figmacode_edp) #}
+  {# Tokenized + base CSS (palette from figmacode_edp) #}
   <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
   <link rel="stylesheet" href="{% static 'css/base.css' %}">
-  <link rel="stylesheet" href="{% static 'css/components.css' %}">
 
   {# Existing stack (Bootstrap + legacy style.css for current pages) #}
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
@@ -20,6 +19,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
   <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
   <link rel="stylesheet" href="{% static 'font-awesome/css/font-awesome.min.css' %}">
+  {# Re-apply shell header layout after Bootstrap / legacy style.css #}
+  <link rel="stylesheet" href="{% static 'css/components.css' %}?v=9">
 
   <script defer data-domain="edp-portal.eurac.edu" src="https://plausible.io/js/script.js"></script>
 

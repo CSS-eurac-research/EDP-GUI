@@ -113,62 +113,8 @@ function dosearch() {
 
             //console.log(metadata_results);
             if (metadata_results != "no results") {
-                $('#number_results').html('<i class="fa fa-list" aria-hidden="true"></i> Results: <b>' + metadata_results.length.toString() + '</b> items found');
-                $('#metadata_results').empty();
-                //console.log(metadata_results.length);
-                var col = 0;
-                var row = 0;
-                var key = 0;
-                for (i = metadata_results.length - 1; i > -1; i--) {
-                    if (col == 0) {
-                        $('#metadata_results').prepend(`<div id="row-${row}" class="row">`);
-                    }
-                    var result_box = "";
-                    result_box = result_box + '<div class="col"> <div class="card card_rem" style="align-items: inherit;">';
-
-                    //image
-                    if (metadata_results[i][5] != null) {
-                        result_box = result_box + '<div style="min-height: 8vw !important; min-width: 15vw; overflow: hidden; position: relative;">'
-                        result_box = result_box + '<img src="' + metadata_results[i][5] + 
-                        '" class="card-img-top" style = "position: absolute; max-height: 100%; max-width: 100%; height: auto; width: auto; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"> ';
-                    }
-                    result_box = result_box + '</div>';
-                    // result_box = result_box + '<div class="col">';
-                    result_box = result_box + '<div class="card-body">';
-                    //uuid and title
-                    if (metadata_results[i][0] != null) {
-                        result_box = result_box + '<a class="card-title" style="color: #DF1B12; font-size: 20px;" href="/discovery/' + metadata_results[i][0] + '" target="_blank" rel="noopener noreferrer">' + metadata_results[i][1] + '</a>';
-                    }
-
-                    //abstract
-                    if (metadata_results[i][2] != null) {
-                        result_box = result_box + '<div class="card-text abstract-results">' + metadata_results[i][2] + '</div>';
-                    }
-
-                    //category
-                    if (metadata_results[i][3] != null) {
-                        result_box = result_box + '<p class="card-text" style="font-weight: bold">' + metadata_results[i][3] + '</p>';
-                    }
-
-                    //keyword
-                    if (metadata_results[i][4] != null) {
-                        key = key + 1;
-                        result_box = result_box + '<p class="card-text" style="font-size: 12px; font-style:italic;">' + metadata_results[i][4] + '</p>';
-                    }
-                    result_box = result_box + '</div> </div> </div>';
-
-                    $('#row-' + row.toString()).prepend(result_box);
-
-                    col = col + 1;
-                    if (col == 3) {
-                        $('#row-' + row.toString()).prepend(`</div>`);
-                        col = 0;
-                        row = row + 1;
-                    } else if (i == metadata_results.length - 1) {
-                        $('#row-' + row.toString()).prepend(`</div>`);
-                    }
-
-                }
+                $('#number_results').html('Results: <b>' + metadata_results.length.toString() + '</b> items found');
+                renderDiscoveryResults(metadata_results);
 
                 //geometry
                 for (i = 0; i < metadata_results.length; i++) {
