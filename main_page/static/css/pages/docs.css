@@ -1,0 +1,142 @@
+/**
+ * Documentations list page (Figma Frame 4263).
+ */
+
+.edp-page-content {
+  background: var(--color-white);
+}
+
+.docs-page {
+  width: 100%;
+  max-width: 1920px;
+  min-height: 1158px;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 3vw, 50px) var(--space-16);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 48px;
+  box-sizing: border-box;
+}
+
+.docs-page__head {
+  align-self: stretch;
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-8);
+  padding-top: 66px;
+}
+
+.docs-page__title {
+  flex: 1 1 auto;
+  margin: 0;
+  color: var(--color-text-primary);
+  font-family: var(--font-family-sans);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+}
+
+.docs-page__title-icon {
+  flex-shrink: 0;
+  width: 3rem;
+  height: 3rem;
+  border: 1.5px solid var(--color-brand-red);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-brand-red);
+  font-size: 1.25rem;
+}
+
+.docs-page__rule {
+  align-self: stretch;
+  border-top: 1.5px solid var(--color-border-subtle);
+}
+
+.docs-table-wrap {
+  align-self: stretch;
+  overflow-x: auto;
+}
+
+.docs-table {
+  width: 100%;
+  min-width: 1050px;
+  border-collapse: collapse;
+  color: var(--color-text-primary);
+  font-family: var(--font-family-sans);
+}
+
+.docs-table th,
+.docs-table td {
+  padding: 4px 0;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1.5px solid var(--color-border-subtle);
+}
+
+.docs-table thead th {
+  padding-bottom: 16px;
+  border-bottom-color: var(--color-text-primary);
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+}
+
+.docs-table tbody td {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-body);
+}
+
+.docs-table tbody tr {
+  cursor: pointer;
+}
+
+.docs-table tbody tr:hover,
+.docs-table tbody tr:focus {
+  background-color: var(--color-surface-muted);
+  outline: none;
+}
+
+.docs-table__index {
+  width: 32px;
+  padding-right: 53px !important;
+}
+
+.docs-table__name,
+.docs-table__date,
+.docs-table__category {
+  width: 200px;
+  min-width: 200px;
+  max-width: 200px;
+  padding-right: 48px !important;
+}
+
+.docs-table__description {
+  min-width: 200px;
+  padding-right: 48px !important;
+}
+
+.docs-page__empty {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-body);
+}
+
+@media (max-width: 768px) {
+  .docs-page {
+    min-height: auto;
+    gap: var(--space-8);
+  }
+
+  .docs-page__head {
+    padding-top: var(--space-10);
+  }
+
+  .docs-table thead th {
+    font-size: 1.125rem;
+  }
+}
