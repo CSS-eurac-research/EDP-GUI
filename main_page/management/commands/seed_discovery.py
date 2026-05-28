@@ -13,7 +13,7 @@ removed (or wired into the admin action) once the official harvester is
 rewritten.
 
 Examples:
-    docker compose exec web python manage.py seed_discovery
+            docker compose exec web python manage.py seed_discovery --reset
     docker compose exec web python manage.py seed_discovery --limit 50
     docker compose exec web python manage.py seed_discovery --reset
     docker compose exec web python manage.py seed_discovery --query snow
@@ -98,10 +98,20 @@ class Command(BaseCommand):
                 "Cleared GeonetworkMetadata ({0} rows).".format(removed)
             ))
 
+        public_filters = [
+            {"terms": {"isTemplate": ["n"]}},
+            {"terms": {"draft": ["n"]}},
+            {"exists": {"field": "geom"}},
+        ]
         query = (
-            {"query_string": {"query": query_text}}
+            {
+                "bool": {
+                    "must": [{"query_string": {"query": query_text}}],
+                    "filter": public_filters,
+                }
+            }
             if query_text
-            else {"match_all": {}}
+            else {"bool": {"filter": public_filters}}
         )
 
         total_seen = 0
@@ -160,6 +170,9 @@ class Command(BaseCommand):
 
                 uuid = fields.pop("uuid", None)
                 if not uuid:
+                    skipped += 1
+                    continue
+                if not fields.get("title") or not fields.get("geom"):
                     skipped += 1
                     continue
 

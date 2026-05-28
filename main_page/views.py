@@ -1,4 +1,4 @@
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views import generic
@@ -421,12 +421,30 @@ def get_metadata_details(request, uuid):
         #url = "http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&_draft=y+or+n+or+e&_isTemplate=y+or+n&fast=index&uuid="+uuid
         url = GEONETWORK_BASE_URL + "/srv/api/search/records/_search"
         #print(url)
-        body = "{\"query\":{\"bool\":{\"must\":[{\"multi_match\":{\"query\":\""+uuid+"\",\"fields\":[\"id\",\"uuid\"]}},{\"terms\":{\"isTemplate\":[\"n\",\"y\"]}},{\"terms\":{\"draft\":[\"n\",\"y\",\"e\"]}}]}}}"
         headers = {'ACCEPT': ACCEPT_HTTP, 'CONTENT-TYPE': CONTENT_TYPE}
-        results = requests.post(url, data=body, headers=headers)
+        body = {
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "multi_match": {
+                                "query": uuid,
+                                "fields": ["id", "uuid", "metadataIdentifier"],
+                            }
+                        },
+                        {"terms": {"isTemplate": ["n"]}},
+                        {"terms": {"draft": ["n"]}},
+                    ]
+                }
+            }
+        }
+        results = requests.post(url, json=body, headers=headers)
         tmp = json.loads(results.text)
         #print(tmp)
-        metadataRecords = tmp['hits']['hits'][0]['_source']
+        hits = tmp.get('hits', {}).get('hits', [])
+        if not hits:
+            raise Http404("Metadata record does not exist")
+        metadataRecords = hits[0]['_source']
         #print(metadataRecords)
 
         if 'contact' in metadataRecords:
@@ -817,12 +835,30 @@ def get_swhid(uuid):
     url = GEONETWORK_BASE_URL + "/srv/api/search/records/_search"
     swhid = ""
     #print("get_swhid2"+url)
-    body = "{\"query\":{\"bool\":{\"must\":[{\"multi_match\":{\"query\":\""+uuid+"\",\"fields\":[\"id\",\"uuid\"]}},{\"terms\":{\"isTemplate\":[\"n\",\"y\"]}},{\"terms\":{\"draft\":[\"n\",\"y\",\"e\"]}}]}}}"
     headers = {'ACCEPT': ACCEPT_HTTP, 'CONTENT-TYPE': CONTENT_TYPE}
-    results = requests.post(url, data=body, headers=headers)
+    body = {
+        "query": {
+            "bool": {
+                "must": [
+                    {
+                        "multi_match": {
+                            "query": uuid,
+                            "fields": ["id", "uuid", "metadataIdentifier"],
+                        }
+                    },
+                    {"terms": {"isTemplate": ["n"]}},
+                    {"terms": {"draft": ["n"]}},
+                ]
+            }
+        }
+    }
+    results = requests.post(url, json=body, headers=headers)
     tmp = json.loads(results.text)
     #print(tmp)
-    metadataRecords = tmp['hits']['hits'][0]['_source']
+    hits = tmp.get('hits', {}).get('hits', [])
+    if not hits:
+        return swhid
+    metadataRecords = hits[0]['_source']
     #print(metadataRecords)
     if 'resourceIdentifier' in metadataRecords: 
         #print("resourceIdentifier "+metadataRecords['resourceIdentifier'][0]['codeSpace'])
