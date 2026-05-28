@@ -67,17 +67,6 @@
   line-height: 1.05;
 }
 
-/* Discovery / docs: brand as red pill → home */
-.edp-site-header--framed .edp-site-header__brand-wrap--pill {
-  flex: 0 1 auto;
-}
-
-.edp-site-header--framed .edp-site-header__brand-pill {
-  line-height: var(--line-height-snug);
-  white-space: nowrap;
-  max-width: 100%;
-}
-
 .edp-site-header--framed .edp-site-header__nav--framed {
   display: flex;
   flex-wrap: nowrap;
@@ -92,17 +81,6 @@
   padding: 8px 24px 8px 16px;
   font-size: 0.625rem;
   letter-spacing: 0.05em;
-}
-
-/* Brand pill: large title text (must follow .edp-btn-pill--primary above) */
-/* Typography aligned with .home-hero__intro on main page */
-.edp-site-header--framed .edp-btn-pill.edp-site-header__brand-pill {
-  font-size: clamp(1.125rem, 2vw, 1.5rem);
-  font-weight: var(--font-weight-regular);
-  letter-spacing: normal;
-  text-transform: none;
-  padding: 8px 22px;
-  min-height: unset;
 }
 
 /* Legacy inner (older pages only — not the framed discovery/docs header) */

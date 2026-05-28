@@ -23,8 +23,6 @@ var drawControl = new L.Control.Draw({
 });
 map.addControl(drawControl);
 map.addLayer(drawnItems);
-$("#searchbutton").prop("disabled", false);
-$("#searchbar").prop("disabled", false);
 
 map.on('draw:created', function (e) {
 

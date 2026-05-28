@@ -6,16 +6,10 @@
   {# Frame 4268 — discovery and other portal pages #}
   <header class="edp-site-header edp-site-header--framed" role="banner">
     <div class="edp-site-header__inner--framed">
-      <div class="edp-site-header__brand-wrap{% if request.resolver_match.url_name == 'discovery' or request.resolver_match.url_name == 'docs_page' %} edp-site-header__brand-wrap--pill{% endif %}">
-        {% if request.resolver_match.url_name == 'discovery' or request.resolver_match.url_name == 'docs_page' %}
-          <a class="edp-btn-pill edp-btn-pill--primary edp-site-header__brand-pill" href="{% url 'edp_portal:main_page' %}">
-            Environmental Data Platform
-          </a>
-        {% else %}
-          <a class="edp-site-header__brand" href="{% url 'edp_portal:main_page' %}">
-            Environmental Data Platform
-          </a>
-        {% endif %}
+      <div class="edp-site-header__brand-wrap">
+        <a class="edp-site-header__brand" href="{% url 'edp_portal:main_page' %}">
+          Environmental Data Platform
+        </a>
       </div>
       <div class="edp-site-header__nav-wrap">
         <nav class="edp-site-header__nav edp-site-header__nav--framed" aria-label="Primary">
