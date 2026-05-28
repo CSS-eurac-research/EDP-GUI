@@ -29,7 +29,12 @@ function reset_search() {
         map.removeLayer(layer);
     });
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: attribution }).addTo(map);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/voyager/{z}/{x}/{y}.png', {
+        attribution: attribution,
+        subdomains: 'abcd',
+        maxZoom: 19,
+        crossOrigin: true
+    }).addTo(map);
 
     map.setView([48, 10], 5);
 
