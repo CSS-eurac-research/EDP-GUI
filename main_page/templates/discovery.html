@@ -6,7 +6,7 @@
 {% block body_class %}edp-page--discovery{% endblock %}
 
 {% block extra_head %}
-  <link rel="stylesheet" href="{% static 'css/pages/discovery.css' %}?v=6">
+  <link rel="stylesheet" href="{% static 'css/pages/discovery.css' %}?v=13">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css">
   <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
@@ -21,9 +21,6 @@
 <div class="discovery-page">
   <header class="discovery-page__head">
     <h1 class="discovery-page__title">Data discovery</h1>
-    <span class="discovery-page__title-icon" aria-hidden="true">
-      <i class="fa fa-search"></i>
-    </span>
   </header>
 
   <div id="maploader" class="loader" aria-hidden="true"></div>
@@ -128,7 +125,7 @@
     var discoveryTitleList = "{{ title_list|escapejs }}";
   </script>
   <script src="{% static 'js/discovery-results.js' %}"></script>
-  <script src="{% static 'abstract_expand.js' %}?v=2"></script>
+  <script src="{% static 'abstract_expand.js' %}?v=3"></script>
   <script src="{% static 'reset_search.js' %}?v=2"></script>
   <script src="{% static 'search.js' %}?v=2"></script>
   <script src="{% static 'map.js' %}?v=2"></script>
@@ -139,11 +136,32 @@
           source: discoveryTitleList.split(","),
           minLength: 2,
           max: 10,
-          scroll: true
+          scroll: true,
+          classes: { "ui-autocomplete": "discovery-toolbar__suggestions" },
+          open: function () {
+            var $wrap = $(this).closest(".discovery-toolbar__search-wrap");
+            var $menu = $(this).autocomplete("widget");
+            if ($wrap.length) {
+              var offset = $wrap.offset();
+              $menu.css({
+                left: offset.left + "px",
+                top: offset.top + $wrap.outerHeight() + "px",
+                width: $wrap.outerWidth() + "px"
+              });
+            }
+          }
         });
       }
-      $(function () { $("#period_begin").datepicker(); });
-      $(function () { $("#period_end").datepicker(); });
+      $("#period_begin, #period_end").datepicker({
+        changeMonth: true,
+        changeYear: true,
+        dateFormat: "yy-mm-dd",
+        showButtonPanel: true,
+        yearRange: "1900:+10",
+        beforeShow: function (input, inst) {
+          inst.dpDiv.addClass("discovery-toolbar__datepicker");
+        }
+      });
 
       document.querySelectorAll(".discovery-result__tags--from-data").forEach(function (el) {
         var raw = el.getAttribute("data-keywords");

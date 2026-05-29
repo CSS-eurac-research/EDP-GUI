@@ -438,12 +438,6 @@ td {
   border: 1px solid #007bff;
 }
 
-.ui-autocomplete {
-  height: 350px; 
-  overflow-y: scroll; 
-  overflow-x: hidden;
-}
-
 #searchbutton {
   color: #DF1B12;
   border: 1px solid #DF1B12;
