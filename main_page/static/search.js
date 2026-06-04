@@ -6,6 +6,7 @@ function dosearch() {
     var url = window.location.pathname + '?';
     var boundingbox = "";
     var url_params = [];
+    var categories_selected = [];
 
     map.eachLayer(function (layer) {
         if (layer.hasOwnProperty("layerID")) {
@@ -15,6 +16,26 @@ function dosearch() {
             }
         }
     });
+
+    $.each($("input[name='category']:checked"), function () {
+        categories_selected.push($(this).val());
+    });
+
+    var period_begin = document.getElementById('period_begin').value;
+    var period_end = document.getElementById('period_end').value;
+    var hasSearch = searchbar.value.trim() !== "";
+    var hasDates = period_begin !== "" && period_end !== "";
+    var hasCategories = categories_selected.length > 0;
+    var hasBox = boundingbox !== "";
+
+    if (!hasSearch && !hasDates && !hasCategories && !hasBox) {
+        if (typeof reset_search === "function") {
+            reset_search();
+        } else {
+            location.reload();
+        }
+        return false;
+    }
 
     map.eachLayer(function (layer) {
         if (layer instanceof L.Rectangle) {
@@ -27,19 +48,11 @@ function dosearch() {
         }
     });
 
-    var categories_selected = [];
-    $.each($("input[name='category']:checked"), function () {
-        categories_selected.push($(this).val());
-    });
-
     if (categories_selected.length == 0) {
         categories_selected.push("all");
     }
 
     url_params.push('categories=' + encodeURIComponent(categories_selected.join(",")));
-
-    var period_begin = document.getElementById('period_begin').value;
-    var period_end = document.getElementById('period_end').value;
 
     if (boundingbox != "") {
         url_params.push('box=' + encodeURIComponent(boundingbox));
