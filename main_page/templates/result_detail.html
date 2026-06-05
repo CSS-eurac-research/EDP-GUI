@@ -1,534 +1,466 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
+{% load static %}
 
-{% block page_content %}
+{% block title %}
+  {% if result_json.title %}{{ result_json.title }} - EDP{% else %}Metadata detail - EDP{% endif %}
+{% endblock %}
 
-<head>
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/pages/result_detail.css' %}?v=1">
 
-  <title id="title_sheet">{{ result_json.title }} - EDP</title>
-  <link rel="shortcut icon" href="/static/apple-touch-icon.png">
-  <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
-  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css"/>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js"></script>
+  {% if uuid %}
+  <link rel="describedby" href="https://edp-portal.eurac.edu/geonetwork/srv/api/records/{{ uuid }}/formatters/xml?approved=true" type="application/vnd.iso19139.metadata+xml">
+  <link rel="linkset" type="application/linkset+json" href="https://edp-portal.eurac.edu/discovery/linkset/{{ uuid }}">
+  <link rel="describedby" type="application/ld+json" href="https://edp-portal.eurac.edu/discovery/jsonld/{{ uuid }}">
+  {% endif %}
 
-  <script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
-  <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
-  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-  <script src="../static/bootstrap/js/bootstrap.js"></script>
-
-  <link rel="describedby" href="https://edp-portal.eurac.edu/geonetwork/srv/api/records/{{uuid}}/formatters/xml?approved=true" type="application/vnd.iso19139.metadata+xml">
   {% if result_json.doi %}
-  <link rel="describedby" href="{{result_json.doi}}" type="application/json">
-  <link rel="describedby" href="{{result_json.doi}}?format=metadata_datacite4" type="application/vnd.datacite.datacite+xml">
-  <link rel="cite-as" href="{{result_json.doi}}">  
-  <meta name="DC.relation" content="{{result_json.doi}}">
-  <meta name="DC.identifier" content="{{result_json.doi}}" scheme="DCTERMS.URI">
+  <link rel="describedby" href="{{ result_json.doi }}" type="application/json">
+  <link rel="describedby" href="{{ result_json.doi }}?format=metadata_datacite4" type="application/vnd.datacite.datacite+xml">
+  <link rel="cite-as" href="{{ result_json.doi }}">
+  <meta name="DC.relation" content="{{ result_json.doi }}">
+  <meta name="DC.identifier" content="{{ result_json.doi }}" scheme="DCTERMS.URI">
   {% endif %}
+
   {% if result_json.swhid %}
-  <link rel="describedby" href="https://archive.softwareheritage.org/{{result_json.swhid}}" type="application/json">
+  <link rel="describedby" href="https://archive.softwareheritage.org/{{ result_json.swhid }}" type="application/json">
+  <meta name="DC.relation" content="https://archive.softwareheritage.org/{{ result_json.swhid }}">
   {% endif %}
-  <link rel="linkset" type="application/linkset+json" href="https://edp-portal.eurac.edu/discovery/linkset/{{uuid}}">
-  <link rel="describedby" type="application/ld+json" href="https://edp-portal.eurac.edu/discovery/jsonld/{{uuid}}">
-  
 
   <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
   <link rel="schema.DCTERMS" href="http://purl.org/dc/terms/">
   <meta name="DCTERMS.license" scheme="DCTERMS.URI" content="https://creativecommons.org/licenses/by/4.0/">
   {% if result_json.title %}
-  <meta name="DC.title" content="{{result_json.title}}">
+  <meta name="DC.title" content="{{ result_json.title }}">
   {% endif %}
   {% if publisher %}
-  <meta name="DC.publisher" content="{{publisher}}">
+  <meta name="DC.publisher" content="{{ publisher }}">
   {% endif %}
   <meta name="DC.language" content="en" scheme="DCTERMS.RFC3066">
   {% if type %}
-  <meta name="DC.type" content={{type}}>
+  <meta name="DC.type" content="{{ type }}">
   {% endif %}
   <meta name="DC.rights" scheme="DCTERMS.URI" content="info:eu-repo/semantics/restrictedAccess">
-  {% if result_json.swhid %}
-  <meta name="DC.relation" content="https://archive.softwareheritage.org/{{result_json.swhid}}">
-  {% endif %}
-
-
-  <style>
-            .linkset_ld {
-          text-decoration: none;
-          color: #007bff;
-          background-color: transparent;
-          background-image: none;
-          border: 1px solid #007bff;
-          border-radius: 15px;
-          padding: 4px;
-          position: relative;
-          top: 5px;
-        }
-
-        .linkset_ld:hover {
-          text-decoration: none;
-          color: white;
-          background-color: #007bff;
-          background-image: none;
-          border: 1px solid #007bff;
-        }
-  </style>
-</head>
-
-<div style="height: 50px; margin-top: 10px; width: 100%;" class="row">
-  <div class="col">
-    <a href="{% url 'edp_portal:main_page' %}"><img src="/static/Eurac_Research_logo.png" id="logo"></a>
-  </div>
-  <div class="col-6">
-    <div style="width: 100%" class="center">
-      <h1 id="title"><b>E</b>nvironmental <b>D</b>ata <b>P</b>latform</h1>
-    </div>      
-  </div>
-  <div class="col">
-    <a href="https://www.eurac.edu/en/institutes-centers/center-for-sensing-solutions/projects/dps4eslab" target="_blank" rel="noopener noreferrer"><img src="/static/fesr_dps4eslab_logo.png" id="fesr_logo"></a>
-
-  </div>
-</div>
-<hr>
-{% if error %}
-  <div class="center">
-    <h4 style="color: #DF1B12;">{{ error }}</h4>
-  </div>
-{% else %}
-<div style="width: 100%">
-  <div  class="center">
-    <h4 id="title" style="color: #666B6C;"><b>{{ result_json.title }}</b></h4>
-    <div>
-      <a id="geonetwork_link" href="http://edp-portal.eurac.edu/geonetwork/srv/eng/catalog.search#/metadata/{{uuid}}/formatters/xsl-view?root=div&view=advanced" target="_blank" rel="noopener noreferrer"><img src="/static/geonetwork_small.png" style="width: 15px; margin-top: -4px;"> Go to full metadata</a>
-      {% if result_json.url_repository %}
-        <a id="go_to_repository" href="{{result_json.url_repository}}" target="_blank" rel="noopener noreferrer"><i class="fa fa-database" aria-hidden="true"></i> Go to repository: <b>{{result_json.category}}</b></a>
-      {% else %}
-        <a id="go_to_repository_no_clickable"><i class="fa fa-database" aria-hidden="true"></i> Repository: <b>{{result_json.category}}</b></a>
-      {% endif %}
-      <!-- <a id="linkset" class="linkset_ld" href="https://edp-portal.eurac.edu/discovery/linkset/{{uuid}}" target="_blank" rel="noreferrer"><i class="fa fa-file-o" aria-hidden="true"></i> Linkset {json}</a>
-      <a id="jsonld" class="linkset_ld" href="https://edp-portal.eurac.edu/discovery/jsonld/{{uuid}}" target="_blank" rel="noreferrer"><i class="fa fa-file-o" aria-hidden="true"></i> Linked data {json}</a> -->
-    </div>
-  </div>
-  <br>
-<div style="width: 80%; margin: 0 auto;">
-
-  <hr>
-
-
-<div class="container" style="color: #666B6C;">
-  <div class="row align-items-start">
-    <div class="col" style="margin-right: 20px;">
-      {% if result_json.abstract %}
-      <div>
-        <label class="label_detail"><i class="fa fa-book" aria-hidden="true"></i> Abstract</label>
-        <p id="abstract">{{result_json.abstract}}</p>
-      </div>
-      {% else %}
-        <div></div>
-      {% endif %}
-
-      {% if result_json.doi %}
-      <div>
-        <label class="label_detail"><i class="fa fa-id-card" aria-hidden="true"></i> Digital Object Identifier (DOI)</label>
-        <p id="doi"><a href="{{result_json.doi}}" target="_blank" rel="noreferrer">{{result_json.doi}}</a></p>        
-      </div>
-      {% else %}
-        <div></div>
-      {% endif %}
-
-      {% if result_json.citation %}
-      <div>
-        <label class="label_detail"><i class="fa fa-retweet" aria-hidden="true"></i> Citation</label>
-        <p id="citation">{{result_json.citation}}</p>
-      </div>
-      {% else %}
-        <div></div>
-      {% endif %}
-
-      {% if result_json.supplemental_information %}
-      <div>
-        <label class="label_detail"><i class="fa fa-plus-square" aria-hidden="true"></i> Supplemental information</label>
-        <p id="supplemental_information">{{result_json.supplemental_information}}</p>
-      </div>
-      {% else %}
-        <div></div>
-      {% endif %}
-
-      
-  {% if result_json.keyword %}
-  <div>
-    <label class="label_detail"><i class="fa fa-key" aria-hidden="true"></i> Keywords</label>
-    <p id="keyword">{{ result_json.keyword }}</p>
-  </div>
-  {% else %}
-    <div></div>
-  {% endif %}
-
-  {% if result_json.swhid %}
-  <div>
-    <label class="label_detail"><img src="/static/sh_logo.png" style="filter: grayscale(1); width: 25px;"> SoftWare Hash IDentifier (SWHID)</label>
-    <p id="swhid"><code><a href="https://archive.softwareheritage.org/{{result_json.swhid}}" style='color: #666B6C; font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;'>{{result_json.swhid}}</a></code></p>
-  </div> 
-  {% else %}
-    <div></div>
-  {% endif %}
-
-
-  {% if result_json.rights %}
-    <div>
-      <label class="label_detail"><i class="fa fa-balance-scale" aria-hidden="true"></i> Legal constraints</label>
-      <p id="rights">
-        {% for r in result_json.rights %}  
-          <a href="{{ r.uri }}" target="_blank" rel="noreferrer" value="{{ r.rights }}"> {{ r.rights }}, {{ r.rightsIdentifier }}</a> 
-        {% endfor %}
-      </p>
-    </div>
-    {% else %}
-    <div></div>
-  {% endif %}
-  {% if result_json.legalConstraints and not result_json.rights%}
-  <div>
-    <label class="label_detail"><i class="fa fa-balance-scale" aria-hidden="true"></i> Legal constraints</label>
-    <p id="legalConstraints">{{ result_json.legalConstraints }}</p>
-  </div>
-  {% else %}
-    <div></div>
-  {% endif %}
-  
-  {% if result_json.contactResource %}
-  <div>
-    <label class="label_detail"><i class="fa fa-user-circle-o" aria-hidden="true"></i> Contact for resource</label>
-    <!-- <p>{{ result_json.contactResource }}</p> -->
-    <table id="contactResource">
-      <tr>
-        <td>
-          {{ result_json.contactResource.contactName }} 
-        </td>
-      </tr>
-        <tr>
-        <td>
-          <a href="mailto:{{ result_json.contactResource.email }}​"><i class="fa fa-envelope" aria-hidden="true"></i> {{ result_json.contactResource.email }}</a>
-        </td>
-      </tr>
-      
-      <tr>
-        <td>
-          {{ result_json.contactResource.address }}
-        </td>
-      </tr>
-    </table>
-  </div>
-  {% else %}
-    <div></div>
-  {% endif %}
-
-  {% if result_json.creators %}
-  <div>
-    <label class="label_detail"><i class="fa fa-user-circle-o" aria-hidden="true"></i> Contact for resource</label>
-    <!-- <p>{{ result_json.contactResource }}</p> -->
-    <table id="creators">
-      <ul>
-      {% for c in result_json.creators %}      
-        <li>
-          {{ c.name }},                   
-          {% if c.type == "Organization" %}
-            {% if c.id != None %}
-              <a href="{{ c.id }}" target="_blank" rel="noreferrer">{{ c.id }}<img src="/static/ROR_logo.png" style="width: 25px; margin-left: 5px;"></i></a>
-            {% endif %}
-          {% else %}
-            {% if c.id != None %}
-              <a href="{{ c.id }}" target="_blank" rel="noreferrer">{{ c.id }}<img src="/static/ORCID_iD.png" style="width: 25px; margin-left: 5px;"></i></a>
-            {% endif %}
-          {% endif %}
-        </li>
-      {% endfor %}
-      </ul>
-    </table>
-  </div>
-  {% else %}
-    <div></div>
-  {% endif %}
-
-  {% if result_json.contactMetadata %}
-  <div>
-    <label class="label_detail"><i class="fa fa-user-circle-o" aria-hidden="true"></i> Contact for metadata</label>
-    <table id="contactMetadata">
-      <tr>
-        <td>
-          {{ result_json.contactMetadata.contactName }}
-        </td>
-      </tr>
-        <tr>
-        <td>
-          <a href="mailto:{{ result_json.contactMetadata.email }}​"><i class="fa fa-envelope" aria-hidden="true"></i> {{ result_json.contactMetadata.email }}</a>
-        </td>
-      </tr>      
-      <tr>
-        <td>
-          {{ result_json.contactMetadata.address }}
-        </td>
-      </tr>
-    </table>
-  </div>
-  {% else %}
-    <div></div>
-  {% endif %}
-
-  {% if result_json.url_objects %}
-  <div>
-    <label class="label_detail"><i class="fa fa-download" aria-hidden="true"></i> Download online resources</label>
-    <table id="url_objects">
-      <ul>
-    {% for l in result_json.url_objects %}      
-    <li>
-        {% if l.file_type == "" %}
-          <a href="{{l.l}}" target="_blank" rel="noreferrer" title="{{l.l}}">{{ l.l|slice:"0:60" }}...</a>
-        {% else %}
-          <a href="{{l.l}}" target="_blank" rel="noreferrer" title="{{l.l}}">{{l.file_type}} &#183; {{ result_json.title }}</a>
-        {% endif %}
-      </li>
-    {% endfor %}
-  </ul>
-</table>
-  </div>
-  {% else %}
-    <div></div>
-  {% endif %}
-
-  {% if result_json.lineage %}
-  <div>
-    <label class="label_detail"><i class="fa fa-file" aria-hidden="true"></i> Lineage</label>
-    <p id="lineage">{{ result_json.lineage }}</p>
-  </div>
-  {% else %}
-    <div></div>
-  {% endif %}
-    </div>
-
-    <div class="col">
-
-      {% if result_json.thumbnail %}
-      <div>
-        <!-- <label class="label_detail"><i class="fa fa-clock-o" aria-hidden="true"></i> Period</label> -->
-        <img id="thumbnail" src="{{ result_json.thumbnail }}" style="width: 50%;">
-      </div>
-      {% else %}
-        <div></div>
-      {% endif %}
-
-      <br>
-
-        {% if result_json.minLat %}
-        <div>
-          <label class="label_detail"><i class="fa fa-square" aria-hidden="true"></i> Bounding box</label>
-          <div>
-              <!-- <img src="https://edp-portal.eurac.edu/geonetwork/srv/api/regions/geom.png?geomsrs=EPSG:4326&geom=POLYGON(({{result_json.minLon}} {{result_json.minLat}}+100,{{result_json.minLon}} {{result_json.maxLat}},{{result_json.maxLon}} {{result_json.maxLat}},{{result_json.maxLon}} {{result_json.minLat}},{{result_json.minLon}} {{result_json.minLat}}))"> -->
-              <img id="bounding_box" src="https://edp-portal.eurac.edu/geonetwork/srv/api/records/{{uuid}}/extents.png">
-            </div>
-        </div>
-        {% else %}
-          <div></div>
-        {% endif %}
-
-    <br>
-
-    {% if result_json.tempExtentBegin %}
-    <div>
-      <label class="label_detail"><i class="fa fa-clock-o" aria-hidden="true"></i> Period</label>
-      <p id="tempExtent">{{ result_json.tempExtentBegin }} <img src="/static/right-arrow.png" style="width: 20px;"> {{ result_json.tempExtentEnd }}</p>
-    </div>
-    {% else %}
-      <div></div>
-    {% endif %}
-  
-    {% if result_json.crs %}
-    <div>
-      <label class="label_detail"><i class="fa fa-globe" aria-hidden="true"></i> Coordinate reference system</label>
-      <p id="crs">{{ result_json.crs }}</p>
-    </div>
-    {% else %}
-      <div></div>
-    {% endif %}
-  
-    {% if result_json.refSys %}
-    <div>
-      <label class="label_detail"><i class="fa fa-pencil" aria-hidden="true"></i> Spatial representation</label>
-      <p id="refSys">{{ result_json.refSys }}</p>
-    </div>
-    {% else %}
-      <div></div>
-    {% endif %}
-
-    {% if result_json.presentationForm %}
-    <div>
-      <label class="label_detail"><i class="fa fa-wpforms" aria-hidden="true"></i> Presentation form</label>
-      <p id="presentationForm">{{ result_json.presentationForm }}</p>
-    </div>
-    {% else %}
-      <div></div>
-    {% endif %}
-
-    {% if result_json.cl_topic %}
-    <div>
-      <label class="label_detail"><i class="fa fa-hashtag" aria-hidden="true"></i> Topic category</label>
-      <p id="cl_topic">{{ result_json.cl_topic }}</p>
-    </div>
-    {% else %}
-      <div></div>
-    {% endif %}
-
-    {% if type %}
-    <div>
-      <label class="label_detail"><i class="fa fa-fire" aria-hidden="true"></i> Type</label>
-      <p id="type">{{ type }}</p>
-    </div>
-    {% else %}
-      <div></div>
-    {% endif %}
-
-    {% if publisher %}
-    <div>
-      <label class="label_detail"><i class="fa fa-university" aria-hidden="true"></i> Publisher</label>
-      <p id="publisher">{{ publisher }}</p>
-    </div>
-    {% else %}
-      <div></div>
-    {% endif %}
-    </div>
-
-  </div>
-  </div>  
-
-
-</div>
-
-
-{% if snippet_code_list %}
-<hr style="width: 90%;">
-
-<div id="snippet_code" style="width: 60%; margin: 0 auto;">
-  <h5 style="color: #DF1B12;"><i class="fa fa-code" aria-hidden="true"></i> Snippet code</h5>
-
-  <script>
-    function copySnippetCode(id) {
-
-      //var copyText = $("#snipped_code_"+id)[0].innerText;
-      var copyText = $("#snipped_code_"+id)[0].textContent;
-      //console.log(copyText);
-      var textArea = document.createElement('textarea');
-      textArea.textContent = copyText;
-      document.body.append(textArea);
-      textArea.select();
-      //var $temp = $("<input>");
-      //$("body").append($temp);
-      //$temp.val(copyText).select();
-      document.execCommand("copy");
-      //$temp.remove();
-      
-      var tooltip = document.getElementById("copyTooltip_"+id);
-      tooltip.innerHTML = '<i class="fa fa-check-circle" aria-hidden="true"></i> Copied';
-      $("#copyTooltip_"+id).css("color", "green");
-    }
-    
-    function outFunc(id) {
-      var tooltip = document.getElementById("copyTooltip_"+id);
-      tooltip.innerHTML = "Copy to clipboard";
-      $("#copyTooltip_"+id).css("color", "black");
-    }
-    </script>
-
-<div>
-
-  <ul class="nav nav-tabs" id="programming_languages_list" role="tablist">
-    
-        {% for code in snippet_code_list %}
-          {% if code.snippet_programming_language != 'No programming language' %}
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="{{ code.snippet_programming_language }}-tab" data-bs-toggle="tab" data-bs-target="#{{ code.snippet_programming_language }}" type="button" role="tab" aria-controls="{{ code.snippet_programming_language }}" aria-selected="false" style="color: #DF1B12;">{{ code.snippet_programming_language }}</button>
-    </li>
-    {% endif %}
-        {% endfor %}
-  </ul>
-  <div class="tab-content" id="snippet_code">
-    {% if snippet_code_list %}
-      {% for code in snippet_code_list %}
-    <div class="tab-pane fade" id="{{ code.snippet_programming_language }}" role="tabpanel" aria-labelledby="{{ code.snippet_programming_language }}-tab" style="padding: 5px;">
-      
-      <div id="copyDiv">
-        <button class="copyButton_snippet" id="copyButton_{{ code.pk }}" onclick="copySnippetCode('{{ code.pk }}')" onmouseout="outFunc('{{ code.pk }}')">            
-          <i class="fa fa-clipboard" aria-hidden="true"></i> Copy code
-        </button>
-        <span class="copyTooltip_snippet" id="copyTooltip_{{ code.pk }}">Copy to clipboard</span>
-      </div>
-      <hr>
-      <pre><code class="snipped_code" id="snipped_code_{{ code.pk }}" style="color: #666B6C;">{{ code.snippet_code }}</code></pre>
-
-    </div>
-    {% endfor %}
-    {% else %}
-        <p>No snippet code are available.</p>
-  {% endif %}
-  </div>
-
-</div>
-</div>
-{% endif %}
-
-<hr style="width: 90%;">
-
-<div style="width: 60%; margin: 0 auto;">
-  <h5 style="color: #DF1B12;"><i class="fa fa-book" aria-hidden="true"></i> Related docs</h5>
-
-  {% if docs_list %}
-    <table id="docs_list" style="width:100%; color: #666B6C;">
-      <tr id="header_table">
-        <!-- <th>#</th> -->
-        <th id="name_column_table" class="width_column_table-2">Name</th>
-        <th id="desc_column_table" class="width_column_table-1">Description</th>
-        <th>Link</th>
-        <th id="date_column_table" class="width_column_table-2">Date published</th>
-        <th>Category</th>
-      </tr>
-      {% for source in docs_list %}
-
-        <tr id="rows_table">
-          <!-- <td>{{ source.id }}</td> -->
-          <td>{{ source.source_name }}</td>
-          <td>{{ source.source_description }}</td>
-          <td><a href="{{ source.source_link }}" style="color: #666B6C;">Link</a></td>
-          <td>{{ source.pub_date }}</td>
-          <td>{{ source.source_category }}</td>
-        </tr>
-          <!-- <li><a href="/polls/{{ question.id }}/">{{ question.question_text }}</a></li> -->
-      {% endfor %}
-    {% else %}
-        <p>No docs sources are available.</p>
-  {% endif %}
-
-  </table>
-
-</div>
-
-
-</div>
-{% endif %}
-
-<div id="footer">
-  <div style="margin: 50px;" class="row">
-
-        <!-- <h6>Info, Terms and Conditions</h6> -->
-        <div style="margin: 0 auto;">
-        <p style="color:#666B6C">© 2025 Eurac Research •
-          <a href="https://cssportfolio.eurac.edu/" target="_blank" rel="noopener noreferrer" style="color:#666B6C">Center for Sensing Solutions portfolio 
-          </a>•
-
-          <a href="{% url 'edp_portal:terms_conditions_page' %}" target="_blank" rel="noopener noreferrer" style="color:#666B6C">Contacts, Terms and Conditions</a>
-
-        </p>
-      </div>
-
-</div>
-</div>
-<script src="../static/dropdownmenu_prog_languages.js"></script> 
-
 {% endblock %}
 
+{% block page_content %}
+<article class="topic-page">
+  {% if error %}
+    <p class="topic-page__error">{{ error }}</p>
+  {% else %}
+    <header class="topic-page__head">
+      <div class="topic-page__title-row">
+        <h1 class="topic-page__title">{{ result_json.title }}</h1>
+
+        <div class="topic-page__actions" aria-label="Metadata actions">
+          <a class="topic-btn topic-btn--solid" href="http://edp-portal.eurac.edu/geonetwork/srv/eng/catalog.search#/metadata/{{ uuid }}/formatters/xsl-view?root=div&view=advanced" target="_blank" rel="noopener noreferrer">
+            Full metadata
+            <i class="fa fa-sign-out" aria-hidden="true"></i>
+          </a>
+          {% if result_json.url_repository %}
+          <a class="topic-btn topic-btn--outline" href="{{ result_json.url_repository }}" target="_blank" rel="noopener noreferrer">
+            Go to repository
+            <i class="fa fa-database" aria-hidden="true"></i>
+          </a>
+          {% else %}
+          <span class="topic-btn topic-btn--outline topic-btn--disabled">
+            Repository: {{ result_json.category }}
+            <i class="fa fa-database" aria-hidden="true"></i>
+          </span>
+          {% endif %}
+        </div>
+      </div>
+      <hr class="topic-page__rule">
+    </header>
+
+    <div class="topic-detail">
+      <div class="topic-detail__main">
+        {% if result_json.abstract %}
+        <section class="topic-block" aria-labelledby="topic-abstract">
+          <div class="topic-block__head">
+            <span class="topic-block__icon"><i class="fa fa-file-text-o" aria-hidden="true"></i></span>
+            <h2 class="topic-block__title" id="topic-abstract">Abstract</h2>
+          </div>
+          <p class="topic-block__text">{{ result_json.abstract }}</p>
+        </section>
+        {% endif %}
+
+        {% if result_json.keyword %}
+        <section class="topic-block" aria-labelledby="topic-keywords">
+          <div class="topic-block__head">
+            <span class="topic-block__icon"><i class="fa fa-key" aria-hidden="true"></i></span>
+            <h2 class="topic-block__title" id="topic-keywords">Keywords</h2>
+          </div>
+          <div class="topic-tags">
+            <span class="topic-tag">{{ result_json.keyword }}</span>
+          </div>
+        </section>
+        {% endif %}
+
+        {% if result_json.doi %}
+        <section class="topic-block" aria-labelledby="topic-doi">
+          <div class="topic-block__head">
+            <span class="topic-block__icon"><i class="fa fa-id-card-o" aria-hidden="true"></i></span>
+            <h2 class="topic-block__title" id="topic-doi">Digital Object Identifier (DOI)</h2>
+          </div>
+          <p class="topic-block__text"><a href="{{ result_json.doi }}" target="_blank" rel="noreferrer">{{ result_json.doi }}</a></p>
+        </section>
+        {% endif %}
+
+        {% if result_json.citation %}
+        <section class="topic-block" aria-labelledby="topic-citation">
+          <div class="topic-block__head">
+            <span class="topic-block__icon"><i class="fa fa-retweet" aria-hidden="true"></i></span>
+            <h2 class="topic-block__title" id="topic-citation">Citation</h2>
+          </div>
+          <p class="topic-block__text">{{ result_json.citation }}</p>
+        </section>
+        {% endif %}
+
+        {% if result_json.supplemental_information %}
+        <section class="topic-block" aria-labelledby="topic-supplemental">
+          <div class="topic-block__head">
+            <span class="topic-block__icon"><i class="fa fa-plus-square-o" aria-hidden="true"></i></span>
+            <h2 class="topic-block__title" id="topic-supplemental">Supplemental information</h2>
+          </div>
+          <p class="topic-block__text">{{ result_json.supplemental_information }}</p>
+        </section>
+        {% endif %}
+
+        {% if result_json.swhid %}
+        <section class="topic-block" aria-labelledby="topic-swhid">
+          <div class="topic-block__head">
+            <span class="topic-block__icon"><i class="fa fa-code-fork" aria-hidden="true"></i></span>
+            <h2 class="topic-block__title" id="topic-swhid">SoftWare Hash IDentifier (SWHID)</h2>
+          </div>
+          <p class="topic-block__text">
+            <code><a href="https://archive.softwareheritage.org/{{ result_json.swhid }}" target="_blank" rel="noreferrer">{{ result_json.swhid }}</a></code>
+          </p>
+        </section>
+        {% endif %}
+
+        {% if result_json.rights %}
+        <section class="topic-block" aria-labelledby="topic-rights">
+          <div class="topic-block__head">
+            <span class="topic-block__icon"><i class="fa fa-balance-scale" aria-hidden="true"></i></span>
+            <h2 class="topic-block__title" id="topic-rights">Legal constraints</h2>
+          </div>
+          <p class="topic-block__text topic-block__text--links">
+            {% for r in result_json.rights %}
+            <a href="{{ r.uri }}" target="_blank" rel="noreferrer">{{ r.rights }}, {{ r.rightsIdentifier }}</a>
+            {% endfor %}
+          </p>
+        </section>
+        {% elif result_json.legalConstraints %}
+        <section class="topic-block" aria-labelledby="topic-legal">
+          <div class="topic-block__head">
+            <span class="topic-block__icon"><i class="fa fa-balance-scale" aria-hidden="true"></i></span>
+            <h2 class="topic-block__title" id="topic-legal">Legal constraints</h2>
+          </div>
+          <p class="topic-block__text">{{ result_json.legalConstraints }}</p>
+        </section>
+        {% endif %}
+
+        {% if result_json.contactResource %}
+        <section class="topic-block" aria-labelledby="topic-resource-contact">
+          <div class="topic-block__head">
+            <span class="topic-block__icon"><i class="fa fa-user-circle-o" aria-hidden="true"></i></span>
+            <h2 class="topic-block__title" id="topic-resource-contact">Contact for resource</h2>
+          </div>
+          <p class="topic-block__text">
+            {{ result_json.contactResource.contactName }}<br>
+            <a href="mailto:{{ result_json.contactResource.email }}">{{ result_json.contactResource.email }}</a><br>
+            {{ result_json.contactResource.address }}
+          </p>
+        </section>
+        {% endif %}
+
+        {% if result_json.creators %}
+        <section class="topic-block" aria-labelledby="topic-creators">
+          <div class="topic-block__head">
+            <span class="topic-block__icon"><i class="fa fa-user-circle-o" aria-hidden="true"></i></span>
+            <h2 class="topic-block__title" id="topic-creators">Creators</h2>
+          </div>
+          <ul class="topic-block__list">
+            {% for c in result_json.creators %}
+            <li>
+              {{ c.name }}
+              {% if c.id %}
+              <a href="{{ c.id }}" target="_blank" rel="noreferrer">{{ c.id }}</a>
+              {% endif %}
+            </li>
+            {% endfor %}
+          </ul>
+        </section>
+        {% endif %}
+
+        {% if result_json.contactMetadata %}
+        <section class="topic-block" aria-labelledby="topic-metadata-contact">
+          <div class="topic-block__head">
+            <span class="topic-block__icon"><i class="fa fa-user-circle-o" aria-hidden="true"></i></span>
+            <h2 class="topic-block__title" id="topic-metadata-contact">Contact for metadata</h2>
+          </div>
+          <p class="topic-block__text">
+            {{ result_json.contactMetadata.contactName }}<br>
+            <a href="mailto:{{ result_json.contactMetadata.email }}">{{ result_json.contactMetadata.email }}</a><br>
+            {{ result_json.contactMetadata.address }}
+          </p>
+        </section>
+        {% endif %}
+
+        {% if result_json.url_objects %}
+        <section class="topic-block" aria-labelledby="topic-downloads">
+          <div class="topic-block__head">
+            <span class="topic-block__icon"><i class="fa fa-download" aria-hidden="true"></i></span>
+            <h2 class="topic-block__title" id="topic-downloads">Download online resources</h2>
+          </div>
+          <p class="topic-block__text topic-block__text--links">
+            {% for l in result_json.url_objects %}
+              {% if l.file_type == "" %}
+              <a href="{{ l.l }}" target="_blank" rel="noreferrer" title="{{ l.l }}">{{ l.l|slice:"0:80" }}...</a>
+              {% else %}
+              <a href="{{ l.l }}" target="_blank" rel="noreferrer" title="{{ l.l }}">{{ l.file_type }} &middot; {{ result_json.title }}</a>
+              {% endif %}
+            {% endfor %}
+          </p>
+        </section>
+        {% endif %}
+
+        {% if result_json.lineage %}
+        <section class="topic-block" aria-labelledby="topic-lineage">
+          <div class="topic-block__head">
+            <span class="topic-block__icon"><i class="fa fa-file-o" aria-hidden="true"></i></span>
+            <h2 class="topic-block__title" id="topic-lineage">Lineage</h2>
+          </div>
+          <p class="topic-block__text">{{ result_json.lineage }}</p>
+        </section>
+        {% endif %}
+      </div>
+
+      <aside class="topic-detail__side" aria-label="Metadata summary">
+        {% if result_json.thumbnail %}
+        <section class="topic-media" aria-labelledby="topic-image">
+          <div class="topic-block__head">
+            <span class="topic-block__icon"><i class="fa fa-picture-o" aria-hidden="true"></i></span>
+            <h2 class="topic-block__title" id="topic-image">Image</h2>
+          </div>
+          <img class="topic-media__img" src="{{ result_json.thumbnail }}" alt="">
+        </section>
+        {% endif %}
+
+        {% if result_json.minLat %}
+        <section class="topic-media" aria-labelledby="topic-bounding-box">
+          <div class="topic-block__head">
+            <span class="topic-block__icon"><i class="fa fa-crosshairs" aria-hidden="true"></i></span>
+            <h2 class="topic-block__title" id="topic-bounding-box">Bounding box</h2>
+          </div>
+          <img class="topic-media__map" src="https://edp-portal.eurac.edu/geonetwork/srv/api/records/{{ uuid }}/extents.png" alt="Bounding box map">
+        </section>
+        {% endif %}
+
+        {% if result_json.tempExtentBegin %}
+        <section class="topic-block topic-block--side" aria-labelledby="topic-period">
+          <div class="topic-block__head">
+            <span class="topic-block__icon"><i class="fa fa-clock-o" aria-hidden="true"></i></span>
+            <h2 class="topic-block__title" id="topic-period">Period</h2>
+          </div>
+          <p class="topic-block__text">{{ result_json.tempExtentBegin }} - {{ result_json.tempExtentEnd }}</p>
+        </section>
+        {% endif %}
+
+        {% if result_json.crs %}
+        <section class="topic-block topic-block--side" aria-labelledby="topic-crs">
+          <div class="topic-block__head">
+            <span class="topic-block__icon"><i class="fa fa-globe" aria-hidden="true"></i></span>
+            <h2 class="topic-block__title" id="topic-crs">Coordinate reference system</h2>
+          </div>
+          <p class="topic-block__text">{{ result_json.crs }}</p>
+        </section>
+        {% endif %}
+
+        {% if result_json.refSys %}
+        <section class="topic-block topic-block--side" aria-labelledby="topic-spatial">
+          <div class="topic-block__head">
+            <span class="topic-block__icon"><i class="fa fa-pencil" aria-hidden="true"></i></span>
+            <h2 class="topic-block__title" id="topic-spatial">Spatial representation</h2>
+          </div>
+          <p class="topic-block__text">{{ result_json.refSys }}</p>
+        </section>
+        {% endif %}
+
+        {% if result_json.presentationForm %}
+        <section class="topic-block topic-block--side" aria-labelledby="topic-presentation">
+          <div class="topic-block__head">
+            <span class="topic-block__icon"><i class="fa fa-wpforms" aria-hidden="true"></i></span>
+            <h2 class="topic-block__title" id="topic-presentation">Presentation form</h2>
+          </div>
+          <p class="topic-block__text">{{ result_json.presentationForm }}</p>
+        </section>
+        {% endif %}
+
+        {% if result_json.cl_topic %}
+        <section class="topic-block topic-block--side" aria-labelledby="topic-category">
+          <div class="topic-block__head">
+            <span class="topic-block__icon"><i class="fa fa-tag" aria-hidden="true"></i></span>
+            <h2 class="topic-block__title" id="topic-category">Topic category</h2>
+          </div>
+          <p class="topic-block__text">{{ result_json.cl_topic }}</p>
+        </section>
+        {% endif %}
+
+        {% if type %}
+        <section class="topic-block topic-block--side" aria-labelledby="topic-type">
+          <div class="topic-block__head">
+            <span class="topic-block__icon"><i class="fa fa-fire" aria-hidden="true"></i></span>
+            <h2 class="topic-block__title" id="topic-type">Type</h2>
+          </div>
+          <p class="topic-block__text">{{ type }}</p>
+        </section>
+        {% endif %}
+
+        {% if publisher %}
+        <section class="topic-block topic-block--side" aria-labelledby="topic-publisher">
+          <div class="topic-block__head">
+            <span class="topic-block__icon"><i class="fa fa-university" aria-hidden="true"></i></span>
+            <h2 class="topic-block__title" id="topic-publisher">Publisher</h2>
+          </div>
+          <p class="topic-block__text">{{ publisher }}</p>
+        </section>
+        {% endif %}
+      </aside>
+    </div>
+
+    {% if snippet_code_list %}
+    <section class="topic-section topic-snippet" aria-labelledby="topic-snippet-code">
+      <h2 class="topic-section__title" id="topic-snippet-code">Snippet code</h2>
+
+      <ul class="nav nav-tabs topic-snippet__tabs" id="programming_languages_list" role="tablist">
+        {% for code in snippet_code_list %}
+          {% if code.snippet_programming_language != 'No programming language' %}
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="{{ code.snippet_programming_language }}-tab" type="button" role="tab" aria-controls="{{ code.snippet_programming_language }}" aria-selected="false">{{ code.snippet_programming_language }}</button>
+          </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+
+      <div class="tab-content">
+        {% for code in snippet_code_list %}
+        <div class="tab-pane fade topic-snippet__pane" id="{{ code.snippet_programming_language }}" role="tabpanel" aria-labelledby="{{ code.snippet_programming_language }}-tab">
+          <div>
+            <button class="topic-snippet__copy" id="copyButton_{{ code.pk }}" type="button" onclick="copySnippetCode('{{ code.pk }}')" onmouseout="outFunc('{{ code.pk }}')">
+              <i class="fa fa-clipboard" aria-hidden="true"></i> Copy code
+            </button>
+            <span class="topic-snippet__tooltip" id="copyTooltip_{{ code.pk }}">Copy to clipboard</span>
+          </div>
+          <pre><code class="snipped_code" id="snipped_code_{{ code.pk }}">{{ code.snippet_code }}</code></pre>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+    <section class="topic-section" aria-labelledby="topic-related-docs">
+      <hr class="topic-page__rule">
+      <h2 class="topic-section__title" id="topic-related-docs">Related docs</h2>
+
+      {% if docs_list %}
+      <div class="topic-table-wrap">
+        <table class="topic-table">
+          <thead>
+            <tr>
+              <th class="topic-table__index">#</th>
+              <th class="topic-table__name">Name</th>
+              <th>Description</th>
+              <th>Link</th>
+              <th class="topic-table__date">Date published</th>
+              <th class="topic-table__category">Category</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for source in docs_list %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td>{{ source.source_name }}</td>
+              <td>{{ source.source_description }}</td>
+              <td><a href="{{ source.source_link }}" target="_blank" rel="noreferrer">Link</a></td>
+              <td>{{ source.pub_date }}</td>
+              <td>{{ source.source_category }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="topic-page__empty">No docs sources are available.</p>
+      {% endif %}
+    </section>
+  {% endif %}
+</article>
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var tabButtons = Array.prototype.slice.call(document.querySelectorAll(".topic-snippet__tabs .nav-link"));
+      var panes = Array.prototype.slice.call(document.querySelectorAll(".topic-snippet__pane"));
+
+      function activateTab(button) {
+        tabButtons.forEach(function (tabButton) {
+          tabButton.classList.remove("active");
+          tabButton.setAttribute("aria-selected", "false");
+        });
+
+        panes.forEach(function (pane) {
+          pane.classList.remove("show", "active");
+        });
+
+        button.classList.add("active");
+        button.setAttribute("aria-selected", "true");
+
+        var pane = document.getElementById(button.getAttribute("aria-controls"));
+        if (pane) {
+          pane.classList.add("show", "active");
+        }
+      }
+
+      tabButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+          activateTab(button);
+        });
+      });
+
+      if (tabButtons.length > 0) {
+        activateTab(tabButtons[0]);
+      }
+    });
+
+    function copySnippetCode(id) {
+      var snippet = document.getElementById("snipped_code_" + id);
+      if (!snippet) {
+        return;
+      }
+
+      var textArea = document.createElement("textarea");
+      textArea.textContent = snippet.textContent;
+      document.body.append(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      textArea.remove();
+
+      var tooltip = document.getElementById("copyTooltip_" + id);
+      if (tooltip) {
+        tooltip.innerHTML = '<i class="fa fa-check-circle" aria-hidden="true"></i> Copied';
+        tooltip.style.color = "green";
+      }
+    }
+
+    function outFunc(id) {
+      var tooltip = document.getElementById("copyTooltip_" + id);
+      if (tooltip) {
+        tooltip.innerHTML = "Copy to clipboard";
+        tooltip.style.color = "";
+      }
+    }
+  </script>
+{% endblock %}
