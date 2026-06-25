@@ -3,7 +3,6 @@
 #   cp .env.vm.example .env
 #   sudo docker compose -f docker-compose.vm.yml -p edp-dev up -d --build
 #   sudo docker compose -f docker-compose.vm.yml -p edp-dev exec web python manage.py migrate
-#   sudo docker compose -f docker-compose.vm.yml -p edp-dev exec web python manage.py collectstatic --noinput
 
 services:
   db:
@@ -18,7 +17,9 @@ services:
 
   web:
     build: .
-    command: gunicorn edp_interface.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 120
+    command: >
+      sh -c "python manage.py collectstatic --noinput &&
+             gunicorn edp_interface.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 120"
     ports:
       - "${WEB_HOST_PORT:-18080}:8000"
     environment:
