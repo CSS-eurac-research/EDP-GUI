@@ -31,6 +31,7 @@ STATIC_ROOT = os.getenv('STATIC_ROOT',
                         os.path.join(PROJECT_ROOT, "static")
                         )
 STATIC_URL = '/static/'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
@@ -49,7 +50,7 @@ PROXY_ALLOWED_HOSTS = _env_list(
     'DJANGO_PROXY_ALLOWED_HOSTS',
     '127.0.0.1,localhost,10.8.244.240,edp-portal.eurac.edu,193.106.181.170'
 )
-#CSRF_TRUSTED_ORIGINS = ['127.0.0.1', 'localhost', '10.8.244.240', 'edp-portal.eurac.edu', '193.106.181.170']
+CSRF_TRUSTED_ORIGINS = _env_list('DJANGO_CSRF_TRUSTED_ORIGINS', '')
 #XS_SHARING_ALLOWED_ORIGINS = "edp-portal.eurac.edu"
 #XS_SHARING_ALLOWED_METHODS = ['POST','GET','OPTIONS', 'PUT', 'DELETE']
 
@@ -68,6 +69,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
