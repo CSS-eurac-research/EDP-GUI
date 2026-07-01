@@ -59,14 +59,15 @@
           </a>
           {% if result_json.url_repository %}
           <a class="topic-btn topic-btn--outline" href="{{ result_json.url_repository }}" target="_blank" rel="noopener noreferrer">
+            {% if result_json.category|lower == "maps" or "maps.eurac.edu" in result_json.url_repository %}
+            Maps repository
+            {% elif result_json.category == "OpenEO" or "openeo.eurac.edu" in result_json.url_repository %}
+            OpenEO repository
+            {% else %}
             Go to repository
+            {% endif %}
             <i class="fa fa-database" aria-hidden="true"></i>
           </a>
-          {% else %}
-          <span class="topic-btn topic-btn--outline topic-btn--disabled">
-            Repository: {{ result_json.category }}
-            <i class="fa fa-database" aria-hidden="true"></i>
-          </span>
           {% endif %}
         </div>
       </div>
