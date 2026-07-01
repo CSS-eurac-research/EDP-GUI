@@ -37,7 +37,7 @@ services:
       GEONETWORK_BASE_URL: ${GEONETWORK_BASE_URL:-http://10.8.244.64:8080/geonetwork}
       EDP_DISCOVERY_URL: ${EDP_DISCOVERY_URL:-http://localhost:18080/discovery/}
       DOI_URL: ${DOI_URL:-https://doi.org/10.48784/}
-      OPENEO_URL: ${OPENEO_URL:-https://openeo.eurac.edu/collections/}
+      OPENEO_URL: ${OPENEO_URL:-https://openeo.eurac.edu/openeo/1.1.0/collections/}
       DATA_CITE_API: ${DATA_CITE_API:-https://api.datacite.org/dois/10.48784/}
       GEONETWORK_URL: ${GEONETWORK_URL:-https://edp-portal.eurac.edu/geonetwork/srv/api/records/}
       GEONETWORK_HARVEST_URL: ${GEONETWORK_HARVEST_URL:-http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&summaryOnly=1}

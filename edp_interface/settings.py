@@ -115,7 +115,10 @@ DATABASES = {
 GEONETWORK_BASE_URL = os.getenv('GEONETWORK_BASE_URL', 'http://10.8.244.64:8080/geonetwork')
 EDP_DISCOVERY_URL = os.getenv('EDP_DISCOVERY_URL', 'https://edp-portal.eurac.edu/discovery/')
 DOI_URL = os.getenv('DOI_URL', 'https://doi.org/10.48784/')
-OPENEO_URL = os.getenv('OPENEO_URL', 'https://openeo.eurac.edu/collections/')
+OPENEO_URL = os.getenv(
+    'OPENEO_URL',
+    'https://openeo.eurac.edu/openeo/1.1.0/collections/',
+)
 DATA_CITE_API = os.getenv('DATA_CITE_API', 'https://api.datacite.org/dois/10.48784/')
 GEONETWORK_URL = os.getenv('GEONETWORK_URL', 'https://edp-portal.eurac.edu/geonetwork/srv/api/records/')
 GEONETWORK_HARVEST_URL = os.getenv(

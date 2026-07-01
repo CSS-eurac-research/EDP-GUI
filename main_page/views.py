@@ -19,6 +19,31 @@ OPENEO_URL = settings.OPENEO_URL
 DATA_CITE_API = settings.DATA_CITE_API
 GEONETWORK_URL = settings.GEONETWORK_URL
 
+OPENEO_LEGACY_COLLECTION_PREFIXES = (
+    "https://openeo.eurac.edu/collections/",
+    "http://openeo.eurac.edu/collections/",
+)
+
+
+def _normalize_openeo_collection_url(url):
+    """Rewrite legacy OpenEO collection URLs to the current API path."""
+    if not url:
+        return url
+    if "openeo.eurac.edu" not in url or "/collections/" not in url:
+        return url
+    if "/openeo/" in url:
+        return url
+    for legacy_prefix in OPENEO_LEGACY_COLLECTION_PREFIXES:
+        if url.startswith(legacy_prefix):
+            return OPENEO_URL + url[len(legacy_prefix):]
+    return url
+
+
+def _openeo_collection_url(collection_id):
+    if not collection_id:
+        return None
+    return OPENEO_URL + collection_id
+
 
 def _get_db_connection():
     db = settings.DATABASES["default"]
@@ -498,9 +523,11 @@ def get_metadata_details(request, uuid):
         if 'resourceIdentifier' in metadataRecords: 
             
             if "http" in metadataRecords['resourceIdentifier'][0]['codeSpace']:
-                #print("get openeo URL repository "+metadataRecords['resourceIdentifier'][0]['codeSpace'])
-                if "https://openeo.eurac.edu/collections" in metadataRecords['resourceIdentifier'][0]['codeSpace']:
-                    metadata_detail['url_repository'] = metadataRecords['resourceIdentifier'][0]['codeSpace']
+                code_space = metadataRecords['resourceIdentifier'][0]['codeSpace']
+                if "openeo.eurac.edu" in code_space and "/collections" in code_space:
+                    metadata_detail['url_repository'] = _normalize_openeo_collection_url(
+                        code_space
+                    )
                 try:
                     swhid_link = json.loads(requests.get(metadataRecords['resourceIdentifier'][0]['codeSpace']).text)
                 #print(swhid_link['links'])
@@ -677,8 +704,20 @@ def get_metadata_details(request, uuid):
                 #metadata_detail['url_objects'] = metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload']
             #print(url_objects)
             metadata_detail['url_objects'] = sorted(url_objects, key=lambda d: d['l'])
-        #print(len(metadata_detail['url_objects']))
-        #print(metadata_detail)
+
+        if metadata_detail.get('category') == 'OpenEO':
+            collection_id = metadata_detail.get('name_collection')
+            if not collection_id and gn_cat:
+                collection_id = gn_cat[0].name_collection
+            if collection_id:
+                metadata_detail['url_repository'] = _openeo_collection_url(
+                    collection_id
+                )
+            elif metadata_detail.get('url_repository'):
+                metadata_detail['url_repository'] = _normalize_openeo_collection_url(
+                    metadata_detail['url_repository']
+                )
+
         return metadata_detail
      
 
