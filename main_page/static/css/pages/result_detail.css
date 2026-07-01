@@ -264,11 +264,16 @@
 
 .topic-media__map {
   width: 100%;
-  height: auto;
+  height: 230px;
   min-height: 230px;
   border: 1px solid var(--color-surface-section);
   border-radius: var(--radius-card);
-  object-fit: cover;
+  overflow: hidden;
+  background: var(--color-surface-section);
+}
+
+.topic-media__map .leaflet-control-attribution {
+  font-size: 10px;
 }
 
 .topic-section {

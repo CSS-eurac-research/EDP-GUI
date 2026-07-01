@@ -55,6 +55,31 @@ def _get_db_connection():
         port=db["PORT"],
     )
 
+
+def _extent_geom_for_uuid(uuid, metadata_details):
+    """GeoJSON geometry for the detail-page extent map (local DB, then bbox fallback)."""
+    record = GeonetworkMetadata.objects.filter(uuid=uuid).first()
+    if record and record.geom:
+        return json.loads(record.geom.geojson)
+
+    bbox_keys = ("minLat", "minLon", "maxLat", "maxLon")
+    if all(key in metadata_details for key in bbox_keys):
+        min_lat = float(metadata_details["minLat"])
+        min_lon = float(metadata_details["minLon"])
+        max_lat = float(metadata_details["maxLat"])
+        max_lon = float(metadata_details["maxLon"])
+        return {
+            "type": "Polygon",
+            "coordinates": [[
+                [min_lon, min_lat],
+                [max_lon, min_lat],
+                [max_lon, max_lat],
+                [min_lon, max_lat],
+                [min_lon, min_lat],
+            ]],
+        }
+    return None
+
 class DocsPageView(generic.ListView):
     template_name = 'docs.html'
     context_object_name = 'latest_docs_sources_list'
@@ -421,6 +446,7 @@ def result_detail(request, uuid):
             "name_collection": name_collection,
             #"result_json" : result_json["metadata"],
             "result_json" : metadata_details,
+            "extent_geom": _extent_geom_for_uuid(uuid, metadata_details),
             "snippet_code_list" : snippet_code_list,
             "docs_list" : docs_list,
             "url_repository": url_repository

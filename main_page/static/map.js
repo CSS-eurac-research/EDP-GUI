@@ -62,144 +62,109 @@ map.on('draw:created', function (e) {
     //console.log(polygon['geometry']['coordinates'][0]);
     //$('#boundingbox').val(coords[0][0] + ", " + coords[0][1] + ", " + coords[0][2] + ", " + coords[0][3]);
 
-    var boundingbox = polygon['geometry']['coordinates'][0];
-
-    //var csrftoken = Cookies.get('csrftoken');
-
-    function csrfSafeMethod(method) {
-        // these HTTP methods do not require CSRF protection
-        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-    }
-
-    $.ajaxSetup({
-        crossDomain: false, // obviates need for sameOrigin test
-        beforeSend: function (xhr, settings) {
-            if (!csrfSafeMethod(settings.type)) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            }
-        }
-    });
-
-    //console.log(csrftoken);
-
-    var href = window.location.href;
-    var url = href + '?';//+'?search='+searchbar.value;
+    var boundingbox = polygon.geometry.coordinates[0];
+    var searchbar = document.getElementById("searchbar");
+    var url = window.location.pathname + "?";
     var url_params = [];
-
-    // if(boundingbox != ""){
-    //     //console.log("keybox ok");
-    //     url = url + '?search='+searchbar.value + '&' + 'box=' + boundingbox;
-    //     //search_request.keyword = searchbar.value;
-    // } else {
-    //     //console.log("keybox no");
-    //     url = url + '?search='+searchbar.value;
-    // }
 
     var categories_selected = [];
     $.each($("input[name='category']:checked"), function () {
         categories_selected.push($(this).val());
     });
-    $.each($("input[name='category']:not(:checked)"), function () {
-        var index = categories_selected.indexOf($(this).val());
-    });
 
-    if (categories_selected.length == 0) {
+    if (categories_selected.length === 0) {
         categories_selected.push("all");
     }
 
-    url_params.push('categories=' + categories_selected.join(","));
+    url_params.push("categories=" + encodeURIComponent(categories_selected.join(",")));
 
-    //Date picker 2013-01-01   
-    var period_begin = document.getElementById('period_begin').value
-    var period_end = document.getElementById('period_end').value
+    var period_begin = document.getElementById("period_begin").value;
+    var period_end = document.getElementById("period_end").value;
 
-    if (boundingbox != "") {
-        url_params.push('box=' + boundingbox);
+    if (boundingbox !== "") {
+        url_params.push("box=" + encodeURIComponent(boundingbox));
     }
-    if (searchbar.value != "") {
-        url_params.push('search=' + searchbar.value);
+    if (searchbar && searchbar.value.trim() !== "") {
+        url_params.push("search=" + encodeURIComponent(searchbar.value.trim()));
     }
-    if (period_begin != "" && period_end != "") {
-        url_params.push('period_begin=' + period_begin + '&period_end=' + period_end);
+    if (period_begin !== "" && period_end !== "") {
+        url_params.push("period_begin=" + encodeURIComponent(period_begin));
+        url_params.push("period_end=" + encodeURIComponent(period_end));
     }
 
-    console.log(url_params);
-    var final_url_params = url_params.join("&");
-    url = url + final_url_params;
-    console.log(url);
-
-    /*
-    if(boundingbox != ""){
-        //console.log("keybox ok");
-        url = url + '?box=' + boundingbox;
-        //search_request.keyword = searchbar.value;
-    } else if (boundingbox!="" && period_begin!="" && period_end!="") {
-        url = url + '?box='+boundingbox+'&period_begin='+ period_begin + '&period_end=' + period_end;
-    } else if (boundingbox!="" && searchbar.value!="") {
-        //console.log("keybox no");
-        url = url + '?search='+ (searchbar.value=="" ? 'all' : searchbar.value) + '&' + 'box=' + boundingbox;
-    } else if (boundingbox!="" && period_begin!="" && period_end!="" && searchbar.value!="") {
-        url = url + '?search='+ (searchbar.value=="" ? 'all' : searchbar.value) + '&' + 'box=' + boundingbox+'&period_begin='+ period_begin + '&period_end=' + period_end;
-    }*/
-
-    //console.log(search_request);
-    //console.log(url);
-
-    //console.log(data);
+    url = url + url_params.join("&");
 
     $.ajax({
         url: url,
-        type: 'GET',
+        type: "GET",
         contentType: "application/json",
         success: function (response) {
-            //console.log(response['metadata_results']);
-            var metadata_results = response['metadata_results'];//JSON.parse(response['metadata_results']);
-            var title_list = response['title_list'];
-            $("#searchbar").autocomplete({
-                source: title_list.split(","),
-                minLength: 2,
-                max: 10,
-                scroll: true
-            });
+            var metadata_results = response.metadata_results;
+            var title_list = response.title_list;
 
-            //console.log(metadata_results);
-            if (metadata_results != "no results") {
-                $('#number_results').html('Results: <b>' + metadata_results.length.toString() + '</b> items found');
+            if (typeof title_list === "string" && title_list.length > 0) {
+                $("#searchbar").autocomplete({
+                    source: title_list.split(","),
+                    minLength: 2,
+                    max: 10,
+                    scroll: true
+                });
+            }
+
+            if (metadata_results && metadata_results !== "no results" && metadata_results.length > 0) {
+                $("#number_results").html(
+                    "Results: <b>" + metadata_results.length.toString() + "</b> items found"
+                );
                 renderDiscoveryResults(metadata_results);
 
-                //geometry
-                for (i = 0; i < metadata_results.length; i++) {
-                    if (metadata_results[i][6] != null) {
+                for (var i = 0; i < metadata_results.length; i++) {
+                    if (metadata_results[i][6] == null) {
+                        continue;
+                    }
 
-                        var box = JSON.parse(metadata_results[i][6])['coordinates'][0];
-                        correct_bounds = [];
+                    var geom = JSON.parse(metadata_results[i][6]);
+                    var ring = geom.coordinates[0];
+                    var correct_bounds = [];
 
-                        for (k = 0; k < box.length; k++) {
-                            correct_bounds[k] = [box[k][1], box[k][0]];
+                    for (var k = 0; k < ring.length; k++) {
+                        correct_bounds[k] = [ring[k][1], ring[k][0]];
+                    }
+
+                    var bounds = L.latLngBounds(correct_bounds);
+                    var rectangle = L.rectangle(bounds, {
+                        color: "#DF1B12",
+                        weight: 2,
+                        fill: false
+                    });
+
+                    if (metadata_results[i][3] != null) {
+                        if (metadata_results[i][3] === "SOS") {
+                            rectangle.addTo(map);
+                            var center_coords = rectangle.getCenter();
+                            L.marker(center_coords)
+                                .bindTooltip(metadata_results[i][1])
+                                .openTooltip()
+                                .addTo(map);
+                        } else {
+                            rectangle
+                                .bindTooltip(metadata_results[i][1])
+                                .openTooltip()
+                                .addTo(map);
                         }
-                        box
-                        finalBox = JSON.parse(metadata_results[i][6])['coordinates'];
-
-                        var bounds = L.latLngBounds(correct_bounds);
-                        //var bounds = [[box[1],box[0]],[box[3],box[2]]];
-                        var rectangle = L.rectangle(bounds, { color: "#DF1B12", weight: 2, fill: false });
-                        if (metadata_results[i][3] != null) {
-                            if (metadata_results[i][3] == "SOS") {
-                                rectangle.addTo(map);
-                                var center_coords = rectangle.getCenter();
-                                L.marker(center_coords).bindTooltip(metadata_results[i][1]).openTooltip().addTo(map);
-                            } else {
-                                rectangle.bindTooltip(metadata_results[i][1]).openTooltip().addTo(map);
-                            }
-                        }
-
-                    } else {
-                        console.log("defined");
                     }
                 }
             } else {
-                $('#number_results').html('<i class="fa fa-list" aria-hidden="true"></i> Results: <b>no item was found with this bounding box</b>');
+                $("#metadata_results").empty();
+                $("#number_results").html(
+                    "Results: <b>no items were found with this bounding box</b>"
+                );
             }
         },
+        error: function () {
+            $("#metadata_results").empty();
+            $("#number_results").html(
+                "Results: <b>search failed, please try again</b>"
+            );
+        }
     });
 });

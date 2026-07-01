@@ -6,7 +6,10 @@
 {% endblock %}
 
 {% block extra_head %}
-  <link rel="stylesheet" href="{% static 'css/pages/result_detail.css' %}?v=2">
+  <link rel="stylesheet" href="{% static 'css/pages/result_detail.css' %}?v=3">
+  {% if extent_geom %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+  {% endif %}
 
   {% if uuid %}
   <link rel="describedby" href="https://edp-portal.eurac.edu/geonetwork/srv/api/records/{{ uuid }}/formatters/xml?approved=true" type="application/vnd.iso19139.metadata+xml">
@@ -249,13 +252,14 @@
         </section>
         {% endif %}
 
-        {% if result_json.minLat %}
+        {% if extent_geom %}
         <section class="topic-media" aria-labelledby="topic-bounding-box">
           <div class="topic-block__head">
             <span class="topic-block__icon"><i class="fa fa-crosshairs" aria-hidden="true"></i></span>
             <h2 class="topic-block__title" id="topic-bounding-box">Bounding box</h2>
           </div>
-          <img class="topic-media__map" src="https://edp-portal.eurac.edu/geonetwork/srv/api/records/{{ uuid }}/extents.png" alt="Bounding box map">
+          <div id="topic-extent-map" class="topic-media__map" role="img" aria-label="Bounding box map"></div>
+          {{ extent_geom|json_script:"topic-extent-data" }}
         </section>
         {% endif %}
 
@@ -401,6 +405,10 @@
 {% endblock %}
 
 {% block extra_scripts %}
+  {% if extent_geom %}
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script src="{% static 'js/result_detail_extent.js' %}?v=1"></script>
+  {% endif %}
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       var tabButtons = Array.prototype.slice.call(document.querySelectorAll(".topic-snippet__tabs .nav-link"));
