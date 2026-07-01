@@ -27,20 +27,23 @@
 
 .topic-page__title-row {
   display: flex;
-  flex-flow: row wrap;
+  flex-flow: row nowrap;
   justify-content: space-between;
-  align-items: center;
-  gap: var(--space-8);
+  align-items: flex-start;
+  gap: var(--space-6);
 }
 
 .topic-page__title {
-  flex: 1 1 35rem;
+  flex: 1 1 auto;
+  min-width: 0;
   margin: 0;
   color: var(--color-text-primary);
   font-family: var(--font-family-sans);
-  font-size: clamp(1.75rem, 3vw, 3rem);
+  font-size: clamp(1.125rem, 1.6vw, 1.75rem);
   font-weight: var(--font-weight-bold);
-  line-height: var(--line-height-tight);
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .topic-page__actions {
@@ -48,6 +51,7 @@
   flex-flow: row wrap;
   align-items: center;
   gap: var(--space-6);
+  flex: 0 0 auto;
 }
 
 .topic-btn {
@@ -448,6 +452,10 @@
 
   .topic-page__head {
     padding-top: var(--space-10);
+  }
+
+  .topic-page__title-row {
+    flex-wrap: wrap;
   }
 
   .topic-page__actions {
