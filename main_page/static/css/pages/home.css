@@ -125,19 +125,29 @@
 }
 
 .home-tools__grid {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: stretch;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 32px;
   width: 100%;
 }
 
 .home-tools__grid > .home-tool-card {
-  flex: 1 1 17rem;
   max-width: 668px;
-  min-width: min(100%, 327px);
+  width: 100%;
+}
+
+@media (min-width: 1000px) {
+  .home-tools__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .home-tools__grid > .home-tool-card {
+    max-width: none;
+  }
+
+  .home-tools__grid > .home-tool-card:nth-child(4) {
+    grid-column: 1;
+  }
 }
 
 .home-tool-card {
