@@ -21,7 +21,7 @@ services:
       sh -c "python manage.py collectstatic --noinput &&
              gunicorn edp_interface.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 120"
     ports:
-      - "${WEB_HOST_PORT:-18080}:8000"
+      - "${WEB_HOST_PORT:-8083}:8000"
     environment:
       DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-change-me}
       DJANGO_DEBUG: ${DJANGO_DEBUG:-False}
