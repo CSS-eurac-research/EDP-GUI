@@ -32,7 +32,7 @@ services:
       DB_NAME: ${DB_NAME:-edp_portal_gui}
       DB_USER: ${DB_USER:-edp_gui_user}
       DB_PASSWORD: ${DB_PASSWORD:-edp_gui_pass}
-      DB_HOST: db
+      DB_HOST: ${DB_HOST:-10.8.244.39}
       DB_PORT: ${DB_PORT:-5432}
       GEONETWORK_BASE_URL: ${GEONETWORK_BASE_URL:-http://10.8.244.64:8080/geonetwork}
       EDP_DISCOVERY_URL: ${EDP_DISCOVERY_URL:-http://localhost:18080/discovery/}
@@ -41,8 +41,7 @@ services:
       DATA_CITE_API: ${DATA_CITE_API:-https://api.datacite.org/dois/10.48784/}
       GEONETWORK_URL: ${GEONETWORK_URL:-https://edp-portal.eurac.edu/geonetwork/srv/api/records/}
       GEONETWORK_HARVEST_URL: ${GEONETWORK_HARVEST_URL:-http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&summaryOnly=1}
-    depends_on:
-      - db
+
     restart: unless-stopped
 
 volumes:
