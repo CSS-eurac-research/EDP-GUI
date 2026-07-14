@@ -1,190 +1,182 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block page_content %}
+{% block title %}Discovery - EDP{% endblock %}
 
-<head>
+{% block body_class %}edp-page--discovery{% endblock %}
 
-  <title>Discovery - EDP</title>
-  <link rel="shortcut icon" href="/static/apple-touch-icon.png">
-  <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
-  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js"></script>
-
-  <script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/pages/discovery.css' %}?v=13">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css">
   <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+  <script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
   <script src="//code.jquery.com/jquery-1.12.4.js"></script>
   <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-  <script src="../static/abstract_expand.js"></script>
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js"></script>
+{% endblock %}
 
-</head>
+{% block page_content %}
+<div class="discovery-page">
+  <header class="discovery-page__head">
+    <h1 class="discovery-page__title">Data discovery</h1>
+  </header>
 
-<div style="height: 50px; margin-top: 10px; width: 100%;" class="row">
-  <div class="col">
-    <a href="{% url 'edp_portal:main_page' %}"><img src="/static/Eurac_Research_logo.png" id="logo"></a>
-  </div>
-  <div class="col-6">
-    <div style="width: 100%" class="center">
-      <h1 id="title"><b>E</b>nvironmental <b>D</b>ata <b>P</b>latform</h1>
-    </div>
-  </div>
-  <div class="col">
-    <a href="https://www.eurac.edu/en/institutes-centers/center-for-sensing-solutions/projects/dps4eslab"
-      target="_blank" rel="noopener noreferrer"><img src="/static/fesr_dps4eslab_logo.png" id="fesr_logo"></a>
+  <div id="maploader" class="loader" aria-hidden="true"></div>
 
-  </div>
-</div>
-<hr>
-<div id="maploader" class='loader'></div>
-
-<div id="discovery_main_section" class="" style="min-height: 90%;">
-
-  <div id="discovery_main_row" class="min-height: 90%;" style="color: #666B6C;">
-    <div class="" style="padding: 5px;">
-      <div class="row">
-        <script type="text/javascript">
-          $(function () {
-            var searchbar_keyword = "{{ title_list }}";
-            $("#searchbar").autocomplete({
-              // source: "{% url 'edp_portal:discovery' %}",
-              source: searchbar_keyword.split(","),
-              minLength: 2,
-              max: 10,
-              scroll: true
-            });
-          });   
-        </script>
-        <script src="../static/search.js"></script>
-        <div style="display: -webkit-inline-box; width: 100%;">
-          <script src="../static/reset_search.js"></script>
-          <script>
-            $("#searchbar").prop("disabled", true);
-            $("#searchbutton").prop("disabled", true);
-          </script>
-          <script>
-            $(function () {
-              $("#period_begin").datepicker();
-            });
-          </script>
-          <script>
-            $(function () {
-              $("#period_end").datepicker();
-            });
-          </script>
-          <form id="formsearch" onsubmit="return dosearch();">
-            <div class="">
-              <div class="row">
-                <div class="" style="float: left; width: 40%;">
-                  <label for="search"></label>
-                  <input type="text" name="search" id="searchbar">
-                  <button id="searchbutton" type="submit" class="btn btn-outline-primary"><i class="fa fa-search"></i>
-                    Search</button>
-                </div>
-                <div class="" style="float: left; width: 50%;">
-                  <div class="">
-                    <div class="row align-items-start" style="margin-top: 5px;">
-                      <div class="" style="color: #DF1B12; margin-right: 2px;">Begin: <input type="text"
-                          id="period_begin" style="border: 0.5px solid #DF1B12; border-radius: 5px;"></div>
-                      <div class="" style="color: #DF1B12; margin-right: 10px;">End: <input type="text" id="period_end"
-                          style="border: 0.5px solid #DF1B12; border-radius: 5px;"></div>
-                      <div class="" style="display: inline-flex;">
-                        <label style="color: #DF1B12;">Repositories: </label>
-                        <div id="categories_div">
-                          {% for category in category_list %}
-                          <div class="checkbox_categories">
-                            <input class="checkbox_categories_input" type="checkbox" id="{{category}}" name="category"
-                              value="{{category}}">
-                            <label for="{{category}}"> {{category}}</label>
-                          </div>
-                          {% endfor %}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="" style="text-align: right; width: 10%;"><button id="resetbutton" type="submit"
-                    class="btn btn-outline-primary" style="margin-left: 40px;" onclick="reset_search()"><i
-                      class="fa fa-eraser"></i> Reset search</button></div>
-              </div>
-            </div>
-          </form>
-        </div>
+  <form id="formsearch" class="discovery-toolbar" onsubmit="return dosearch();">
+    <div class="discovery-toolbar__row">
+      <div class="discovery-toolbar__search-wrap">
+        <label class="visually-hidden" for="searchbar">Search</label>
+        <input type="text" name="search" id="searchbar" class="discovery-toolbar__search" placeholder="Search" autocomplete="off">
+        <button id="searchbutton" type="submit" class="discovery-toolbar__search-btn" aria-label="Search">
+          <i class="fa fa-search" aria-hidden="true"></i>
+        </button>
       </div>
-    </div>
-  </div>
-  <!--       <div style="padding: 0px;">
-        <hr>
-      </div> -->
-  <div class="" style="float: left; width: 50%; height: 83%; color: #666B6C;">
-    <div class="" style="min-height: 88%;">
-      {% if metadata_results %}
-      <h5 id="number_results" style="margin: 5px;"><i class="fa fa-list" aria-hidden="true"></i> Results:
-        <b>{{metadata_results | length }}</b> items found</h5>
-      <div id="metadata_results" style="min-height: 95.7%;">
 
-        {% for item in metadata_results %}
+      <div class="discovery-toolbar__filters">
+        <div class="discovery-toolbar__dates">
+          <label class="discovery-toolbar__date-label" for="period_begin">Begin:</label>
+          <input type="text" id="period_begin" class="discovery-toolbar__date-input" autocomplete="off">
+          <label class="discovery-toolbar__date-label" for="period_end">End:</label>
+          <input type="text" id="period_end" class="discovery-toolbar__date-input" autocomplete="off">
+        </div>
 
-        <div id="row-{{item.uuid}}" class="row">
-          <div class="col">
-            <div class="card card_rem" style="align-items: inherit;">
-              <div style="min-height: 8vw !important; min-width: 15vw; overflow: hidden; position: relative;">
-                {% if item.thumbnail != None %}
-                <img src="{{item.thumbnail}}" class="card-img-top"
-                  style="position: absolute; max-height: 100%; max-width: 100%; height: auto; width: auto; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-                {% else %}
-                <!-- <img src="/static/no_image.png" class="card-img-top"> -->
-                {% endif %}
-              </div>
-              <div class="card-body" style="    padding-left: 0.8rem;">
-                <a class="card-title" style="color: #DF1B12; font-size: 20px;" href="/discovery/{{item.uuid}}"
-                  target="_blank" rel="noopener noreferrer">{{item.title}}</a>
-                <div class="card-text abstract-results"><span class="abstract_par">{{item.abstract}}</span></div>
-                <p class="card-text" style="font-weight: bold; margin-top: 0.5rem; margin-bottom: 0.3rem">
-                  {{item.category}}</p>
-                <p class="card-text" style="font-size: 12px; font-style:italic;">{{item.keyword}}</p>
-                {% if item.period_begin %}
-                <p style="margin-bottom: 0rem"><i class="fa fa-clock-o" aria-hidden="true"></i> {{ item.period_begin }}
-                  <img src="/static/right-arrow.png" style="width: 20px;"> {{ item.period_end }}
-                </p>
-                {% endif %}
-              </div>
+        <div class="discovery-toolbar__repos">
+          <span class="discovery-toolbar__repos-label">Repositories:</span>
+          <div id="categories_div">
+            {% for category in category_list %}
+            <div class="checkbox_categories">
+              <input class="checkbox_categories_input" type="checkbox" id="{{ category }}" name="category" value="{{ category }}">
+              <label for="{{ category }}">{{ category }}</label>
             </div>
+            {% endfor %}
           </div>
         </div>
-        {% endfor %}
-
       </div>
 
-      {% else %}
-      <p>No metadata sources are available.</p>
-      {% endif %}
-
+      <button id="resetbutton" type="button" class="discovery-toolbar__reset" onclick="reset_search(); return false;">
+        Reset search
+      </button>
     </div>
-  </div>
-  <div class="" style="float: left; width: 50%;">
-    <div id="map"></div>
-    <script src="../static/map.js"></script>
-  </div>
+  </form>
 
-</div>
-</div>
-<div id="footer">
-  <div style="margin: 50px;" class="row">
-
-    <!-- <h6>Info, Terms and Conditions</h6> -->
-    <div style="margin: 0 auto;">
-      <p style="color:#666B6C">© 2025 Eurac Research •
-        <a href="https://cssportfolio.eurac.edu/" target="_blank" rel="noopener noreferrer" style="color:#666B6C">Center
-          for Sensing Solutions portfolio
-        </a>•
-
-        <a href="{% url 'edp_portal:terms_conditions_page' %}" target="_blank" rel="noopener noreferrer"
-          style="color:#666B6C">Contacts, Terms and Conditions</a>
-
+  <div class="discovery-body">
+    <section class="discovery-results" aria-label="Search results">
+      <p id="number_results" class="discovery-results__count">
+        {% if metadata_results %}
+        Results: <b>{{ metadata_results|length }}</b> items found
+        {% else %}
+        Results: <b>0</b> items found
+        {% endif %}
       </p>
-    </div>
+      {% if metadata_results %}
+      <div id="metadata_results">
+        {% for item in metadata_results %}
+        <article class="discovery-result" id="discovery-result-{{ item.uuid }}">
+          <div class="discovery-result__main">
+            <div class="discovery-result__media">
+              {% if item.thumbnail %}
+              <img class="discovery-result__img" src="{{ item.thumbnail }}" alt="">
+              {% endif %}
+            </div>
+            <div class="discovery-result__body">
+              <h2 class="discovery-result__title">
+                <a href="{% url 'edp_portal:result_detail' item.uuid %}" target="_blank" rel="noopener noreferrer">{{ item.title }}</a>
+              </h2>
+              <div class="discovery-result__abstract abstract-results">
+                <span class="abstract_par">{{ item.abstract }}</span>
+              </div>
+              <p class="discovery-result__repo">{{ item.category }}</p>
+              <a class="discovery-result__view-btn" href="{% url 'edp_portal:result_detail' item.uuid %}" target="_blank" rel="noopener noreferrer">View</a>
+              {% if item.keyword %}
+              <div class="discovery-result__tags discovery-result__tags--from-data" data-keywords="{{ item.keyword|escape }}"></div>
+              {% endif %}
+              {% if item.period_begin %}
+              <div class="discovery-result__period">
+                <i class="fa fa-clock-o" aria-hidden="true"></i>
+                <span>{{ item.period_begin }}</span>
+                <img src="{% static 'right-arrow.png' %}" alt="" width="20" height="20">
+                <span>{{ item.period_end }}</span>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+          <hr class="discovery-result__divider" aria-hidden="true">
+        </article>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="discovery-results__empty">No metadata sources are available.</p>
+      <div id="metadata_results"></div>
+      {% endif %}
+    </section>
 
+    <div class="discovery-map-wrap">
+      <div id="map" role="application" aria-label="Map"></div>
+    </div>
   </div>
 </div>
+{% endblock %}
 
+{% block extra_scripts %}
+  <script>
+    var discoveryTitleList = "{{ title_list|escapejs }}";
+  </script>
+  <script src="{% static 'js/discovery-results.js' %}"></script>
+  <script src="{% static 'abstract_expand.js' %}?v=5"></script>
+  <script src="{% static 'reset_search.js' %}?v=2"></script>
+  <script src="{% static 'search.js' %}?v=3"></script>
+  <script src="{% static 'map.js' %}?v=3"></script>
+  <script>
+    $(function () {
+      if (typeof discoveryTitleList !== "undefined" && discoveryTitleList) {
+        $("#searchbar").autocomplete({
+          source: discoveryTitleList.split(","),
+          minLength: 2,
+          max: 10,
+          scroll: true,
+          classes: { "ui-autocomplete": "discovery-toolbar__suggestions" },
+          open: function () {
+            var $wrap = $(this).closest(".discovery-toolbar__search-wrap");
+            var $menu = $(this).autocomplete("widget");
+            if ($wrap.length) {
+              var offset = $wrap.offset();
+              $menu.css({
+                left: offset.left + "px",
+                top: offset.top + $wrap.outerHeight() + "px",
+                width: $wrap.outerWidth() + "px"
+              });
+            }
+          }
+        });
+      }
+      $("#period_begin, #period_end").datepicker({
+        changeMonth: true,
+        changeYear: true,
+        dateFormat: "yy-mm-dd",
+        showButtonPanel: true,
+        yearRange: "1900:+10",
+        beforeShow: function (input, inst) {
+          inst.dpDiv.addClass("discovery-toolbar__datepicker");
+        }
+      });
+
+      document.querySelectorAll(".discovery-result__tags--from-data").forEach(function (el) {
+        var raw = el.getAttribute("data-keywords");
+        if (!raw) return;
+        raw.split(",").forEach(function (part) {
+          part = part.trim();
+          if (!part) return;
+          var span = document.createElement("span");
+          span.className = "discovery-result__tag";
+          span.textContent = part;
+          el.appendChild(span);
+        });
+        el.removeAttribute("data-keywords");
+        el.classList.remove("discovery-result__tags--from-data");
+      });
+    });
+  </script>
 {% endblock %}

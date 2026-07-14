@@ -10,13 +10,19 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
-from pathlib import Path
 import os
-import ast
-from django.conf import settings
+from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-#BASE_DIR = Path(__file__).resolve().parent.parent
+
+def _env_bool(name, default=False):
+    return os.getenv(name, str(default)).strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _env_list(name, default):
+    raw = os.getenv(name, default)
+    return [item.strip() for item in raw.split(",") if item.strip()]
+
+BASE_DIR = Path(__file__).resolve().parent.parent
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
 MEDIA_ROOT = os.getenv('MEDIA_ROOT', os.path.join(PROJECT_ROOT, "uploaded"))
@@ -25,19 +31,26 @@ STATIC_ROOT = os.getenv('STATIC_ROOT',
                         os.path.join(PROJECT_ROOT, "static")
                         )
 STATIC_URL = '/static/'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '(ttmch2die!2bh@1l25-xlj+8k691n+g-&xtl*rs^c4o8$6*ji'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'change-me-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = _env_bool('DJANGO_DEBUG', True)
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '10.8.244.240', 'edp-portal.eurac.edu', '193.106.181.170']
-PROXY_ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '10.8.244.240', 'edp-portal.eurac.edu', '193.106.181.170']
-#CSRF_TRUSTED_ORIGINS = ['127.0.0.1', 'localhost', '10.8.244.240', 'edp-portal.eurac.edu', '193.106.181.170']
+ALLOWED_HOSTS = _env_list(
+    'DJANGO_ALLOWED_HOSTS',
+    '127.0.0.1,localhost,10.8.244.240,edp-portal.eurac.edu,193.106.181.170'
+)
+PROXY_ALLOWED_HOSTS = _env_list(
+    'DJANGO_PROXY_ALLOWED_HOSTS',
+    '127.0.0.1,localhost,10.8.244.240,edp-portal.eurac.edu,193.106.181.170'
+)
+CSRF_TRUSTED_ORIGINS = _env_list('DJANGO_CSRF_TRUSTED_ORIGINS', '')
 #XS_SHARING_ALLOWED_ORIGINS = "edp-portal.eurac.edu"
 #XS_SHARING_ALLOWED_METHODS = ['POST','GET','OPTIONS', 'PUT', 'DELETE']
 
@@ -56,6 +69,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -88,28 +102,29 @@ WSGI_APPLICATION = 'edp_interface.wsgi.application'
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': BASE_DIR / 'db.sqlite3',
-#    }
-
-        'default': {
-
-        #'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-
-        'NAME': 'edp_portal_gui',
-
-        'USER': 'edp_gui_user',
-
-        'PASSWORD': '73bd357832012a62357095bf6d9324f8',
-
-        'HOST': '10.8.244.39',
-
-        'PORT': '5432',
-
+    'default': {
+        'ENGINE': os.getenv('DB_ENGINE', 'django.contrib.gis.db.backends.postgis'),
+        'NAME': os.getenv('DB_NAME', 'edp_portal_gui'),
+        'USER': os.getenv('DB_USER', 'edp_gui_user'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', '127.0.0.1'),
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
+
+GEONETWORK_BASE_URL = os.getenv('GEONETWORK_BASE_URL', 'http://10.8.244.64:8080/geonetwork')
+EDP_DISCOVERY_URL = os.getenv('EDP_DISCOVERY_URL', 'https://edp-portal.eurac.edu/discovery/')
+DOI_URL = os.getenv('DOI_URL', 'https://doi.org/10.48784/')
+OPENEO_URL = os.getenv(
+    'OPENEO_URL',
+    'https://openeo.eurac.edu/openeo/1.1.0/collections/',
+)
+DATA_CITE_API = os.getenv('DATA_CITE_API', 'https://api.datacite.org/dois/10.48784/')
+GEONETWORK_URL = os.getenv('GEONETWORK_URL', 'https://edp-portal.eurac.edu/geonetwork/srv/api/records/')
+GEONETWORK_HARVEST_URL = os.getenv(
+    'GEONETWORK_HARVEST_URL',
+    'http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&summaryOnly=1'
+)
 
 
 # Password validation
@@ -136,7 +151,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'CET'
+TIME_ZONE = 'Europe/Rome'
 
 USE_I18N = True
 

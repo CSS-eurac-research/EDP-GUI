@@ -1,0 +1,42 @@
+{% load static %}
+{% if request.resolver_match and request.resolver_match.url_name == 'main_page' %}
+  {# Home: solid brand bar only (no title / nav). #}
+  <header class="edp-site-header edp-site-header--home-stripe" role="banner" aria-label="Environmental Data Platform"></header>
+{% else %}
+  {# Frame 4268 — discovery and other portal pages #}
+  <header class="edp-site-header edp-site-header--framed" role="banner">
+    <div class="edp-site-header__inner--framed">
+      <div class="edp-site-header__brand-wrap">
+        <a class="edp-site-header__brand" href="{% url 'edp_portal:main_page' %}">
+          Environmental Data Platform
+        </a>
+      </div>
+      <div class="edp-site-header__nav-wrap">
+        <nav class="edp-site-header__nav edp-site-header__nav--framed" aria-label="Primary">
+          {% if request.resolver_match.url_name == 'discovery' %}
+            <span class="edp-btn-pill edp-btn-pill--primary is-disabled" aria-current="page">
+              <i class="fa fa-search edp-btn-pill__fa" aria-hidden="true"></i>
+              Data discovery
+            </span>
+          {% else %}
+            <a class="edp-btn-pill edp-btn-pill--primary" href="{% url 'edp_portal:discovery' %}">
+              <i class="fa fa-search edp-btn-pill__fa" aria-hidden="true"></i>
+              Data discovery
+            </a>
+          {% endif %}
+          {% if request.resolver_match.url_name == 'docs_page' %}
+            <span class="edp-btn-pill edp-btn-pill--primary is-disabled" aria-current="page">
+              <i class="fa fa-info-circle edp-btn-pill__fa" aria-hidden="true"></i>
+              Documentations list
+            </span>
+          {% else %}
+            <a class="edp-btn-pill edp-btn-pill--primary" href="{% url 'edp_portal:docs_page' %}">
+              <i class="fa fa-info-circle edp-btn-pill__fa" aria-hidden="true"></i>
+              Documentations list
+            </a>
+          {% endif %}
+        </nav>
+      </div>
+    </div>
+  </header>
+{% endif %}

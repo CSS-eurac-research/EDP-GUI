@@ -1,7 +1,11 @@
 $("#maploader").remove();
-const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
 const map = L.map('map').setView([48, 10], 5);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: attribution }).addTo(map);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png', {
+    attribution: attribution,
+    subdomains: 'abcd',
+    maxZoom: 19
+}).addTo(map);
 
 var drawnItems = new L.FeatureGroup();
 map.addLayer(drawnItems);
@@ -19,8 +23,6 @@ var drawControl = new L.Control.Draw({
 });
 map.addControl(drawControl);
 map.addLayer(drawnItems);
-$("#searchbutton").prop("disabled", false);
-$("#searchbar").prop("disabled", false);
 
 map.on('draw:created', function (e) {
 
@@ -60,198 +62,109 @@ map.on('draw:created', function (e) {
     //console.log(polygon['geometry']['coordinates'][0]);
     //$('#boundingbox').val(coords[0][0] + ", " + coords[0][1] + ", " + coords[0][2] + ", " + coords[0][3]);
 
-    var boundingbox = polygon['geometry']['coordinates'][0];
-
-    //var csrftoken = Cookies.get('csrftoken');
-
-    function csrfSafeMethod(method) {
-        // these HTTP methods do not require CSRF protection
-        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-    }
-
-    $.ajaxSetup({
-        crossDomain: false, // obviates need for sameOrigin test
-        beforeSend: function (xhr, settings) {
-            if (!csrfSafeMethod(settings.type)) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            }
-        }
-    });
-
-    //console.log(csrftoken);
-
-    var href = window.location.href;
-    var url = href + '?';//+'?search='+searchbar.value;
+    var boundingbox = polygon.geometry.coordinates[0];
+    var searchbar = document.getElementById("searchbar");
+    var url = window.location.pathname + "?";
     var url_params = [];
-
-    // if(boundingbox != ""){
-    //     //console.log("keybox ok");
-    //     url = url + '?search='+searchbar.value + '&' + 'box=' + boundingbox;
-    //     //search_request.keyword = searchbar.value;
-    // } else {
-    //     //console.log("keybox no");
-    //     url = url + '?search='+searchbar.value;
-    // }
 
     var categories_selected = [];
     $.each($("input[name='category']:checked"), function () {
         categories_selected.push($(this).val());
     });
-    $.each($("input[name='category']:not(:checked)"), function () {
-        var index = categories_selected.indexOf($(this).val());
-    });
 
-    if (categories_selected.length == 0) {
+    if (categories_selected.length === 0) {
         categories_selected.push("all");
     }
 
-    url_params.push('categories=' + categories_selected.join(","));
+    url_params.push("categories=" + encodeURIComponent(categories_selected.join(",")));
 
-    //Date picker 2013-01-01   
-    var period_begin = document.getElementById('period_begin').value
-    var period_end = document.getElementById('period_end').value
+    var period_begin = document.getElementById("period_begin").value;
+    var period_end = document.getElementById("period_end").value;
 
-    if (boundingbox != "") {
-        url_params.push('box=' + boundingbox);
+    if (boundingbox !== "") {
+        url_params.push("box=" + encodeURIComponent(boundingbox));
     }
-    if (searchbar.value != "") {
-        url_params.push('search=' + searchbar.value);
+    if (searchbar && searchbar.value.trim() !== "") {
+        url_params.push("search=" + encodeURIComponent(searchbar.value.trim()));
     }
-    if (period_begin != "" && period_end != "") {
-        url_params.push('period_begin=' + period_begin + '&period_end=' + period_end);
+    if (period_begin !== "" && period_end !== "") {
+        url_params.push("period_begin=" + encodeURIComponent(period_begin));
+        url_params.push("period_end=" + encodeURIComponent(period_end));
     }
 
-    console.log(url_params);
-    var final_url_params = url_params.join("&");
-    url = url + final_url_params;
-    console.log(url);
-
-    /*
-    if(boundingbox != ""){
-        //console.log("keybox ok");
-        url = url + '?box=' + boundingbox;
-        //search_request.keyword = searchbar.value;
-    } else if (boundingbox!="" && period_begin!="" && period_end!="") {
-        url = url + '?box='+boundingbox+'&period_begin='+ period_begin + '&period_end=' + period_end;
-    } else if (boundingbox!="" && searchbar.value!="") {
-        //console.log("keybox no");
-        url = url + '?search='+ (searchbar.value=="" ? 'all' : searchbar.value) + '&' + 'box=' + boundingbox;
-    } else if (boundingbox!="" && period_begin!="" && period_end!="" && searchbar.value!="") {
-        url = url + '?search='+ (searchbar.value=="" ? 'all' : searchbar.value) + '&' + 'box=' + boundingbox+'&period_begin='+ period_begin + '&period_end=' + period_end;
-    }*/
-
-    //console.log(search_request);
-    //console.log(url);
-
-    //console.log(data);
+    url = url + url_params.join("&");
 
     $.ajax({
         url: url,
-        type: 'GET',
+        type: "GET",
         contentType: "application/json",
         success: function (response) {
-            //console.log(response['metadata_results']);
-            var metadata_results = response['metadata_results'];//JSON.parse(response['metadata_results']);
-            var title_list = response['title_list'];
-            $("#searchbar").autocomplete({
-                source: title_list.split(","),
-                minLength: 2,
-                max: 10,
-                scroll: true
-            });
+            var metadata_results = response.metadata_results;
+            var title_list = response.title_list;
 
-            //console.log(metadata_results);
-            if (metadata_results != "no results") {
-                $('#number_results').html('<i class="fa fa-list" aria-hidden="true"></i> Results: <b>' + metadata_results.length.toString() + '</b> items found');
-                $('#metadata_results').empty();
-                //console.log(metadata_results.length);
-                var col = 0;
-                var row = 0;
-                var key = 0;
-                for (i = metadata_results.length - 1; i > -1; i--) {
-                    if (col == 0) {
-                        $('#metadata_results').prepend(`<div id="row-${row}" class="row">`);
-                    }
-                    var result_box = "";
-                    result_box = result_box + '<div class="col"> <div class="card card_rem" style="align-items: inherit;">';
+            if (typeof title_list === "string" && title_list.length > 0) {
+                $("#searchbar").autocomplete({
+                    source: title_list.split(","),
+                    minLength: 2,
+                    max: 10,
+                    scroll: true
+                });
+            }
 
-                    //image
-                    if (metadata_results[i][5] != null) {
-                        result_box = result_box + '<div style="min-height: 8vw !important; min-width: 15vw; overflow: hidden; position: relative;">'
-                        result_box = result_box + '<img src="' + metadata_results[i][5] +
-                            '" class="card-img-top" style = "position: absolute; max-height: 100%; max-width: 100%; height: auto; width: auto; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"> ';
-                    }
-                    result_box = result_box + '</div>';
-                    // result_box = result_box + '<div class="col">';
-                    result_box = result_box + '<div class="card-body">';
-                    //uuid and title
-                    if (metadata_results[i][0] != null) {
-                        result_box = result_box + '<a class="card-title" style="color: #DF1B12; font-size: 20px;" href="/discovery/' + metadata_results[i][0] + '" target="_blank" rel="noopener noreferrer">' + metadata_results[i][1] + '</a>';
+            if (metadata_results && metadata_results !== "no results" && metadata_results.length > 0) {
+                $("#number_results").html(
+                    "Results: <b>" + metadata_results.length.toString() + "</b> items found"
+                );
+                renderDiscoveryResults(metadata_results);
+
+                for (var i = 0; i < metadata_results.length; i++) {
+                    if (metadata_results[i][6] == null) {
+                        continue;
                     }
 
-                    //abstract
-                    if (metadata_results[i][2] != null) {
-                        result_box = result_box + '<div class="card-text abstract-results">' + metadata_results[i][2] + '</div>';
+                    var geom = JSON.parse(metadata_results[i][6]);
+                    var ring = geom.coordinates[0];
+                    var correct_bounds = [];
+
+                    for (var k = 0; k < ring.length; k++) {
+                        correct_bounds[k] = [ring[k][1], ring[k][0]];
                     }
 
-                    //category
+                    var bounds = L.latLngBounds(correct_bounds);
+                    var rectangle = L.rectangle(bounds, {
+                        color: "#DF1B12",
+                        weight: 2,
+                        fill: false
+                    });
+
                     if (metadata_results[i][3] != null) {
-                        result_box = result_box + '<p class="card-text" style="font-weight: bold">' + metadata_results[i][3] + '</p>';
-                    }
-
-                    //keyword
-                    if (metadata_results[i][4] != null) {
-                        key = key + 1;
-                        result_box = result_box + '<p class="card-text" style="font-size: 12px; font-style:italic;">' + metadata_results[i][4] + '</p>';
-                    }
-                    result_box = result_box + '</div> </div> </div>';
-
-                    $('#row-' + row.toString()).prepend(result_box);
-
-                    col = col + 1;
-                    if (col == 3) {
-                        $('#row-' + row.toString()).prepend(`</div>`);
-                        col = 0;
-                        row = row + 1;
-                    } else if (i == metadata_results.length - 1) {
-                        $('#row-' + row.toString()).prepend(`</div>`);
-                    }
-
-                }
-
-                //geometry
-                for (i = 0; i < metadata_results.length; i++) {
-                    if (metadata_results[i][6] != null) {
-
-                        var box = JSON.parse(metadata_results[i][6])['coordinates'][0];
-                        correct_bounds = [];
-
-                        for (k = 0; k < box.length; k++) {
-                            correct_bounds[k] = [box[k][1], box[k][0]];
+                        if (metadata_results[i][3] === "SOS") {
+                            rectangle.addTo(map);
+                            var center_coords = rectangle.getCenter();
+                            L.marker(center_coords)
+                                .bindTooltip(metadata_results[i][1])
+                                .openTooltip()
+                                .addTo(map);
+                        } else {
+                            rectangle
+                                .bindTooltip(metadata_results[i][1])
+                                .openTooltip()
+                                .addTo(map);
                         }
-                        box
-                        finalBox = JSON.parse(metadata_results[i][6])['coordinates'];
-
-                        var bounds = L.latLngBounds(correct_bounds);
-                        //var bounds = [[box[1],box[0]],[box[3],box[2]]];
-                        var rectangle = L.rectangle(bounds, { color: "#DF1B12", weight: 2, fill: false });
-                        if (metadata_results[i][3] != null) {
-                            if (metadata_results[i][3] == "SOS") {
-                                rectangle.addTo(map);
-                                var center_coords = rectangle.getCenter();
-                                L.marker(center_coords).bindTooltip(metadata_results[i][1]).openTooltip().addTo(map);
-                            } else {
-                                rectangle.bindTooltip(metadata_results[i][1]).openTooltip().addTo(map);
-                            }
-                        }
-
-                    } else {
-                        console.log("defined");
                     }
                 }
             } else {
-                $('#number_results').html('<i class="fa fa-list" aria-hidden="true"></i> Results: <b>no item was found with this bounding box</b>');
+                $("#metadata_results").empty();
+                $("#number_results").html(
+                    "Results: <b>no items were found with this bounding box</b>"
+                );
             }
         },
+        error: function () {
+            $("#metadata_results").empty();
+            $("#number_results").html(
+                "Results: <b>search failed, please try again</b>"
+            );
+        }
     });
 });

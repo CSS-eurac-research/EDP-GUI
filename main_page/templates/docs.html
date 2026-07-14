@@ -1,96 +1,70 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block title %}Documentations list - EDP{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/pages/docs.css' %}?v=1">
+{% endblock %}
 
 {% block page_content %}
+<section class="docs-page" aria-labelledby="docs-page-title">
+  <header class="docs-page__head">
+    <h1 id="docs-page-title" class="docs-page__title">Documentations list</h1>
+    <span class="docs-page__title-icon" aria-hidden="true">
+      <i class="fa fa-info-circle"></i>
+    </span>
+  </header>
 
-<head>
-
-  <title>Docs - EDP</title>
-  <link rel="shortcut icon" href="/static/apple-touch-icon.png">
-
-
-</head>
-
-<div style="height: 50px; margin-top: 10px;" class="row">
-  <div class="col">
-    <a href="{% url 'edp_portal:main_page' %}"><img src="/static/Eurac_Research_logo.png" id="logo"></a>
-  </div>
-  <div class="col-6">
-    <div style="width: 100%" class="center">
-      <h1 id="title"><b>E</b>nvironmental <b>D</b>ata <b>P</b>latform</h1>
-    </div>      
-  </div>
-  <div class="col">
-    <a href="https://www.eurac.edu/en/institutes-centers/center-for-sensing-solutions/projects/dps4eslab" target="_blank" rel="noopener noreferrer"><img src="/static/fesr_dps4eslab_logo.png" id="fesr_logo"></a>
-
-  </div>
-</div>
-<hr>
-
-<div class="container" style="color: #666B6C;">
-  <h3>Documentations list</h3>
+  <div class="docs-page__rule" aria-hidden="true"></div>
 
   {% if latest_docs_sources_list %}
-    <table class="table-clickable" style="width:100%; color: #666B6C;">
+  <div class="docs-table-wrap">
+    <table class="docs-table table-clickable">
       <thead>
-      <tr id="header_table">
-        <th>#</th>
-        <th id="name_column_table" class="width_column_table-2">Name</th>
-        <th id="desc_column_table" class="width_column_table-1">Description</th>
-        <!-- <th>Link</th> -->
-        <th id="date_column_table" class="width_column_table-2">Date published</th>
-        <th>Category</th>
-      </tr>
-    </thead>
-      {% for source in latest_docs_sources_list %}
-      <tbody>
-        <tr id="rows_table" data-href="{{ source.source_link }}">
-          <td>{{ forloop.counter }}</td>
-          <td>{{ source.source_name }}</td>
-          <td>{{ source.source_description }}</td>
-          <!-- <td><a href="{{ source.source_link }}" target="_blank" rel="noopener noreferrer" style="color: #666B6C;">Link</a></td> -->
-          <td>{{ source.pub_date }}</td>
-          <td>{{ source.source_category }}</td>
+        <tr>
+          <th class="docs-table__index" scope="col">#</th>
+          <th class="docs-table__name" scope="col">Name</th>
+          <th class="docs-table__description" scope="col">Description</th>
+          <th class="docs-table__date" scope="col">Date published</th>
+          <th class="docs-table__category" scope="col">Category</th>
         </tr>
-          <!-- <li><a href="/polls/{{ question.id }}/">{{ question.question_text }}</a></li> -->
+      </thead>
+      <tbody>
+        {% for source in latest_docs_sources_list %}
+        <tr data-href="{{ source.source_link }}" tabindex="0">
+          <td class="docs-table__index">{{ forloop.counter }}</td>
+          <td class="docs-table__name">{{ source.source_name }}</td>
+          <td class="docs-table__description">{{ source.source_description }}</td>
+          <td class="docs-table__date">{{ source.pub_date|date:"F j, Y" }}</td>
+          <td class="docs-table__category">{{ source.source_category }}</td>
+        </tr>
+        {% endfor %}
       </tbody>
-      {% endfor %}
     </table>
-    {% else %}
-        <p>No docs sources are available.</p>
+  </div>
+  {% else %}
+  <p class="docs-page__empty">No docs sources are available.</p>
   {% endif %}
+</section>
+{% endblock %}
 
-
-
-
-</div>
-<div id="footer">
-  <div style="margin: 50px;" class="row">
-
-        <!-- <h6>Info, Terms and Conditions</h6> -->
-        <div style="margin: 0 auto;">
-        <p style="color:#666B6C">© 2025 Eurac Research •
-          <a href="https://cssportfolio.eurac.edu/" target="_blank" rel="noopener noreferrer" style="color:#666B6C">Center for Sensing Solutions portfolio 
-          </a>•
-
-          <a href="{% url 'edp_portal:terms_conditions_page' %}" target="_blank" rel="noopener noreferrer" style="color:#666B6C">Contacts, Terms and Conditions</a>
-
-        </p>
-      </div>
-
-</div>
-</div>
-
-
+{% block extra_scripts %}
 <script>
-  const tableRows = document.querySelectorAll(".table-clickable tbody tr");
+  document.querySelectorAll(".table-clickable tbody tr").forEach(function (tableRow) {
+    function openRow() {
+      if (tableRow.dataset.href) {
+        window.open(tableRow.dataset.href, "_blank", "noopener,noreferrer");
+      }
+    }
 
-  for (const tableRow of tableRows) {
-    tableRow.addEventListener("click", function () {
-      //window.open(this.dataset.href, "_blank");
-      //console.log(this.dataset.href);
-      //window.location.href = this.dataset.href;
-      window.open(this.dataset.href,'_blank','noopener', 'noreferrer');
+    tableRow.addEventListener("click", openRow);
+    tableRow.addEventListener("keydown", function (event) {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        openRow();
+      }
     });
-  }
+  });
 </script>
 {% endblock %}

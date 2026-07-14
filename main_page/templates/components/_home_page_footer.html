@@ -1,0 +1,25 @@
+{% load static %}
+{# Home page footer band #}
+<footer class="home-footer" role="contentinfo">
+  <div class="home-footer__inner">
+    <div class="home-footer__brands">
+      <div class="home-footer__brand home-footer__brand--fesr">
+        <img src="{% static 'fesr_dps4eslab_logo.png' %}" alt="FESR DPS4ESLAB" class="home-footer__logo-fesr">
+      </div>
+      <div class="home-footer__brand home-footer__brand--eurac">
+        <img src="{% static 'Eurac_Research_logo.png' %}" alt="Eurac Research" class="home-footer__logo-eurac">
+      </div>
+    </div>
+
+    <p class="home-footer__legal">
+      © {% now "Y" %} Eurac Research ·
+      <a href="https://cssportfolio.eurac.edu/" target="_blank" rel="noopener noreferrer">Center for Sensing Solutions portfolio</a>
+      ·
+      <a href="{% url 'edp_portal:terms_conditions_page' %}" target="_blank" rel="noopener noreferrer">Contacts, Terms and Conditions</a>
+    </p>
+
+    <button type="button" class="home-footer__back-top" aria-label="Back to top">
+      <i class="fa fa-chevron-up" aria-hidden="true"></i>
+    </button>
+  </div>
+</footer>

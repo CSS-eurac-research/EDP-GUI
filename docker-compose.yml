@@ -1,0 +1,43 @@
+services:
+  db:
+    image: postgis/postgis:15-3.3
+    container_name: edp_db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-edp_portal_gui}
+      POSTGRES_USER: ${DB_USER:-edp_gui_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-edp_gui_pass}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  web:
+    build: .
+    container_name: edp_web
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-change-me}
+      DJANGO_DEBUG: ${DJANGO_DEBUG:-True}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-127.0.0.1,localhost}
+      DB_ENGINE: ${DB_ENGINE:-django.contrib.gis.db.backends.postgis}
+      DB_NAME: ${DB_NAME:-edp_portal_gui}
+      DB_USER: ${DB_USER:-edp_gui_user}
+      DB_PASSWORD: ${DB_PASSWORD:-edp_gui_pass}
+      DB_HOST: db
+      DB_PORT: ${DB_PORT:-5432}
+      GEONETWORK_BASE_URL: ${GEONETWORK_BASE_URL:-http://10.8.244.64:8080/geonetwork}
+      EDP_DISCOVERY_URL: ${EDP_DISCOVERY_URL:-http://localhost:8000/discovery/}
+      DOI_URL: ${DOI_URL:-https://doi.org/10.48784/}
+      OPENEO_URL: ${OPENEO_URL:-https://openeo.eurac.edu/openeo/1.1.0/collections/}
+      DATA_CITE_API: ${DATA_CITE_API:-https://api.datacite.org/dois/10.48784/}
+      GEONETWORK_URL: ${GEONETWORK_URL:-https://edp-portal.eurac.edu/geonetwork/srv/api/records/}
+      GEONETWORK_HARVEST_URL: ${GEONETWORK_HARVEST_URL:-http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&summaryOnly=1}
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+
+volumes:
+  pgdata:
