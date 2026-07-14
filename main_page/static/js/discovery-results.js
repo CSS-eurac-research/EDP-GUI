@@ -30,7 +30,7 @@ function buildDiscoveryResultCard(item) {
   var category = item[3];
   var keyword = item[4];
   var thumbnail = item[5];
-  var detailUrl = "/discovery/" + uuid;
+  var detailUrl = "/discovery/" + encodeURIComponent(uuid);
 
   var html = '<article class="discovery-result" id="discovery-result-' + escapeDiscoveryHtml(uuid) + '">';
   html += '<div class="discovery-result__main">';
