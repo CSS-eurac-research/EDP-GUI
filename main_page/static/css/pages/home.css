@@ -166,7 +166,8 @@
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-a.home-tool-card:hover {
+a.home-tool-card:hover,
+.home-tool-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
   text-decoration: none;
@@ -225,6 +226,15 @@ a.home-tool-card:hover {
   color: var(--color-text-muted);
 }
 
+.home-tool-card__title a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.home-tool-card__title a:hover {
+  color: var(--color-brand-red);
+}
+
 .home-tool-card__foot {
   margin-top: auto;
   padding-top: var(--space-2);
@@ -232,7 +242,13 @@ a.home-tool-card:hover {
   color: var(--color-text-muted);
 }
 
-/* DOI: single image inside OpenEO / Maps cards (not a text+link row) */
+.home-tool-card__doi-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
 .home-tool-card__doi-img {
   display: block;
   width: auto;
@@ -240,6 +256,18 @@ a.home-tool-card:hover {
   max-width: 100%;
   object-fit: contain;
   object-position: left center;
+  flex-shrink: 0;
+}
+
+.home-tool-card__doi-link {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  word-break: break-all;
+}
+
+.home-tool-card__doi-link:hover {
+  color: var(--color-brand-red);
 }
 
 .home-tool-card__note {
