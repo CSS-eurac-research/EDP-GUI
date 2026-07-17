@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
 Nightly F-UJI FAIR assessment for EDP metadata records.
-Reads uuids from main_page_geonetworkmetadata, calls F-UJI, upserts scores.
+Reads uuids from main_page_geonetworkmetadata, calls F-UJI, upserts scores
+and stores the full API response in full_result (jsonb).
 """
-import json
 import os
 import re
 import sys
@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 
 import psycopg2
 import requests
-from psycopg2.extras import RealDictCursor
+from psycopg2.extras import Json, RealDictCursor
 
 FUJI_API_URL = os.environ.get("FUJI_API_URL", "http://10.8.244.43:1071/fuji/api/v1")
 FUJI_USER = os.environ.get("FUJI_API_USER", "marvel")
@@ -44,6 +44,7 @@ def discovery_url(uuid: str) -> str:
 def maturity_label(value):
     labels = {0: "incomplete", 1: "initial", 2: "moderate", 3: "advanced"}
     return labels.get(round(float(value or 0)), "incomplete")
+
 
 def parse_scores(payload: dict) -> dict:
     summary = payload["summary"]
@@ -77,7 +78,8 @@ def parse_scores(payload: dict) -> dict:
     }
 
 
-def evaluate(uuid: str) -> dict:
+def evaluate(uuid: str):
+    """Call F-UJI and return (parsed_scores, full_response)."""
     body = {
         "object_identifier": discovery_url(uuid),
         "test_debug": False,
@@ -93,7 +95,8 @@ def evaluate(uuid: str) -> dict:
         timeout=REQUEST_TIMEOUT,
     )
     r.raise_for_status()
-    return parse_scores(r.json())
+    payload = r.json()
+    return parse_scores(payload), payload
 
 
 def fetch_uuids(conn):
@@ -116,7 +119,7 @@ def fetch_uuids(conn):
         return [row["uuid"] for row in cur.fetchall()]
 
 
-def upsert_score(conn, uuid: str, object_identifier: str, scores: dict):
+def upsert_score(conn, uuid: str, object_identifier: str, scores: dict, full_result: dict):
     sql = """
         INSERT INTO main_page_fairscore (
             uuid, object_identifier,
@@ -124,14 +127,16 @@ def upsert_score(conn, uuid: str, object_identifier: str, scores: dict):
             earned_f, earned_a, earned_i, earned_r,
             total_f, total_a, total_i, total_r,
             maturity_f, maturity_a, maturity_i, maturity_r, maturity_overall,
-            metric_version, fuji_test_id, assessed_at, updated_at
+            metric_version, fuji_test_id, assessed_at, updated_at,
+            full_result
         ) VALUES (
             %(uuid)s, %(object_identifier)s,
             %(score_overall)s, %(score_f)s, %(score_a)s, %(score_i)s, %(score_r)s,
             %(earned_f)s, %(earned_a)s, %(earned_i)s, %(earned_r)s,
             %(total_f)s, %(total_a)s, %(total_i)s, %(total_r)s,
             %(maturity_f)s, %(maturity_a)s, %(maturity_i)s, %(maturity_r)s, %(maturity_overall)s,
-            %(metric_version)s, %(fuji_test_id)s, %(assessed_at)s, %(updated_at)s
+            %(metric_version)s, %(fuji_test_id)s, %(assessed_at)s, %(updated_at)s,
+            %(full_result)s
         )
         ON CONFLICT (uuid) DO UPDATE SET
             object_identifier = EXCLUDED.object_identifier,
@@ -156,12 +161,14 @@ def upsert_score(conn, uuid: str, object_identifier: str, scores: dict):
             metric_version = EXCLUDED.metric_version,
             fuji_test_id = EXCLUDED.fuji_test_id,
             assessed_at = EXCLUDED.assessed_at,
-            updated_at = EXCLUDED.updated_at
+            updated_at = EXCLUDED.updated_at,
+            full_result = EXCLUDED.full_result
     """
     data = {
         "uuid": uuid,
         "object_identifier": object_identifier,
         "updated_at": datetime.now(timezone.utc),
+        "full_result": Json(full_result),
         **scores,
     }
     with conn.cursor() as cur:
@@ -185,8 +192,8 @@ def main():
             continue
         try:
             print(f"[{i}/{len(uuids)}] {uuid} ...", flush=True)
-            scores = evaluate(uuid)
-            upsert_score(conn, uuid, discovery_url(uuid), scores)
+            scores, full_result = evaluate(uuid)
+            upsert_score(conn, uuid, discovery_url(uuid), scores, full_result)
             conn.commit()
             ok += 1
             print(f"  FAIR={scores['score_overall']}%", flush=True)

@@ -41,6 +41,12 @@ services:
       DATA_CITE_API: ${DATA_CITE_API:-https://api.datacite.org/dois/10.48784/}
       GEONETWORK_URL: ${GEONETWORK_URL:-https://edp-portal.eurac.edu/geonetwork/srv/api/records/}
       GEONETWORK_HARVEST_URL: ${GEONETWORK_HARVEST_URL:-http://edp-portal.eurac.edu/geonetwork/srv/eng/q?_content_type=json&summaryOnly=1}
+      FUJI_API_URL: ${FUJI_API_URL:-}
+      FUJI_API_USER: ${FUJI_API_USER:-}
+      FUJI_API_PASSWORD: ${FUJI_API_PASSWORD:-}
+      FUJI_ONLY_MISSING: ${FUJI_ONLY_MISSING:-true}
+      FUJI_SLEEP: ${FUJI_SLEEP:-2}
+      FUJI_TIMEOUT: ${FUJI_TIMEOUT:-180}
 
     restart: unless-stopped
 
