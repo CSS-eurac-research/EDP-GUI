@@ -1,0 +1,20 @@
+stages:
+  - fair-assessment
+
+variables:
+  FUJI_API_URL: "http://10.8.244.43:1071/fuji/api/v1"
+  EDP_DISCOVERY_URL: "https://edp-portal.eurac.edu/discovery/"
+  FUJI_ONLY_MISSING: "true"
+  FUJI_SLEEP: "2"
+  FUJI_TIMEOUT: "180"
+
+fair_scores:
+  stage: fair-assessment
+  image: python:3.10-slim
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+  before_script:
+    - pip install --quiet requests psycopg2-binary
+  script:
+    - python scripts/run_fuji_fair_scores.py
+  timeout: 6h
