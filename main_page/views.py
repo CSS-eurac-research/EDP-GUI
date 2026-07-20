@@ -45,6 +45,60 @@ def _openeo_collection_url(collection_id):
     return OPENEO_URL + collection_id
 
 
+MAPS_CATALOGUE_DATASET_RE = re.compile(
+    r"https?://maps\.eurac\.edu/catalogue/#/dataset/(\d+)",
+    re.IGNORECASE,
+)
+MAPS_DOWNLOAD_RE = re.compile(
+    r"https?://maps\.eurac\.edu/download/(\d+)",
+    re.IGNORECASE,
+)
+
+
+def _maps_catalogue_dataset_url(url):
+    """Normalize Maps catalogue or download URLs to catalogue/#/dataset/{id}."""
+    if not url or not isinstance(url, str):
+        return None
+    url = url.strip()
+    match = MAPS_CATALOGUE_DATASET_RE.search(url)
+    if match:
+        return "https://maps.eurac.edu/catalogue/#/dataset/" + match.group(1)
+    match = MAPS_DOWNLOAD_RE.search(url)
+    if match:
+        return "https://maps.eurac.edu/catalogue/#/dataset/" + match.group(1)
+    return None
+
+
+def _iter_metadata_link_urls(metadata_records):
+    """Yield URL strings from GeoNetwork search _source link fields."""
+    for key, value in metadata_records.items():
+        if not key.startswith("linkUrl"):
+            continue
+        if isinstance(value, list):
+            for item in value:
+                if isinstance(item, str):
+                    yield item
+        elif isinstance(value, str):
+            yield value
+
+    for link in metadata_records.get("link", []):
+        if not isinstance(link, dict):
+            continue
+        url_obj = link.get("urlObject") or link.get("url")
+        if isinstance(url_obj, dict) and "default" in url_obj:
+            yield url_obj["default"]
+        elif isinstance(url_obj, str):
+            yield url_obj
+
+
+def _maps_repository_from_metadata_records(metadata_records):
+    for url in _iter_metadata_link_urls(metadata_records):
+        catalogue_url = _maps_catalogue_dataset_url(url)
+        if catalogue_url:
+            return catalogue_url
+    return None
+
+
 def _get_db_connection():
     db = settings.DATABASES["default"]
     return psycopg2.connect(
@@ -730,6 +784,11 @@ def get_metadata_details(request, uuid):
                 #metadata_detail['url_objects'] = metadataRecords['linkUrlProtocolWWWDOWNLOAD10httpdownload']
             #print(url_objects)
             metadata_detail['url_objects'] = sorted(url_objects, key=lambda d: d['l'])
+
+        if not metadata_detail.get('url_repository'):
+            maps_repo = _maps_repository_from_metadata_records(metadataRecords)
+            if maps_repo:
+                metadata_detail['url_repository'] = maps_repo
 
         if metadata_detail.get('category') == 'OpenEO':
             collection_id = metadata_detail.get('name_collection')
