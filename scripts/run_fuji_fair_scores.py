@@ -34,11 +34,23 @@ SLEEP_BETWEEN = float(os.environ.get("FUJI_SLEEP", "2"))
 ONLY_MISSING = os.environ.get("FUJI_ONLY_MISSING", "true").lower() in ("1", "true", "yes")
 LIMIT = int(os.environ["FUJI_LIMIT"]) if os.environ.get("FUJI_LIMIT") else None
 
-UUID_RE = re.compile(r"^[0-9a-fA-F-]{36}$")
+UUID_RE = re.compile(
+    r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+)
+SLUG_RE = re.compile(r"^[0-9a-zA-Z][0-9a-zA-Z._-]{0,250}$")
 
 
-def discovery_url(uuid: str) -> str:
-    return f"{EDP_DISCOVERY_BASE}{uuid}"
+def is_valid_identifier(identifier: str) -> bool:
+    if not identifier or not identifier.strip():
+        return False
+    identifier = identifier.strip()
+    if re.search(r"[\s/?#]", identifier):
+        return False
+    return bool(UUID_RE.match(identifier) or SLUG_RE.match(identifier))
+
+
+def discovery_url(identifier: str) -> str:
+    return f"{EDP_DISCOVERY_BASE}{identifier.strip()}"
 
 
 def maturity_label(value):
@@ -103,7 +115,13 @@ def fetch_uuids(conn):
     sql = """
         SELECT m.uuid
         FROM main_page_geonetworkmetadata m
-        WHERE m.uuid ~ '^[0-9a-fA-F-]{36}$'
+        WHERE m.uuid IS NOT NULL
+          AND trim(m.uuid) <> ''
+          AND m.uuid !~ '[\\s/?#]'
+          AND (
+            m.uuid ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+            OR m.uuid ~ '^[0-9a-zA-Z][0-9a-zA-Z._-]+$'
+          )
     """
     if ONLY_MISSING:
         sql += """
@@ -188,7 +206,7 @@ def main():
 
     ok, fail = 0, 0
     for i, uuid in enumerate(uuids, 1):
-        if not UUID_RE.match(uuid):
+        if not is_valid_identifier(uuid):
             continue
         try:
             print(f"[{i}/{len(uuids)}] {uuid} ...", flush=True)
