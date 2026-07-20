@@ -49,6 +49,10 @@ MAPS_CATALOGUE_DATASET_RE = re.compile(
     r"https?://maps\.eurac\.edu/catalogue/#/dataset/(\d+)",
     re.IGNORECASE,
 )
+MAPS_CATALOGUE_UUID_RE = re.compile(
+    r"https?://maps\.eurac\.edu/catalogue/uuid/([0-9a-fA-F-]{36})",
+    re.IGNORECASE,
+)
 MAPS_DOWNLOAD_RE = re.compile(
     r"https?://maps\.eurac\.edu/download/(\d+)",
     re.IGNORECASE,
@@ -56,13 +60,16 @@ MAPS_DOWNLOAD_RE = re.compile(
 
 
 def _maps_catalogue_dataset_url(url):
-    """Normalize Maps catalogue or download URLs to catalogue/#/dataset/{id}."""
+    """Normalize Maps catalogue, uuid, or download URLs for the repository button."""
     if not url or not isinstance(url, str):
         return None
     url = url.strip()
     match = MAPS_CATALOGUE_DATASET_RE.search(url)
     if match:
         return "https://maps.eurac.edu/catalogue/#/dataset/" + match.group(1)
+    match = MAPS_CATALOGUE_UUID_RE.search(url)
+    if match:
+        return "https://maps.eurac.edu/catalogue/uuid/" + match.group(1).lower()
     match = MAPS_DOWNLOAD_RE.search(url)
     if match:
         return "https://maps.eurac.edu/catalogue/#/dataset/" + match.group(1)
