@@ -4,7 +4,7 @@ stages:
 variables:
   FUJI_API_URL: "http://10.8.244.43:1071/fuji/api/v1"
   EDP_DISCOVERY_URL: "https://edp-portal.eurac.edu/discovery/"
-  FUJI_ONLY_MISSING: "true"
+  FUJI_ONLY_MISSING: "false"
   FUJI_SLEEP: "2"
   FUJI_TIMEOUT: "180"
 

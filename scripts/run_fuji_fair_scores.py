@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """
 Nightly F-UJI FAIR assessment for EDP metadata records.
-Reads uuids from main_page_geonetworkmetadata, calls F-UJI, upserts scores
+Reads identifiers from main_page_geonetworkmetadata, calls F-UJI, upserts scores
 and stores the full API response in full_result (jsonb).
+
+By default re-assesses all records each run so metadata changes are reflected.
+Set FUJI_ONLY_MISSING=true to assess only records without a fair score row.
 """
 import os
 import re
@@ -31,7 +34,7 @@ DB = {
 
 REQUEST_TIMEOUT = int(os.environ.get("FUJI_TIMEOUT", "180"))
 SLEEP_BETWEEN = float(os.environ.get("FUJI_SLEEP", "2"))
-ONLY_MISSING = os.environ.get("FUJI_ONLY_MISSING", "true").lower() in ("1", "true", "yes")
+ONLY_MISSING = os.environ.get("FUJI_ONLY_MISSING", "false").lower() in ("1", "true", "yes")
 LIMIT = int(os.environ["FUJI_LIMIT"]) if os.environ.get("FUJI_LIMIT") else None
 
 UUID_RE = re.compile(
