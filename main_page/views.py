@@ -8,7 +8,7 @@ import requests
 import json 
 import ast, re
 import psycopg2
-from .models import DocSource, SnippetCode, GeonetworkMetadata
+from .models import DocSource, SnippetCode, GeonetworkMetadata, FairScore
 
 ACCEPT_HTTP = "application/json"
 CONTENT_TYPE = "application/json"
@@ -454,6 +454,51 @@ def CheckDOIURL(url):
         print(requests.RequestException)
         return False
 
+
+FAIR_MATURITY = {
+    0: ("incomplete", "incomplete"),
+    1: ("initial", "initial"),
+    2: ("moderate", "moderate"),
+    3: ("advanced", "advanced"),
+}
+
+
+def _format_fair_earned_total(earned, total):
+    if earned is None or total is None:
+        return "—"
+
+    def fmt(value):
+        f = float(value)
+        if f == int(f):
+            return str(int(f))
+        return str(f).rstrip("0").rstrip(".")
+
+    return f"{fmt(earned)} of {fmt(total)}"
+
+
+def _fair_rows(fair_score):
+    rows = []
+    for key, label in (
+        ("f", "Findable"),
+        ("a", "Accessible"),
+        ("i", "Interoperable"),
+        ("r", "Reusable"),
+    ):
+        maturity = getattr(fair_score, f"maturity_{key}") or 0
+        level_key, level_label = FAIR_MATURITY.get(maturity, FAIR_MATURITY[0])
+        rows.append({
+            "name": label,
+            "percent": getattr(fair_score, f"score_{key}"),
+            "earned_display": _format_fair_earned_total(
+                getattr(fair_score, f"earned_{key}"),
+                getattr(fair_score, f"total_{key}"),
+            ),
+            "level_key": level_key,
+            "level_label": level_label,
+        })
+    return rows
+
+
 def result_detail(request, uuid):
     #uuid = "51f8f326-7964-11ee-9a8e-47abc4958022"
     metadata_details = get_metadata_details(request, uuid)
@@ -497,6 +542,7 @@ def result_detail(request, uuid):
                     i.snippet_code = i.snippet_code.replace('SOS_URL', '\"'+sos_url+'\"')
 
         docs_list = DocSource.objects.filter(source_category__icontains=metadata_details["category"])
+        fair_score = FairScore.objects.filter(uuid=uuid).first()
 
         url_repository = ""
 
@@ -510,6 +556,8 @@ def result_detail(request, uuid):
             "extent_geom": _extent_geom_for_uuid(uuid, metadata_details),
             "snippet_code_list" : snippet_code_list,
             "docs_list" : docs_list,
+            "fair_score": fair_score,
+            "fair_rows": _fair_rows(fair_score) if fair_score else [],
             "url_repository": url_repository
             #'title': result_json["metadata"]["title"],
         }

@@ -59,4 +59,38 @@ class GeonetworkMetadata(models.Model):
 
     def __str__(self):
         return self.title
-        
+
+
+class FairScore(models.Model):
+    uuid = models.CharField(max_length=100, primary_key=True)
+    object_identifier = models.CharField(max_length=500, null=True)
+    score_overall = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+    score_f = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+    score_a = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+    score_i = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+    score_r = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+    earned_f = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+    earned_a = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+    earned_i = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+    earned_r = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+    total_f = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+    total_a = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+    total_i = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+    total_r = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+    maturity_f = models.SmallIntegerField(null=True)
+    maturity_a = models.SmallIntegerField(null=True)
+    maturity_i = models.SmallIntegerField(null=True)
+    maturity_r = models.SmallIntegerField(null=True)
+    maturity_overall = models.DecimalField(max_digits=4, decimal_places=2, null=True)
+    metric_version = models.CharField(max_length=20, null=True)
+    fuji_test_id = models.CharField(max_length=100, null=True)
+    assessed_at = models.DateTimeField(null=True)
+    updated_at = models.DateTimeField(null=True)
+
+    class Meta:
+        managed = False
+        db_table = "main_page_fairscore"
+
+    def __str__(self):
+        return self.uuid
+
