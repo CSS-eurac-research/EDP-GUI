@@ -80,7 +80,10 @@
     <div class="topic-detail">
       <div class="topic-detail__main">
         <section class="topic-section fair-summary" aria-labelledby="topic-fair">
-          <h2 class="topic-block__title fair-summary__title" id="topic-fair">FAIR assessment</h2>
+          <div class="topic-block__head">
+            <span class="topic-block__icon"><i class="fa fa-check-circle" aria-hidden="true"></i></span>
+            <h2 class="topic-block__title fair-summary__title" id="topic-fair">FAIR assessment</h2>
+          </div>
           {% if fair_score %}
           <p class="fair-summary__overall"><strong>{{ fair_score.score_overall|floatformat:0 }}%</strong> overall</p>
           {% endif %}
