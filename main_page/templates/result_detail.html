@@ -84,11 +84,6 @@
           {% if fair_score %}
           <p class="fair-summary__overall"><strong>{{ fair_score.score_overall|floatformat:0 }}%</strong> overall</p>
           {% endif %}
-          <p class="fair-summary__citation">
-            <a href="https://doi.org/10.5281/zenodo.6361400" target="_blank" rel="noopener noreferrer">
-              Anusuriya Devaraju, &amp; Robert Huber. (2020). F-UJI - An Automated FAIR Data Assessment Tool. Zenodo. https://doi.org/10.5281/zenodo.6361400
-            </a>
-          </p>
         </section>
 
         {% if result_json.abstract %}
@@ -376,6 +371,11 @@
       {% if fair_score.assessed_at %}
       <p class="fair-summary__meta">Assessed {{ fair_score.assessed_at|date:"Y-m-d" }}{% if fair_score.metric_version %} (metrics {{ fair_score.metric_version }}){% endif %}</p>
       {% endif %}
+      <p class="fair-summary__citation">
+        <a href="https://doi.org/10.5281/zenodo.6361400" target="_blank" rel="noopener noreferrer">
+          Anusuriya Devaraju, &amp; Robert Huber. (2020). F-UJI - An Automated FAIR Data Assessment Tool. Zenodo. https://doi.org/10.5281/zenodo.6361400
+        </a>
+      </p>
     </section>
     {% endif %}
 
