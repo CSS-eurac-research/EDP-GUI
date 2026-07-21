@@ -573,12 +573,22 @@
   font-size: var(--font-size-body);
   line-height: var(--line-height-body);
   color: var(--color-text-primary);
-  max-height: 4.5rem;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.edp-page--discovery .abstract-results {
+  height: auto;
   overflow: hidden;
 }
 
 .discovery-result__abstract.expand {
-  max-height: none;
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
 }
 
 .discovery-result__abstract:hover {
@@ -730,7 +740,7 @@
   .discovery-body {
     flex-direction: row;
     flex-wrap: nowrap;
-    align-items: flex-start;
+    align-items: stretch;
     gap: var(--space-4);
     min-height: 0;
     padding-top: var(--space-4);
@@ -741,9 +751,15 @@
     min-width: 0;
     max-width: none;
     width: auto;
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+    min-height: 32rem;
   }
 
   #metadata_results {
+    flex: 1 1 auto;
+    min-height: 0;
     max-height: calc(100vh - 14rem);
     overflow-y: auto;
   }
@@ -794,7 +810,7 @@
   .discovery-result__abstract {
     font-size: 0.8125rem;
     line-height: 1.4;
-    max-height: 2.75rem;
+    -webkit-line-clamp: 2;
   }
 
   .discovery-result__repo {
@@ -924,7 +940,7 @@
   .discovery-result__abstract {
     font-size: var(--font-size-sm);
     line-height: 1.4;
-    max-height: 3.5rem;
+    -webkit-line-clamp: 2;
   }
 
   .discovery-result__repo {
