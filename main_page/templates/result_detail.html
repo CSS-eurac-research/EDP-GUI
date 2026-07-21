@@ -79,6 +79,38 @@
 
     <div class="topic-detail">
       <div class="topic-detail__main">
+        {% if fair_score %}
+        <section class="topic-section fair-summary" aria-labelledby="topic-fair">
+          <h2 class="topic-section__title" id="topic-fair">FAIR assessment</h2>
+          <p class="fair-summary__overall"><strong>{{ fair_score.score_overall|floatformat:0 }}%</strong> overall</p>
+          <div class="topic-table-wrap">
+            <table class="fair-summary__table">
+              <thead>
+                <tr>
+                  <th scope="col">Principle</th>
+                  <th scope="col">Score</th>
+                  <th scope="col">Earned</th>
+                  <th scope="col">Level</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in fair_rows %}
+                <tr>
+                  <th scope="row">{{ row.name }}</th>
+                  <td>{{ row.percent|floatformat:0 }}%</td>
+                  <td>{{ row.earned_display }}</td>
+                  <td><span class="fair-badge fair-badge--{{ row.level_key }}">{{ row.level_label }}</span></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% if fair_score.assessed_at %}
+          <p class="fair-summary__meta">Assessed {{ fair_score.assessed_at|date:"Y-m-d" }}{% if fair_score.metric_version %} (metrics {{ fair_score.metric_version }}){% endif %}</p>
+          {% endif %}
+        </section>
+        {% endif %}
+
         {% if result_json.abstract %}
         <section class="topic-block" aria-labelledby="topic-abstract">
           <div class="topic-block__head">
@@ -362,39 +394,6 @@
         </div>
         {% endfor %}
       </div>
-    </section>
-    {% endif %}
-
-    {% if fair_score %}
-    <section class="topic-section fair-summary" aria-labelledby="topic-fair">
-      <hr class="topic-page__rule">
-      <h2 class="topic-section__title" id="topic-fair">FAIR assessment</h2>
-      <p class="fair-summary__overall"><strong>{{ fair_score.score_overall|floatformat:0 }}%</strong> overall</p>
-      <div class="topic-table-wrap">
-        <table class="fair-summary__table">
-          <thead>
-            <tr>
-              <th scope="col">Principle</th>
-              <th scope="col">Score</th>
-              <th scope="col">Earned</th>
-              <th scope="col">Level</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for row in fair_rows %}
-            <tr>
-              <th scope="row">{{ row.name }}</th>
-              <td>{{ row.percent|floatformat:0 }}%</td>
-              <td>{{ row.earned_display }}</td>
-              <td><span class="fair-badge fair-badge--{{ row.level_key }}">{{ row.level_label }}</span></td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      {% if fair_score.assessed_at %}
-      <p class="fair-summary__meta">Assessed {{ fair_score.assessed_at|date:"Y-m-d" }}{% if fair_score.metric_version %} (metrics {{ fair_score.metric_version }}){% endif %}</p>
-      {% endif %}
     </section>
     {% endif %}
 
