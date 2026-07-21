@@ -749,16 +749,16 @@
   }
 
   .discovery-map-wrap {
-    flex: 0 0 18rem;
-    width: 18rem;
-    max-width: 32%;
-    min-width: 15rem;
-    min-height: 16rem;
+    flex: 0 0 36rem;
+    width: 36rem;
+    max-width: 55%;
+    min-width: 28rem;
+    min-height: 32rem;
     align-self: stretch;
   }
 
   #map {
-    min-height: 16rem;
+    min-height: 32rem;
     height: 100%;
     max-height: calc(100vh - 14rem);
   }
