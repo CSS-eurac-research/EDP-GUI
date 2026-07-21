@@ -304,6 +304,12 @@
   margin-bottom: var(--space-6);
 }
 
+.fair-summary__icon-svg {
+  display: block;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
 .fair-summary__citation {
   margin: var(--space-4) 0 0;
   color: var(--color-text-muted, #666);
