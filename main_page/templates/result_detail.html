@@ -347,7 +347,7 @@
     {% if fair_score %}
     <section class="topic-section fair-detail" id="topic-fair-detail" aria-labelledby="topic-fair-detail-score">
       <hr class="topic-page__rule">
-      <p class="fair-summary__overall fair-summary__overall--detail" id="topic-fair-detail-score">{{ fair_score.score_overall|floatformat:0 }}%</p>
+      <p class="fair-summary__overall fair-summary__overall--detail" id="topic-fair-detail-score">FAIR Overall Score: {{ fair_score.score_overall|floatformat:0 }}%</p>
       <div class="topic-table-wrap">
         <table class="fair-summary__table">
           <thead>
