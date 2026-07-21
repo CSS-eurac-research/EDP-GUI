@@ -130,13 +130,40 @@
   .docs-page {
     min-height: auto;
     gap: var(--space-8);
+    padding-bottom: var(--space-10);
   }
 
   .docs-page__head {
     padding-top: var(--space-10);
+    flex-wrap: wrap;
+    gap: var(--space-4);
+  }
+
+  .docs-page__title {
+    font-size: clamp(1.5rem, 6vw, 2rem);
+  }
+
+  .docs-page__title-icon {
+    width: 2.25rem;
+    height: 2.25rem;
+    font-size: 1rem;
+  }
+
+  .docs-table {
+    min-width: 720px;
   }
 
   .docs-table thead th {
-    font-size: 1.125rem;
+    font-size: 1rem;
+    padding-bottom: 12px;
+  }
+
+  .docs-table tbody td {
+    font-size: var(--font-size-sm);
+  }
+
+  .docs-table th,
+  .docs-table td {
+    padding-right: 24px;
   }
 }

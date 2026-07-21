@@ -571,4 +571,36 @@
   .topic-section__title {
     font-size: var(--font-size-h3);
   }
+
+  .topic-detail__side .topic-media {
+    display: none;
+  }
+
+  .topic-block--side {
+    max-width: none;
+    flex: 1 1 100%;
+  }
+
+  .fair-summary__overall {
+    font-size: 1.25rem;
+  }
+
+  .fair-summary__table th,
+  .fair-summary__table td {
+    padding: 0.5rem 0.75rem 0.5rem 0;
+    font-size: 0.9rem;
+  }
+
+  .fair-summary__table thead th {
+    font-size: var(--font-size-body);
+  }
+
+  .fair-summary__citation {
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+
+  #topic-fair-detail {
+    scroll-margin-top: 1rem;
+  }
 }

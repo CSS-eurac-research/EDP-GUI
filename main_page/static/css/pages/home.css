@@ -487,3 +487,92 @@ a.home-tool-card:hover,
 .home-footer__back-top .fa {
   font-size: 1.125rem;
 }
+
+@media (max-width: 768px) {
+  .home-hero {
+    min-height: auto;
+    padding-bottom: clamp(2rem, 6vw, 3rem);
+  }
+
+  .home-hero__actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .home-hero .edp-btn-pill--primary {
+    width: 100%;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  .home-tools {
+    min-height: auto;
+    padding: 32px var(--layout-page-padding-x) 48px;
+  }
+
+  .home-tools__grid > .home-tool-card {
+    max-width: none;
+  }
+
+  .home-tool-card {
+    min-height: auto;
+  }
+
+  .home-tool-card__icon-wrap {
+    width: 3rem;
+    height: 3rem;
+    font-size: 1.25rem;
+  }
+
+  .home-tool-card__title {
+    font-size: 1.125rem;
+  }
+
+  .home-tool-card__body {
+    font-size: var(--font-size-sm);
+  }
+
+  .home-about {
+    padding: clamp(2rem, 5vw, 3rem) var(--layout-page-padding-x);
+  }
+
+  .home-about__inner {
+    flex-direction: column;
+  }
+
+  .home-about__text {
+    max-width: none;
+  }
+
+  .home-about__heading {
+    font-size: var(--font-size-body);
+  }
+
+  .home-about__body {
+    font-size: var(--font-size-body);
+  }
+
+  .home-about__panels {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .home-about__panel {
+    flex: 1 1 auto;
+    max-width: none;
+    width: 100%;
+  }
+
+  .home-footer__brands {
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-6);
+  }
+
+  .home-footer__brand--fesr {
+    margin-left: 0;
+  }
+}
