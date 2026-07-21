@@ -669,11 +669,143 @@
   border: 0;
 }
 
-@media (max-width: 900px) {
-  .discovery-body {
-    flex-direction: column;
+@media (max-width: 1320px) {
+  .discovery-page__title {
+    font-size: clamp(2rem, 3.5vw, 2.75rem);
   }
 
+  .discovery-toolbar {
+    margin-bottom: var(--space-6);
+  }
+
+  .discovery-toolbar__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "search reset"
+      "filters filters";
+    align-items: center;
+    gap: var(--space-3) var(--space-4);
+  }
+
+  .discovery-toolbar__search-wrap {
+    grid-area: search;
+    width: 100%;
+    max-width: none;
+  }
+
+  .discovery-toolbar__reset {
+    grid-area: reset;
+    justify-self: end;
+  }
+
+  .discovery-toolbar__filters {
+    grid-area: filters;
+    width: 100%;
+    flex: none;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: var(--space-3) var(--space-5);
+  }
+
+  .discovery-toolbar__dates {
+    flex: 0 0 auto;
+  }
+
+  .discovery-toolbar__repos {
+    flex: 1 1 16rem;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  #categories_div {
+    gap: var(--space-1) var(--space-3);
+  }
+
+  .checkbox_categories label {
+    font-size: 0.75rem;
+  }
+
+  .discovery-body {
+    flex-direction: column;
+    min-height: 0;
+    padding-top: var(--space-4);
+    gap: var(--space-6);
+  }
+
+  .discovery-results {
+    flex: 1 1 auto;
+    max-width: none;
+    width: 100%;
+  }
+
+  #metadata_results {
+    max-height: min(42vh, 28rem);
+  }
+
+  .discovery-map-wrap {
+    width: 100%;
+    flex: none;
+    min-height: 18rem;
+  }
+
+  #map {
+    min-height: 18rem;
+  }
+
+  .discovery-result {
+    margin-bottom: var(--space-4);
+  }
+
+  .discovery-result__main {
+    gap: var(--space-4);
+  }
+
+  .discovery-result__media {
+    flex: 0 0 min(10rem, 28%);
+    max-width: 10rem;
+    min-height: 7rem;
+  }
+
+  .discovery-result__img {
+    min-height: 7rem;
+  }
+
+  .discovery-result__title {
+    font-size: var(--font-size-body);
+    line-height: 1.35;
+  }
+
+  .discovery-result__abstract {
+    font-size: var(--font-size-sm);
+    line-height: 1.4;
+    max-height: 3.25rem;
+  }
+
+  .discovery-result__repo {
+    font-size: var(--font-size-sm);
+  }
+
+  .discovery-result__view-btn {
+    padding: 0.375rem 1rem;
+    font-size: 0.5625rem;
+  }
+
+  .discovery-result__tag {
+    font-size: 0.75rem;
+  }
+
+  .discovery-result__period {
+    font-size: 0.8125rem;
+  }
+
+  .discovery-result__divider {
+    margin-top: var(--space-4);
+  }
+}
+
+@media (max-width: 900px) {
   #metadata_results {
     max-height: none;
   }

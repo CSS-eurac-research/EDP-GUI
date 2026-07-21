@@ -302,6 +302,7 @@
 }
 
 .fair-summary__score-link {
+  display: inline;
   color: inherit;
   font-weight: inherit;
   text-decoration: none;
