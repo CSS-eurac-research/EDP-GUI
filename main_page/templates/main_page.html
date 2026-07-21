@@ -44,18 +44,32 @@
   <section class="home-tools" aria-labelledby="home-tools-heading">
     <div class="home-tools__inner">
       <div class="home-tools__grid">
-        <a class="home-tool-card" href="http://10.8.244.36:8000/" target="_blank" rel="noopener noreferrer">
+        <div class="home-tool-card">
           <div class="home-tool-card__head">
             <div class="home-tool-card__icon-wrap" aria-hidden="true">
-              <i class="fa fa-users"></i>
+              <i class="fa fa-th"></i>
             </div>
             <span class="home-tool-card__label">tools</span>
           </div>
-          <h3 class="home-tool-card__title">Jupyter hub</h3>
-          <p class="home-tool-card__body">Jupyter-hub allows Eurac Research users to organize and run python notebook on the cloud.</p>
-          <div class="home-tool-card__foot">
-            <span class="home-tool-card__note">ScientificNet connection required</span>
+          <h3 class="home-tool-card__title">
+            <a href="https://maps.eurac.edu/" target="_blank" rel="noopener noreferrer">Maps</a>
+          </h3>
+          <p class="home-tool-card__body">MAPS is a portal for managing and sharing spatial datasets, such as vector and raster files. It provides metadata, authorisation management and map creation via a simple user interface.</p>
+          <div class="home-tool-card__foot home-tool-card__doi-row">
+            <img class="home-tool-card__doi-img" src="{% static 'doi_logo_icon.png' %}" alt="">
+            <a class="home-tool-card__doi-link" href="https://doi.org/10.25504/FAIRsharing.8ee7f1" target="_blank" rel="noopener noreferrer">10.25504/FAIRsharing.8ee7f1</a>
           </div>
+        </div>
+
+        <a class="home-tool-card" href="https://stac.eurac.edu/browser/#/?.language=en" target="_blank" rel="noopener noreferrer">
+          <div class="home-tool-card__head">
+            <div class="home-tool-card__icon-wrap" aria-hidden="true">
+              <i class="fa fa-folder-open"></i>
+            </div>
+            <span class="home-tool-card__label">tools</span>
+          </div>
+          <h3 class="home-tool-card__title">STAC-browser</h3>
+          <p class="home-tool-card__body">Web catalogue of the gridded timeseries collections described using STAC metadata format. API is available at stac.eurac.edu URL.</p>
         </a>
 
         <div class="home-tool-card">
@@ -75,31 +89,18 @@
           </div>
         </div>
 
-        <div class="home-tool-card">
+        <a class="home-tool-card" href="http://10.8.244.36:8000/" target="_blank" rel="noopener noreferrer">
           <div class="home-tool-card__head">
             <div class="home-tool-card__icon-wrap" aria-hidden="true">
-              <i class="fa fa-th"></i>
+              <i class="fa fa-users"></i>
             </div>
             <span class="home-tool-card__label">tools</span>
           </div>
-          <h3 class="home-tool-card__title">
-            <a href="https://maps.eurac.edu/" target="_blank" rel="noopener noreferrer">Maps</a>
-          </h3>
-          <p class="home-tool-card__body">MAPS is a portal for managing and sharing spatial datasets, such as vector and raster files. It provides metadata, authorisation management and map creation via a simple user interface.</p>
-          <div class="home-tool-card__foot home-tool-card__doi-row">
-            <img class="home-tool-card__doi-img" src="{% static 'doi_logo_icon.png' %}" alt="">
-            <a class="home-tool-card__doi-link" href="https://doi.org/10.25504/FAIRsharing.8ee7f1" target="_blank" rel="noopener noreferrer">10.25504/FAIRsharing.8ee7f1</a>
+          <h3 class="home-tool-card__title">Jupyter hub</h3>
+          <p class="home-tool-card__body">Jupyter-hub allows Eurac Research users to organize and run python notebook on the cloud.</p>
+          <div class="home-tool-card__foot">
+            <span class="home-tool-card__note">ScientificNet connection required</span>
           </div>
-        </div>
-        <a class="home-tool-card" href="https://stac.eurac.edu/browser/#/?.language=en" target="_blank" rel="noopener noreferrer">
-          <div class="home-tool-card__head">
-            <div class="home-tool-card__icon-wrap" aria-hidden="true">
-              <i class="fa fa-folder-open"></i>
-            </div>
-            <span class="home-tool-card__label">tools</span>
-          </div>
-          <h3 class="home-tool-card__title">STAC-browser</h3>
-          <p class="home-tool-card__body">Web catalogue of the gridded timeseries collections described using STAC metadata format. API is available at stac.eurac.edu URL.</p>
         </a>
       </div>
     </div>
