@@ -443,10 +443,12 @@
   max-width: 56.25rem;
   display: flex;
   flex-direction: column;
+  align-self: stretch;
   min-height: 0;
 }
 
 .discovery-results__count {
+  flex: 0 0 auto;
   margin: 0 0 var(--space-4);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-regular);
@@ -458,12 +460,15 @@
   color: var(--color-text-primary);
 }
 
-#metadata_results {
+.edp-page--discovery #metadata_results {
   flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  height: auto !important;
+  max-height: none !important;
   overflow-y: auto;
-  max-height: calc(100vh - 16rem);
+  overflow-x: hidden;
   padding-right: var(--space-2);
-  height: auto;
 }
 
 /* Legacy style.css overrides on discovery page */
@@ -493,12 +498,16 @@
   min-width: min(100%, 20rem);
   position: relative;
   min-height: 28rem;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
 }
 
 #map {
+  flex: 1 1 auto;
   width: 100%;
-  height: 100%;
   min-height: 28rem;
+  height: 100%;
   z-index: 1;
   border-radius: var(--radius-card);
   overflow: hidden;
@@ -757,10 +766,11 @@
     min-height: 32rem;
   }
 
-  #metadata_results {
+  .edp-page--discovery #metadata_results {
     flex: 1 1 auto;
     min-height: 0;
-    max-height: calc(100vh - 14rem);
+    height: auto !important;
+    max-height: none !important;
     overflow-y: auto;
   }
 
@@ -776,7 +786,7 @@
   #map {
     min-height: 32rem;
     height: 100%;
-    max-height: calc(100vh - 14rem);
+    max-height: none;
   }
 
   .discovery-result {
