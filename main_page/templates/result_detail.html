@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block extra_head %}
-  <link rel="stylesheet" href="{% static 'css/pages/result_detail.css' %}?v=6">
+  <link rel="stylesheet" href="{% static 'css/pages/result_detail.css' %}?v=7">
   {% if extent_geom %}
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
   {% endif %}
@@ -80,17 +80,11 @@
     <div class="topic-detail">
       <div class="topic-detail__main">
         <section class="topic-section fair-summary" aria-labelledby="topic-fair">
-          <div class="topic-block__head">
-            <span class="topic-block__icon fair-summary__icon" aria-hidden="true">
-              <svg class="fair-summary__icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.30"/>
-                <path d="M8 12.5 10.5 15 16.5 9" stroke="currentColor" stroke-width="1.30" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </span>
-            <h2 class="topic-block__title fair-summary__title" id="topic-fair">FAIR assessment</h2>
-          </div>
+          <h2 class="topic-block__title fair-summary__title" id="topic-fair">FAIR Overall Score</h2>
           {% if fair_score %}
-          <p class="fair-summary__overall"><strong>{{ fair_score.score_overall|floatformat:0 }}%</strong> overall</p>
+          <p class="fair-summary__overall">
+            <a href="#topic-fair-detail" class="fair-summary__score-link">{{ fair_score.score_overall|floatformat:0 }}%</a>
+          </p>
           {% endif %}
         </section>
 
@@ -351,9 +345,9 @@
     </div>
 
     {% if fair_score %}
-    <section class="topic-section fair-detail" aria-labelledby="topic-fair-detail">
+    <section class="topic-section fair-detail" id="topic-fair-detail" aria-labelledby="topic-fair-detail-score">
       <hr class="topic-page__rule">
-      <h2 class="topic-section__title" id="topic-fair-detail">FAIR scores</h2>
+      <p class="fair-summary__overall fair-summary__overall--detail" id="topic-fair-detail-score">{{ fair_score.score_overall|floatformat:0 }}%</p>
       <div class="topic-table-wrap">
         <table class="fair-summary__table">
           <thead>

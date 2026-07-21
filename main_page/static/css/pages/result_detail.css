@@ -297,17 +297,22 @@
   color: #c31610;
   font-family: var(--font-family-sans);
   font-size: 1.5rem;
+  font-weight: var(--font-weight-bold);
   line-height: 1.3;
+}
+
+.fair-summary__score-link {
+  color: inherit;
+  font-weight: inherit;
+  text-decoration: none;
+}
+
+.fair-summary__score-link:hover {
+  text-decoration: underline;
 }
 
 .fair-summary {
   margin-bottom: var(--space-6);
-}
-
-.fair-summary__icon-svg {
-  display: block;
-  width: 1.30rem;
-  height: 1.30rem;
 }
 
 .fair-summary__citation {
