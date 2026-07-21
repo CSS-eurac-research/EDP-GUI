@@ -79,9 +79,15 @@
 
     <div class="topic-detail">
       <div class="topic-detail__main">
-        {% if fair_score %}
         <section class="topic-section fair-summary" aria-labelledby="topic-fair">
           <h2 class="topic-section__title" id="topic-fair">FAIR assessment</h2>
+          <p class="fair-summary__citation">
+            Cite as:
+            <a href="https://doi.org/10.5281/zenodo.6361400" target="_blank" rel="noopener noreferrer">
+              Anusuriya Devaraju, &amp; Robert Huber. (2020). F-UJI - An Automated FAIR Data Assessment Tool. Zenodo. https://doi.org/10.5281/zenodo.6361400
+            </a>
+          </p>
+          {% if fair_score %}
           <p class="fair-summary__overall"><strong>{{ fair_score.score_overall|floatformat:0 }}%</strong> overall</p>
           <div class="topic-table-wrap">
             <table class="fair-summary__table">
@@ -108,8 +114,8 @@
           {% if fair_score.assessed_at %}
           <p class="fair-summary__meta">Assessed {{ fair_score.assessed_at|date:"Y-m-d" }}{% if fair_score.metric_version %} (metrics {{ fair_score.metric_version }}){% endif %}</p>
           {% endif %}
+          {% endif %}
         </section>
-        {% endif %}
 
         {% if result_json.abstract %}
         <section class="topic-block" aria-labelledby="topic-abstract">
