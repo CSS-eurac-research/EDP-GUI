@@ -302,9 +302,14 @@
 
 .fair-summary__citation {
   margin: 0;
-  color: var(--color-text-primary);
+  color: var(--color-text-muted, #666);
   font-family: var(--font-family-sans);
-  line-height: 1.6;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.fair-summary__citation--after-score {
+  margin-top: 6px;
 }
 
 .fair-summary__citation a {
