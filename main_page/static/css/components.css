@@ -196,6 +196,46 @@
   }
 }
 
+@media (max-width: 768px) {
+  .edp-site-header--framed {
+    min-height: auto;
+    padding: 12px clamp(1rem, 3.1vw, 50px);
+  }
+
+  .edp-site-header.edp-site-header--framed .edp-site-header__inner--framed {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 8px 0;
+  }
+
+  .edp-site-header--framed .edp-site-header__brand {
+    font-size: 1.125rem;
+    line-height: 1.25;
+  }
+
+  .edp-site-header--framed .edp-site-header__nav-wrap {
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  .edp-site-header--framed .edp-site-header__nav--framed {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .edp-site-header--framed .edp-btn-pill--primary {
+    padding: 6px 12px 6px 10px;
+    font-size: 0.5625rem;
+  }
+
+  .edp-site-header .edp-btn-pill .edp-btn-pill__fa {
+    font-size: 0.75rem;
+  }
+}
+
 /* ----- Page chrome ----- */
 .edp-page-wrap {
   display: flex;
