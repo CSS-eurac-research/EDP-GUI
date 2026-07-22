@@ -11,6 +11,8 @@ variables:
 fair_scores:
   stage: fair-assessment
   image: python:3.10-slim
+  tags:
+    - feed_edp_portal_db_cache
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
   before_script:
