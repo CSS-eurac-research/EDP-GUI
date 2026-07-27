@@ -3,7 +3,6 @@ stages:
 
 variables:
   PYTHONUNBUFFERED: "1"
-  UV_CACHE_DIR: "$CI_PROJECT_DIR/.uv-cache"
   FUJI_API_URL: "http://10.8.244.43:1071/fuji/api/v1"
   EDP_DISCOVERY_URL: "https://edp-portal.eurac.edu/discovery/"
   FUJI_ONLY_MISSING: "false"
@@ -24,42 +23,28 @@ fair_scores:
       cat /etc/os-release
       uname -a
 
-      echo "=== Install/check uv ==="
-      if ! command -v uv >/dev/null 2>&1; then
-        curl -LsSf https://astral.sh/uv/install.sh | sh
-      fi
-      export PATH="$HOME/.local/bin:$PATH"
-
-      uv --version
-
-      echo "=== Install Python 3.10 ==="
-      uv python install 3.10
-
-      echo "=== Runtime ==="
-      uv run --python 3.10 python --version
+      echo "=== Python runtime ==="
+      command -v python3
+      python3 --version
 
       echo "=== Install dependencies ==="
-      uv run --python 3.10 python -m pip install --quiet requests psycopg2-binary
+      python3 -m pip install --user --quiet --upgrade pip
+      python3 -m pip install --user --quiet requests psycopg2-binary
   script:
     - |
       set -o pipefail
-      export PATH="$HOME/.local/bin:$PATH"
 
       echo "=== Syntax check ==="
-      uv run --python 3.10 python -m py_compile scripts/run_fuji_fair_scores.py
+      python3 -m py_compile scripts/run_fuji_fair_scores.py
 
       echo "=== Run FAIR assessment ==="
-      uv run --python 3.10 python scripts/run_fuji_fair_scores.py 2>&1 | tee fuji-fair-scores.log
+      python3 scripts/run_fuji_fair_scores.py 2>&1 | tee fuji-fair-scores.log
   after_script:
     - |
       echo "=== Last log lines ==="
       if [ -f fuji-fair-scores.log ]; then
         tail -n 100 fuji-fair-scores.log
       fi
-  cache:
-    key: uv-cache
-    paths:
-      - .uv-cache/
   artifacts:
     when: always
     paths:
