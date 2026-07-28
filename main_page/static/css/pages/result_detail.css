@@ -296,7 +296,7 @@
 
 .fair-summary__overall {
   margin: 0;
-  color: #c31610;
+  color: var(--color-brand-red);
   font-family: var(--font-family-sans);
   font-size: 1.5rem;
   font-weight: var(--font-weight-bold);
