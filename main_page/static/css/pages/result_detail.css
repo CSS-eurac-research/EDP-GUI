@@ -140,9 +140,10 @@
   flex: 1 1 0;
   min-width: 0;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 342px));
   gap: var(--space-4);
   align-items: start;
+  justify-content: start;
 }
 
 .topic-block {
@@ -161,6 +162,7 @@
 
 .topic-block--side {
   min-width: 0;
+  max-width: 342px;
 }
 
 .topic-block__head {
@@ -246,6 +248,7 @@
 
 .topic-media {
   min-width: 0;
+  max-width: 342px;
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
