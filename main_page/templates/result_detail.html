@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block extra_head %}
-  <link rel="stylesheet" href="{% static 'css/pages/result_detail.css' %}?v=11">
+  <link rel="stylesheet" href="{% static 'css/pages/result_detail.css' %}?v=12">
   {% if extent_geom %}
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
   {% endif %}
@@ -89,7 +89,7 @@
         </section>
         {% endif %}
 
-        <section class="topic-section fair-summary" aria-labelledby="topic-fair">
+        <section class="topic-block fair-summary" aria-labelledby="topic-fair">
           <div class="topic-block__head">
             <span class="fair-summary__title-icon" aria-hidden="true"></span>
             <h2 class="topic-block__title fair-summary__title" id="topic-fair">FAIR Overall Score</h2>

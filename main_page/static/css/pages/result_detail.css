@@ -143,7 +143,7 @@
   flex-flow: row wrap;
   align-items: flex-start;
   align-content: flex-start;
-  gap: 48px;
+  gap: var(--space-4);
 }
 
 .topic-block {
@@ -252,6 +252,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+  padding: 0 0 var(--space-4);
+  border-bottom: 1px solid var(--color-surface-section);
 }
 
 .topic-media__img {
@@ -319,12 +321,6 @@
 
 .fair-summary__score-link:hover {
   text-decoration: underline;
-}
-
-.fair-summary {
-  padding: 0 0 var(--space-4);
-  border-bottom: 1px solid var(--color-surface-section);
-  margin-bottom: var(--space-6);
 }
 
 .fair-summary__title-icon {
