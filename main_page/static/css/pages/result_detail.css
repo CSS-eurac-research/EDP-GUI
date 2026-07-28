@@ -302,8 +302,8 @@
 }
 
 .fair-summary .fair-summary__overall {
-  margin-top: 2px;
-  margin-left: calc(15px + var(--space-1));
+  margin-top: 0px;
+  margin-left: calc(10px + var(--space-1));
 }
 
 .fair-summary__overall--detail {
@@ -331,16 +331,8 @@
   width: 26px;
   height: 26px;
   flex: none;
-  display: inline-block;
-  background-color: var(--color-brand-red);
-  -webkit-mask-image: url("../../img/fair-gauge-icon.png");
-  -webkit-mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  -webkit-mask-size: 108% 108%;
-  mask-image: url("../../img/fair-gauge-icon.png");
-  mask-repeat: no-repeat;
-  mask-position: center;
-  mask-size: 150% 150%;
+  display: block;
+  color: var(--color-brand-red);
 }
 
 .fair-summary__citation {
