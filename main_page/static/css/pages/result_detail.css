@@ -302,8 +302,8 @@
 }
 
 .fair-summary .fair-summary__overall {
-  margin-top: var(--space-1);
-  margin-left: calc(26px + var(--space-2));
+  margin-top: 4px;
+  margin-left: calc(24px + var(--space-1));
 }
 
 .fair-summary__overall--detail {
@@ -340,7 +340,7 @@
   mask-image: url("../../img/fair-gauge-icon.png");
   mask-repeat: no-repeat;
   mask-position: center;
-  mask-size: 108% 108%;
+  mask-size: 120% 120%;
 }
 
 .fair-summary__citation {
