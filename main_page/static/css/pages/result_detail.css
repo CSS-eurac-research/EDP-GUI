@@ -316,12 +316,24 @@
   margin-bottom: var(--space-6);
 }
 
+.fair-summary__title-icon {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  display: block;
+  color: var(--color-brand-red);
+}
+
 .fair-summary__citation {
   margin: var(--space-4) 0 0;
   color: var(--color-text-muted, #666);
   font-family: var(--font-family-sans);
   font-size: 0.85rem;
   line-height: 1.4;
+}
+
+.fair-summary__citation--tight {
+  margin-top: var(--space-2);
 }
 
 .fair-summary__citation a {
