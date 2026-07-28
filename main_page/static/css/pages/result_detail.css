@@ -343,12 +343,12 @@
   margin: var(--space-4) 0 0;
   color: var(--color-text-muted, #666);
   font-family: var(--font-family-sans);
-  font-size: 0.85rem;
+  font-size: 12px;
   line-height: 1.4;
 }
 
 .fair-summary__citation--tight {
-  margin-top: var(--space-2);
+  margin-top: -14px;
 }
 
 .fair-summary__citation a {
