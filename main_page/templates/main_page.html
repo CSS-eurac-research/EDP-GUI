@@ -6,7 +6,7 @@
 {% block body_class %}edp-page--home{% endblock %}
 
 {% block extra_head %}
-  <link rel="stylesheet" href="{% static 'css/pages/home.css' %}?v=4">
+  <link rel="stylesheet" href="{% static 'css/pages/home.css' %}?v=5">
 {% endblock %}
 
 {% block page_content %}
@@ -61,20 +61,22 @@
           </div>
         </div>
 
-        <a class="home-tool-card" href="https://stac.eurac.edu/browser/#/?.language=en" target="_blank" rel="noopener noreferrer">
+        <div class="home-tool-card">
           <div class="home-tool-card__head">
             <div class="home-tool-card__icon-wrap" aria-hidden="true">
               <i class="fa fa-folder-open"></i>
             </div>
             <span class="home-tool-card__label">tools</span>
           </div>
-          <h3 class="home-tool-card__title">STAC-browser</h3>
+          <h3 class="home-tool-card__title">
+            <a href="https://stac.eurac.edu/browser/#/?.language=en" target="_blank" rel="noopener noreferrer">STAC-browser</a>
+          </h3>
           <p class="home-tool-card__body">Web catalogue of the gridded timeseries collections described using STAC metadata format. API is available at stac.eurac.edu URL.</p>
           <div class="home-tool-card__foot home-tool-card__doi-row">
             <img class="home-tool-card__doi-img" src="{% static 'doi_logo_icon.png' %}" alt="">
-            <a class="home-tool-card__doi-link" href="https://fairsharing.org/10.25504/FAIRsharing.e4268b/" target="_blank" rel="noopener noreferrer">10.25504/FAIRsharing.8ee7f1</a>
+            <a class="home-tool-card__doi-link" href="https://fairsharing.org/10.25504/FAIRsharing.e4268b/" target="_blank" rel="noopener noreferrer">10.25504/FAIRsharing.e4268b</a>
           </div>
-        </a>
+        </div>
 
         <div class="home-tool-card">
           <div class="home-tool-card__head">
