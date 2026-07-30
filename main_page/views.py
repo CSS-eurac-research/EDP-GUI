@@ -455,48 +455,95 @@ def CheckDOIURL(url):
         return False
 
 
-FAIR_MATURITY = {
-    0: ("incomplete", "incomplete"),
-    1: ("initial", "initial"),
-    2: ("moderate", "moderate"),
-    3: ("advanced", "advanced"),
-}
+FAIR_PRINCIPLES = (
+    ("F", "f", "Findable"),
+    ("A", "a", "Accessible"),
+    ("I", "i", "Interoperable"),
+    ("R", "r", "Reusable"),
+)
 
 
-def _format_fair_earned_total(earned, total):
-    if earned is None or total is None:
+def _format_fair_number(value):
+    if value is None:
         return "—"
-
-    def fmt(value):
-        f = float(value)
-        if f == int(f):
-            return str(int(f))
-        return str(f).rstrip("0").rstrip(".")
-
-    return f"{fmt(earned)} of {fmt(total)}"
+    f = float(value)
+    if f == int(f):
+        return str(int(f))
+    return str(f).rstrip("0").rstrip(".")
 
 
-def _fair_rows(fair_score):
-    rows = []
-    for key, label in (
-        ("f", "Findable"),
-        ("a", "Accessible"),
-        ("i", "Interoperable"),
-        ("r", "Reusable"),
-    ):
-        maturity = getattr(fair_score, f"maturity_{key}") or 0
-        level_key, level_label = FAIR_MATURITY.get(maturity, FAIR_MATURITY[0])
-        rows.append({
+def _fair_maturity_level(value):
+    level = float(value or 0)
+    if level >= 3:
+        return "advanced", "Advanced"
+    if level >= 2:
+        return "moderate", "Moderate"
+    return "low", "Low"
+
+
+def _fair_metric_principle(metric_identifier):
+    if not metric_identifier:
+        return None
+    match = re.match(r"^FsF-([FAIR])", metric_identifier)
+    return match.group(1) if match else None
+
+
+def _fair_subtests(metric_tests):
+    subtests = []
+    if not isinstance(metric_tests, dict):
+        return subtests
+    for _test_id, test in metric_tests.items():
+        if not isinstance(test, dict):
+            continue
+        score = test.get("metric_test_score") or {}
+        total = score.get("total")
+        if total is None or float(total) <= 0:
+            continue
+        subtests.append({
+            "name": test.get("metric_test_name") or "",
+            "passed": test.get("metric_test_status") == "pass",
+            "earned_display": _format_fair_number(score.get("earned")),
+            "total_display": _format_fair_number(total),
+        })
+    return subtests
+
+
+def _fair_principles(fair_score):
+    """Build letter-chart + expandable test data from FairScore / full_result."""
+    groups = {key: [] for key, _field, _label in FAIR_PRINCIPLES}
+    full_result = fair_score.full_result if fair_score else None
+    if isinstance(full_result, dict):
+        for item in full_result.get("results") or []:
+            if not isinstance(item, dict):
+                continue
+            principle = _fair_metric_principle(item.get("metric_identifier"))
+            if principle not in groups:
+                continue
+            score = item.get("score") or {}
+            groups[principle].append({
+                "id": item.get("metric_identifier") or "",
+                "name": item.get("metric_name") or "",
+                "passed": item.get("test_status") == "pass",
+                "earned_display": _format_fair_number(score.get("earned")),
+                "total_display": _format_fair_number(score.get("total")),
+                "subtests": _fair_subtests(item.get("metric_tests")),
+            })
+
+    principles = []
+    for key, field, label in FAIR_PRINCIPLES:
+        maturity = getattr(fair_score, f"maturity_{field}") or 0
+        level_key, level_label = _fair_maturity_level(maturity)
+        percent = getattr(fair_score, f"score_{field}")
+        principles.append({
+            "key": key,
             "name": label,
-            "percent": getattr(fair_score, f"score_{key}"),
-            "earned_display": _format_fair_earned_total(
-                getattr(fair_score, f"earned_{key}"),
-                getattr(fair_score, f"total_{key}"),
-            ),
+            "percent": percent,
+            "percent_display": int(round(float(percent or 0))),
             "level_key": level_key,
             "level_label": level_label,
+            "metrics": groups[key],
         })
-    return rows
+    return principles
 
 
 def result_detail(request, uuid):
@@ -557,7 +604,7 @@ def result_detail(request, uuid):
             "snippet_code_list" : snippet_code_list,
             "docs_list" : docs_list,
             "fair_score": fair_score,
-            "fair_rows": _fair_rows(fair_score) if fair_score else [],
+            "fair_principles": _fair_principles(fair_score) if fair_score else [],
             "url_repository": url_repository
             #'title': result_json["metadata"]["title"],
         }

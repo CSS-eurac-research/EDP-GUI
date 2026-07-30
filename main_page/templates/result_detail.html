@@ -6,7 +6,8 @@
 {% endblock %}
 
 {% block extra_head %}
-  <link rel="stylesheet" href="{% static 'css/pages/result_detail.css' %}?v=14">
+  <link rel="stylesheet" href="{% static 'css/pages/result_detail.css' %}?v=15">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
   {% if extent_geom %}
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
   {% endif %}
@@ -355,28 +356,61 @@
         Evaluated by F-UJI - An Automated FAIR Data Assessment Tool:
         <a href="https://doi.org/10.5281/zenodo.6361400" target="_blank" rel="noopener noreferrer">https://doi.org/10.5281/zenodo.6361400</a>
       </p>
-      <div class="topic-table-wrap">
-        <table class="fair-summary__table">
-          <thead>
-            <tr>
-              <th scope="col">Principle</th>
-              <th scope="col">Score</th>
-              <th scope="col">Earned</th>
-              <th scope="col">Level</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for row in fair_rows %}
-            <tr>
-              <th scope="row">{{ row.name }}</th>
-              <td>{{ row.percent|floatformat:0 }}%</td>
-              <td>{{ row.earned_display }}</td>
-              <td><span class="fair-badge fair-badge--{{ row.level_key }}">{{ row.level_label }}</span></td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+
+      {% if fair_principles %}
+      <div class="fair-letter-chart" aria-label="FAIR principle scores">
+        {% for principle in fair_principles %}
+        <div class="fair-letter-item">
+          <div class="fair-letter-wrap" style="--pct: {{ principle.percent_display }}%">
+            <span class="fair-letter fair-letter--bg" aria-hidden="true">{{ principle.key }}</span>
+            <span class="fair-letter fair-letter--fill" aria-hidden="true">{{ principle.key }}</span>
+          </div>
+          <span class="fair-letter-label">{{ principle.name }}</span>
+          <span class="fair-letter-pct">{{ principle.percent_display }}%</span>
+        </div>
+        {% endfor %}
       </div>
+
+      <div class="fair-breakdown">
+        {% for principle in fair_principles %}
+        <details class="fair-principle">
+          <summary>
+            <span>{{ principle.name }}</span>
+            <span class="fair-principle__score">
+              <span>{{ principle.percent_display }}%</span>
+              <span class="fair-level fair-level--{{ principle.level_key }}">{{ principle.level_label }}</span>
+            </span>
+          </summary>
+          {% if principle.metrics %}
+          <div class="fair-tests">
+            {% for metric in principle.metrics %}
+            <div class="fair-metric">
+              <div class="fair-metric__head">
+                <span class="fair-status {% if metric.passed %}fair-status--pass{% else %}fair-status--fail{% endif %}" aria-hidden="true">{% if metric.passed %}✓{% else %}✗{% endif %}</span>
+                <div>
+                  <div class="fair-metric__name">{{ metric.name }}</div>
+                  <div class="fair-metric__id">{{ metric.id }} · {{ metric.earned_display }}/{{ metric.total_display }}</div>
+                  {% if metric.subtests %}
+                  <ul class="fair-subtests">
+                    {% for subtest in metric.subtests %}
+                    <li>
+                      <span class="fair-status {% if subtest.passed %}fair-status--pass{% else %}fair-status--fail{% endif %}" aria-hidden="true">{% if subtest.passed %}✓{% else %}✗{% endif %}</span>
+                      <span>{{ subtest.name }} <em>({{ subtest.earned_display }}/{{ subtest.total_display }})</em></span>
+                    </li>
+                    {% endfor %}
+                  </ul>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </details>
+        {% endfor %}
+      </div>
+      {% endif %}
+
       {% if fair_score.assessed_at %}
       <p class="fair-summary__meta">Assessed {{ fair_score.assessed_at|date:"Y-m-d" }}{% if fair_score.metric_version %} (metrics {{ fair_score.metric_version }}){% endif %}</p>
       {% endif %}

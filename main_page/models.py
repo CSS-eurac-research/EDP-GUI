@@ -86,6 +86,7 @@ class FairScore(models.Model):
     fuji_test_id = models.CharField(max_length=100, null=True)
     assessed_at = models.DateTimeField(null=True)
     updated_at = models.DateTimeField(null=True)
+    full_result = models.JSONField(null=True)
 
     class Meta:
         managed = False
