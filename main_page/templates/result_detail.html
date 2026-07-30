@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block extra_head %}
-  <link rel="stylesheet" href="{% static 'css/pages/result_detail.css' %}?v=17">
+  <link rel="stylesheet" href="{% static 'css/pages/result_detail.css' %}?v=18">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
   {% if extent_geom %}
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
@@ -377,7 +377,6 @@
           <summary>
             <span>{{ principle.name }}</span>
             <span class="fair-principle__score">
-              <span>{{ principle.percent_display }}%</span>
               <span class="fair-level fair-level--{{ principle.level_key }}">{{ principle.level_label }}</span>
             </span>
           </summary>
