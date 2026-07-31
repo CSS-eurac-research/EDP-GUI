@@ -57,6 +57,20 @@ MAPS_DOWNLOAD_RE = re.compile(
     r"https?://maps\.eurac\.edu/download/(\d+)",
     re.IGNORECASE,
 )
+STAC_BROWSER_COLLECTION_RE = re.compile(
+    r"stac\.eurac\.edu/browser/#/collections/([^/?#]+)",
+    re.IGNORECASE,
+)
+STAC_API_COLLECTION_RE = re.compile(
+    r"stac\.eurac\.edu(?::\d+)?/collections/([^/?#]+)",
+    re.IGNORECASE,
+)
+STAC_GENERIC_COLLECTION_IDS = {
+    "stac-collection",
+    "stac collection",
+    "collection",
+    "stac",
+}
 
 
 def _maps_catalogue_dataset_url(url):
@@ -74,6 +88,44 @@ def _maps_catalogue_dataset_url(url):
     if match:
         return "https://maps.eurac.edu/catalogue/#/dataset/" + match.group(1)
     return None
+
+
+def _stac_collection_id_from_url(url):
+    """Extract a STAC collection id from API or browser URLs."""
+    if not url or not isinstance(url, str):
+        return None
+    match = STAC_BROWSER_COLLECTION_RE.search(url)
+    if match:
+        return match.group(1)
+    match = STAC_API_COLLECTION_RE.search(url)
+    if match:
+        return match.group(1)
+    return None
+
+
+def _is_usable_stac_collection_id(collection_id):
+    if not collection_id or not isinstance(collection_id, str):
+        return False
+    value = collection_id.strip()
+    if not value:
+        return False
+    return value.lower() not in STAC_GENERIC_COLLECTION_IDS
+
+
+def _stac_browser_url(collection_id):
+    if not _is_usable_stac_collection_id(collection_id):
+        return None
+    return "https://stac.eurac.edu/browser/#/collections/" + collection_id.strip()
+
+
+def _stac_repository_from_metadata_records(metadata_records, name_collection=None):
+    """Build STAC browser URL from link URLs, then usable name_collection."""
+    for url in _iter_metadata_link_urls(metadata_records):
+        collection_id = _stac_collection_id_from_url(url)
+        browser_url = _stac_browser_url(collection_id)
+        if browser_url:
+            return browser_url
+    return _stac_browser_url(name_collection)
 
 
 def _iter_metadata_link_urls(metadata_records):
@@ -909,10 +961,19 @@ def get_metadata_details(request, uuid):
             collection_id = metadata_detail.get('name_collection')
             if not collection_id and gn_cat:
                 collection_id = gn_cat[0].name_collection
-            if collection_id:
-                metadata_detail['url_repository'] = (
-                    "https://stac.eurac.edu/browser/#/collections/" + collection_id
+
+            # Prefer a real collection id from STAC links; ignore generic
+            # GeoNetwork labels like "STAC-collection".
+            existing_id = _stac_collection_id_from_url(
+                metadata_detail.get('url_repository')
+            )
+            stac_repo = _stac_browser_url(existing_id)
+            if not stac_repo:
+                stac_repo = _stac_repository_from_metadata_records(
+                    metadataRecords, collection_id
                 )
+            if stac_repo:
+                metadata_detail['url_repository'] = stac_repo
 
         return metadata_detail
      
