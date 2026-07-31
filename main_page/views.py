@@ -540,6 +540,71 @@ def _fair_metric_principle(metric_identifier):
     return match.group(1) if match else None
 
 
+def _fair_debug_messages(test_debug):
+    """Extract WARNING/ERROR lines from F-UJI test_debug output."""
+    messages = []
+    if not isinstance(test_debug, list):
+        return messages
+    for line in test_debug:
+        if not isinstance(line, str):
+            continue
+        upper = line.upper()
+        if not (upper.startswith("WARNING:") or upper.startswith("ERROR:")):
+            continue
+        text = line.split(":", 1)[1].strip() if ":" in line else line.strip()
+        if text:
+            messages.append(text)
+    return messages
+
+
+_FAIR_MSG_KEYWORDS = (
+    "registered",
+    "register",
+    "resolv",
+    "syntax",
+    "license",
+    "spdx",
+    "provenance",
+    "vocabulary",
+    "inaccessible",
+    "content type",
+    "related resource",
+    "persistent identifier",
+    "pid",
+)
+
+
+def _attach_fair_messages_to_subtests(subtests, messages):
+    """Attach debug messages under failed subtests (keyword match, then order)."""
+    for subtest in subtests:
+        subtest["messages"] = []
+
+    if not messages:
+        return [], subtests
+
+    failed = [subtest for subtest in subtests if not subtest["passed"]]
+    if not failed:
+        return list(messages), subtests
+
+    remaining = list(messages)
+    for subtest in failed:
+        name_l = subtest["name"].lower()
+        kept = []
+        for msg in remaining:
+            msg_l = msg.lower()
+            if any(kw in name_l and kw in msg_l for kw in _FAIR_MSG_KEYWORDS):
+                subtest["messages"].append(msg)
+            else:
+                kept.append(msg)
+        remaining = kept
+
+    targets = [subtest for subtest in failed if not subtest["messages"]] or failed
+    for index, msg in enumerate(remaining):
+        targets[index % len(targets)]["messages"].append(msg)
+
+    return [], subtests
+
+
 def _fair_subtests(metric_tests):
     subtests = []
     if not isinstance(metric_tests, dict):
@@ -556,6 +621,7 @@ def _fair_subtests(metric_tests):
             "passed": test.get("metric_test_status") == "pass",
             "earned_display": _format_fair_number(score.get("earned")),
             "total_display": _format_fair_number(total),
+            "messages": [],
         })
     return subtests
 
@@ -572,13 +638,22 @@ def _fair_principles(fair_score):
             if principle not in groups:
                 continue
             score = item.get("score") or {}
+            passed = item.get("test_status") == "pass"
+            subtests = _fair_subtests(item.get("metric_tests"))
+            metric_messages = []
+            if not passed:
+                debug_messages = _fair_debug_messages(item.get("test_debug"))
+                metric_messages, subtests = _attach_fair_messages_to_subtests(
+                    subtests, debug_messages
+                )
             groups[principle].append({
                 "id": item.get("metric_identifier") or "",
                 "name": item.get("metric_name") or "",
-                "passed": item.get("test_status") == "pass",
+                "passed": passed,
                 "earned_display": _format_fair_number(score.get("earned")),
                 "total_display": _format_fair_number(score.get("total")),
-                "subtests": _fair_subtests(item.get("metric_tests")),
+                "messages": metric_messages,
+                "subtests": subtests,
             })
 
     principles = []

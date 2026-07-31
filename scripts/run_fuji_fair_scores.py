@@ -97,7 +97,7 @@ def evaluate(uuid: str):
     """Call F-UJI and return (parsed_scores, full_response)."""
     body = {
         "object_identifier": discovery_url(uuid),
-        "test_debug": False,
+        "test_debug": True,
         "use_datacite": True,
         "use_github": False,
         "metric_version": "metrics_v0.8",

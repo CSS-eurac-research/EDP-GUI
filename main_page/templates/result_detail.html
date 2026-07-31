@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block extra_head %}
-  <link rel="stylesheet" href="{% static 'css/pages/result_detail.css' %}?v=18">
+  <link rel="stylesheet" href="{% static 'css/pages/result_detail.css' %}?v=19">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
   {% if extent_geom %}
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
@@ -391,12 +391,28 @@
                 <div>
                   <div class="fair-metric__name">{{ metric.name }}</div>
                   <div class="fair-metric__id">{{ metric.id }} · {{ metric.earned_display }}/{{ metric.total_display }}</div>
+                  {% if metric.messages %}
+                  <ul class="fair-messages">
+                    {% for msg in metric.messages %}
+                    <li><span class="fair-messages__icon" aria-hidden="true">⚠</span><span>{{ msg }}</span></li>
+                    {% endfor %}
+                  </ul>
+                  {% endif %}
                   {% if metric.subtests %}
                   <ul class="fair-subtests">
                     {% for subtest in metric.subtests %}
                     <li>
                       <span class="fair-status {% if subtest.passed %}fair-status--pass{% else %}fair-status--fail{% endif %}" aria-hidden="true">{% if subtest.passed %}✓{% else %}✗{% endif %}</span>
-                      <span>{{ subtest.name }} <em>({{ subtest.earned_display }}/{{ subtest.total_display }})</em></span>
+                      <div class="fair-subtest__body">
+                        <span>{{ subtest.name }} <em>({{ subtest.earned_display }}/{{ subtest.total_display }})</em></span>
+                        {% if subtest.messages %}
+                        <ul class="fair-messages">
+                          {% for msg in subtest.messages %}
+                          <li><span class="fair-messages__icon" aria-hidden="true">⚠</span><span>{{ msg }}</span></li>
+                          {% endfor %}
+                        </ul>
+                        {% endif %}
+                      </div>
                     </li>
                     {% endfor %}
                   </ul>

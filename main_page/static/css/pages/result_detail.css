@@ -582,10 +582,38 @@
   color: var(--color-text-muted);
 }
 
-.fair-subtests li {
+.fair-subtests > li {
   display: flex;
   gap: 0.5rem;
-  margin-bottom: 0.35rem;
+  align-items: flex-start;
+  margin-bottom: 0.55rem;
+}
+
+.fair-subtest__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.fair-messages {
+  margin: 0.35rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: #b85a1a;
+}
+
+.fair-messages li {
+  display: flex;
+  gap: 0.4rem;
+  align-items: flex-start;
+  margin-bottom: 0.25rem;
+}
+
+.fair-messages__icon {
+  flex: none;
+  font-weight: 700;
+  color: #fe7d37;
 }
 
 .fair-summary__meta {
