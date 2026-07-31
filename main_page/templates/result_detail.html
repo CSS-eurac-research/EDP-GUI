@@ -67,6 +67,8 @@
             Maps repository
             {% elif result_json.category == "OpenEO" or "openeo.eurac.edu" in result_json.url_repository %}
             OpenEO repository
+            {% elif result_json.category == "STAC" or "stac.eurac.edu" in result_json.url_repository %}
+            STAC repository
             {% else %}
             Go to repository
             {% endif %}

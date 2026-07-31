@@ -905,6 +905,15 @@ def get_metadata_details(request, uuid):
                     metadata_detail['url_repository']
                 )
 
+        if metadata_detail.get('category') == 'STAC':
+            collection_id = metadata_detail.get('name_collection')
+            if not collection_id and gn_cat:
+                collection_id = gn_cat[0].name_collection
+            if collection_id:
+                metadata_detail['url_repository'] = (
+                    "https://stac.eurac.edu/browser/#/collections/" + collection_id
+                )
+
         return metadata_detail
      
 
